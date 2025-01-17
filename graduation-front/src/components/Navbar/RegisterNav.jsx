@@ -10,18 +10,18 @@ const NavbarMenu = [
   },
   {
     id: 2,
-    title: "Services",
-    path: "#",
+    title: "Courses",
+    path: "/Courses",
   },
   {
     id: 3,
     title: "About Us",
-    path: "#",
+    path: "/AboutUs",
   },
   {
     id: 4,
     title: "Contact Us",
-    path: "#",
+    path: "ContactUs",
   },
 ];
 

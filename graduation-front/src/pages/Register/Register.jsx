@@ -1,7 +1,44 @@
 import { useState } from "react";
-import Footer from "../Footer/Footer";
-import RegisterNav from "../Navbar/RegisterNav";
+import Footer from "../../components/Footer/Footer";
+import RegisterNav from "../../components/Navbar/RegisterNav";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import Modal from "../../components/Modal/Modal"; // Import the Modal component
+
+// Define motion variants
+export const FadeUp = (delay) => {
+  return {
+    initial: {
+      opacity: 0,
+      y: 50,
+    },
+    animate: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        duration: 0.5,
+        delay: delay,
+        ease: "easeInOut",
+      },
+    },
+  };
+};
 const Register = () => {
+  const navigate = useNavigate(); // Initialize the useNavigate hook
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setShowModal(true); // Show the modal on form submission // Adjust the delay as needed
+  };
+  const [showModal, setShowModal] = useState(false); // State to control modal visibility
+
+  const handleCloseModal = () => {
+    setShowModal(false); // Close the modal manually
+    navigate("/"); // Redirect after the modal shows
+
+  };
     const [fileNames, setFileNames] = useState({
       license: "  No file chosen",
       practice: "  No file chosen",
@@ -23,11 +60,15 @@ const Register = () => {
       <div>
         <RegisterNav/>
         <div className="flex flex-col items-center justify-center h-screen">
-          <div className="w-full max-w-3xl bg-light rounded-xl shadow-md py-12 px-12">
+          <motion.div 
+            initial={{ x: 50, opacity: 0 }} 
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4, ease: "easeInOut" }}
+          className="w-full max-w-3xl bg-light rounded-xl shadow-md py-12 px-12">
             <h2 className="text-[30px] font-bold text-red mb-6 text-center">
               Register
             </h2>
-            <form className="flex flex-col">
+            <form className="flex flex-col" onSubmit={handleSubmit}>
               {/* Other Form Inputs */}
               <div className="flex space-x-4 mb-4">
                 {/* First Name */}
@@ -240,11 +281,18 @@ const Register = () => {
                 </div>
               </div>
                 <br/>
-                <button className="text-l bg-red text-white text-center py-3 px-5 rounded-md cursor-pointer hover:bg-blue transition duration-300 w-full">Submit</button>
+            <button
+              className="text-l bg-red text-white text-center py-3 px-5 rounded-md cursor-pointer hover:bg-blue transition duration-300 w-full"
+              type="submit"
+            >
+              Submit
+            </button>
             </form>
-          </div>
+          </motion.div>
         </div>
         <br/>
+        {showModal && <Modal onClose={handleCloseModal} />}
+
         <Footer/>
 
       </div>
