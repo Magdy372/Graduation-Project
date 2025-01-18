@@ -1,11 +1,11 @@
 import { GrUserExpert } from "react-icons/gr";
 import { MdOutlineAccessTime } from "react-icons/md";
 import { FaBookReader } from "react-icons/fa";
-import { FadeUp } from "../Hero/Hero";
+import { FadeUp } from "../components/Hero";
 import { motion } from "framer-motion";
 
 // Import the image directly (no lazy loading)
-import BannerPng from "../../assets/images/banner.webp";
+import BannerPng from "../assets/images/banner.webp";
 
 const Banner = () => {
   return (

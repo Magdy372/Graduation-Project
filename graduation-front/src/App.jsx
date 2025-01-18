@@ -1,12 +1,12 @@
-import Hero from "./components/Hero/Hero";
-import Services from "./components/Services/Services";
-import Banner from "./components/Banner/Banner";
-import Sponsers from "./components/Sponsers/Sponsers";
-import Footer from "./components/Footer/Footer";
+import Hero from "./components/Hero";
+import Services from "./components/Services";
+import Banner from "./components/Banner";
+import Sponsers from "./components/Sponsers";
+import Footer from "./components/Footer";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Register from "./pages/Register/Register";
-import Courses from "./pages/Courses/Courses";
-import About from "./pages/About/About";
+import Register from "./pages/Register";
+import Courses from "./pages/Courses";
+import About from "./pages/About";
 
 const App = () => {
   return (

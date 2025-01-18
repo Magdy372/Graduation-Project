@@ -1,6 +1,7 @@
 import { IoMdMenu } from "react-icons/io";
-import logo from "../../assets/logos/MOH Logo.png";
+import logo from "../assets/logos/MOH Logo.png";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const NavbarMenu = [
   {
@@ -26,9 +27,14 @@ const NavbarMenu = [
 ];
 
 const Navbar = () => {
- 
+  const navigate = useNavigate();
+
+  const handleRegisterClick = () => {
+    navigate("/register");
+  };
+
   return (
-    <nav className="bg-white relative z-20">
+    <nav className="bg-white relative z-20 shadow-lg">
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -36,7 +42,7 @@ const Navbar = () => {
       >
         {/* Logo section */}
         <div>
-          <img src={logo} alt="Logo" className="w-20 h-20" />
+          <img onClick={() => navigate("/")} src={logo} alt="Logo" className="w-20 h-20 cursor-pointer" />
         </div>
 
         {/* Menu section */}
@@ -53,6 +59,14 @@ const Navbar = () => {
                 </a>
               </li>
             ))}
+            <li>
+              <button
+                onClick={handleRegisterClick}
+                className="py-2 px-4 text-white bg-red hover:bg-blue rounded-md transition-all duration-300"
+              >
+                Register
+              </button>
+            </li>
           </ul>
         </div>
 

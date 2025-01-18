@@ -2,8 +2,8 @@ import { IoIosArrowForward } from 'react-icons/io';
 import { motion } from "framer-motion";
 
 // Import images directly
-import Navbar from '../Navbar/Navbar';
-import OSRA from '../../assets/images/OSRA.jpg';
+import Navbar from './Navbar';
+import OSRA from '../assets/images/OSRA.jpg';
 
 // Define motion variants
 export const FadeUp = (delay) => {

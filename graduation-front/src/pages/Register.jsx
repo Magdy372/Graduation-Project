@@ -1,9 +1,9 @@
 import { useState } from "react";
-import Footer from "../../components/Footer/Footer";
-import RegisterNav from "../../components/Navbar/RegisterNav";
+import Footer from "../components/Footer";
+import RegisterNav from "../components/RegisterNav";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import Modal from "../../components/Modal/Modal"; // Import the Modal component
+import Modal from "../components/Modal"; // Import the Modal component
 
 // Define motion variants
 export const FadeUp = (delay) => {

@@ -1,5 +1,5 @@
-import Footer from "../../components/Footer/Footer";
-import RegisterNav from "../../components/Navbar/RegisterNav";
+import Footer from "../components/Footer";
+import RegisterNav from "../components/RegisterNav";
 import { motion } from "framer-motion";
 
 export const FadeUp = (delay) => {
@@ -32,7 +32,8 @@ const About = () => {
         animate="animate"
         className="about-container">
           <header className="about-header">
-            <h1 className="text-3xl lg:text-5xl font-bold leading-normal">About Us</h1>
+            <br/>
+            <h1 className="text-2xl  font-bold leading-normal">About Us</h1>
           </header>
             <br/>
           <section className="about-section">

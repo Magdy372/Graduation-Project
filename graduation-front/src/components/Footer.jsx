@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
 
 // Import images directly
-import MOHLogo from "../../assets/logos/MOH Logo.png";
-import AC4HLogo from "../../assets/logos/AC4H Logo.png";
-import PathfinderLogo from "../../assets/logos/Pathfinder Logo.png";
-import USAIDLogo from "../../assets/logos/USAID Logo.png";
+import MOHLogo from "../assets/logos/MOH Logo.png";
+import AC4HLogo from "../assets/logos/AC4H Logo.png";
+import PathfinderLogo from "../assets/logos/Pathfinder Logo.png";
+import USAIDLogo from "../assets/logos/USAID Logo.png";
 
 const Footer = () => {
   return (
