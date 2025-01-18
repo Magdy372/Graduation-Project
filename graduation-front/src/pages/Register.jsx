@@ -1,9 +1,9 @@
 import { useState } from "react";
 import Footer from "../components/Footer";
-import RegisterNav from "../components/RegisterNav";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal"; // Import the Modal component
+import Navbar from "../components/Navbar";
 
 // Define motion variants
 export const FadeUp = (delay) => {
@@ -58,7 +58,8 @@ const Register = () => {
   
     return (
       <div>
-        <RegisterNav/>
+        <Navbar/>
+        <br/>
         <div className="flex flex-col items-center justify-center h-screen">
           <motion.div 
             initial={{ x: 50, opacity: 0 }} 

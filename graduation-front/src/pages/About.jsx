@@ -1,5 +1,5 @@
 import Footer from "../components/Footer";
-import RegisterNav from "../components/RegisterNav";
+import Navbar from "../components/Navbar";
 import { motion } from "framer-motion";
 
 export const FadeUp = (delay) => {
@@ -24,7 +24,7 @@ export const FadeUp = (delay) => {
 const About = () => {
   return (
     <div>
-      <RegisterNav />
+      <Navbar />
       <div className="container min-h-[650px]">
         <motion.div 
          variants={FadeUp(0.6)}

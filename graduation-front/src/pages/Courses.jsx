@@ -1,9 +1,9 @@
-import RegisterNav from "../components/RegisterNav";
 import React, { Suspense, useEffect, useState } from "react";
 import courseImage from "../assets/images/course.jpg"; // Import the image
 import Footer from "../components/Footer";
 import { FaSearch } from "react-icons/fa"; // Import the search icon
 import { motion } from "framer-motion";
+import Navbar from "../components/Navbar";
 
 const FaStethoscope = React.lazy(() =>
   import("react-icons/fa6").then((mod) => ({ default: mod.FaStethoscope })))
@@ -75,7 +75,7 @@ const Courses = () => {
   return (
     <>
       <div>
-        <RegisterNav />
+        <Navbar />
         <div className="flex justify-between items-center p-6 mb-5">
           <motion.h2 
            variants={FadeUp(0.6)}

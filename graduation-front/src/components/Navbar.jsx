@@ -1,80 +1,220 @@
 import { IoMdMenu } from "react-icons/io";
+import { IoMdClose } from "react-icons/io";
 import logo from "../assets/logos/MOH Logo.png";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { FaUserCircle } from "react-icons/fa";
+import { RiArrowDropDownLine } from "react-icons/ri";
 
 const NavbarMenu = [
-  {
-    id: 1,
-    title: "Home",
-    path: "/",
-  },
-  {
-    id: 2,
-    title: "Courses",
-    path: "/Courses",
-  },
-  {
-    id: 3,
-    title: "About Us",
-    path: "/about",
-  },
-  {
-    id: 4,
-    title: "Contact Us",
-    path: "/contact",
-  },
+  { id: 1, title: "Home", path: "/" },
+  { id: 2, title: "Courses", path: "/Courses" },
+  { id: 3, title: "About Us", path: "/about" },
+  { id: 4, title: "Contact Us", path: "/contact" },
 ];
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const [token, setToken] = useState(true); // Assume logged in for dropdown
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const handleRegisterClick = () => {
-    navigate("/register");
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen((prev) => !prev);
+  };
+
+  const handleLogout = () => {
+    setToken(false); // Simulate logout
+    setIsDropdownOpen(false); // Close dropdown
+    setIsSidebarOpen(false); // Close sidebar
+  };
+
+  const UserMenu = () => (
+    <div className="relative">
+      {/* User Icon and Dropdown */}
+      <div
+        className="flex items-center gap-1 cursor-pointer"
+        onClick={toggleDropdown}
+      >
+        <FaUserCircle className="text-3xl text-red hover:text-blue transition-all" />
+        <RiArrowDropDownLine className="text-3xl text-red hover:text-blue transition-all" />
+      </div>
+      {/* Dropdown Menu */}
+      {isDropdownOpen && (
+        <div className="absolute top-full right-0 mt-2 w-48 bg-red text-white rounded-lg shadow-lg">
+          <div className="flex flex-col gap-4 p-4">
+            <p
+              onClick={() => {
+                navigate("/myProfile");
+                setIsDropdownOpen(false);
+              }}
+              className="cursor-pointer hover:text-gray-300"
+            >
+              My Profile
+            </p>
+            <p
+              onClick={() => {
+                navigate("/myCourses");
+                setIsDropdownOpen(false);
+              }}
+              className="cursor-pointer hover:text-gray-300"
+            >
+              My Courses
+            </p>
+            <p
+              onClick={handleLogout}
+              className="cursor-pointer hover:text-gray-300"
+            >
+              Logout
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
-    <nav className="bg-white relative z-20 shadow-lg">
+    <nav className="bg-white relative z-50 shadow-lg">
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
-        className="container py-10 flex justify-between items-center"
+        className="container py-4 flex justify-between items-center"
       >
-        {/* Logo section */}
+        {/* Logo Section */}
         <div>
-          <img onClick={() => navigate("/")} src={logo} alt="Logo" className="w-20 h-20 cursor-pointer" />
+          <img
+            onClick={() => navigate("/")}
+            src={logo}
+            alt="Logo"
+            className="w-20 h-20 cursor-pointer"
+          />
         </div>
 
-        {/* Menu section */}
-        <div className="hidden lg:block">
-          <ul className="flex items-center gap-3">
+        {/* Desktop Menu */}
+        <div className="hidden lg:flex items-center gap-6">
+          {NavbarMenu.map((menu) => (
+            <a
+              key={menu.id}
+              href={menu.path}
+              className="text-lg font-medium hover:text-red"
+            >
+              {menu.title}
+            </a>
+          ))}
+          {token ? <UserMenu /> : (
+            <button
+              onClick={() => navigate("/register")}
+              className="py-2 px-4 text-white bg-red hover:bg-blue rounded-md transition-all"
+            >
+              Register
+            </button>
+          )}
+        </div>
+
+        {/* Mobile Hamburger Menu */}
+        <div className="lg:hidden">
+          <button onClick={toggleSidebar}>
+            {isSidebarOpen ? (
+              <IoMdClose className="text-4xl text-red" />
+            ) : (
+              <IoMdMenu className="text-4xl text-red" />
+            )}
+          </button>
+        </div>
+      </motion.div>
+
+      {/* Sidebar */}
+      {isSidebarOpen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex">
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            className="w-3/4 max-w-xs bg-white h-full shadow-lg flex flex-col items-center p-6 gap-6"
+          >
+            {/* Close Button */}
+            <button
+              onClick={toggleSidebar}
+              className="self-end text-2xl text-red"
+            >
+              <IoMdClose />
+            </button>
+            {/* Logo Centered */}
+            <img
+              onClick={() => {
+                navigate("/");
+                toggleSidebar();
+              }}
+              src={logo}
+              alt="Logo"
+              className="w-24 h-24"
+            />
+            {/* Sidebar Menu */}
             {NavbarMenu.map((menu) => (
-              <li key={menu.id}>
-                <a
-                  href={menu.path}
-                  className="inline-block py-2 px-3 hover:text-red relative group"
-                >
-                  <div className="w-2 h-2 bg-red absolute mt-2 rounded-full left-1/2 -translate-x-1/2 top-1/2 bottom-0 group-hover:block hidden"></div>
-                  {menu.title}
-                </a>
-              </li>
+              <a
+                key={menu.id}
+                href={menu.path}
+                className="text-lg font-medium hover:text-red"
+                onClick={toggleSidebar}
+              >
+                {menu.title}
+              </a>
             ))}
-            <li>
+
+            {/* Conditional Menu Items */}
+            {token ? (
+              <>
+                <p
+                  onClick={() => {
+                    navigate("/myProfile");
+                    toggleSidebar();
+                  }}
+                  className="cursor-pointer text-lg font-medium hover:text-red"
+                >
+                  My Profile
+                </p>
+                <p
+                  onClick={() => {
+                    navigate("/myCourses");
+                    toggleSidebar();
+                  }}
+                  className="cursor-pointer text-lg font-medium hover:text-red"
+                >
+                  My Courses
+                </p>
+              </>
+            ) : null}
+
+            {/* Register/Logout Button */}
+            {!token ? (
               <button
-                onClick={handleRegisterClick}
-                className="py-2 px-4 text-white bg-red hover:bg-blue rounded-md transition-all duration-300"
+                onClick={() => {
+                  navigate("/register"); // Navigate to register page
+                  toggleSidebar(); // Close the sidebar
+                }}
+                className="py-2 px-4 w-full text-white bg-red hover:bg-blue rounded-md transition-all"
               >
                 Register
               </button>
-            </li>
-          </ul>
+            ) : (
+              <button
+                onClick={() => {
+                  handleLogout(); // Call the logout function
+                  navigate("/");  // Navigate to the home page
+                }}
+                className="py-2 px-4 w-full text-white bg-red hover:bg-blue rounded-md transition-all"
+              >
+                Logout
+              </button>
+            )}
+          </motion.div>
         </div>
-
-        {/* Mobile Hamburger menu section */}
-        <div className="lg:hidden">
-          <IoMdMenu className="text-4xl" />
-        </div>
-      </motion.div>
+      )}
     </nav>
   );
 };
