@@ -16,12 +16,12 @@ const NavbarMenu = [
   {
     id: 3,
     title: "About Us",
-    path: "/AboutUs",
+    path: "/about",
   },
   {
     id: 4,
     title: "Contact Us",
-    path: "ContactUs",
+    path: "/contact",
   },
 ];
 

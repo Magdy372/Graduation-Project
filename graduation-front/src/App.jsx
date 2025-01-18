@@ -6,6 +6,7 @@ import Footer from "./components/Footer/Footer";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Register from "./pages/Register/Register";
 import Courses from "./pages/Courses/Courses";
+import About from "./pages/About/About";
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
           {/* Register route */}
           <Route path="/register" element={<Register />} />
           <Route path="/courses" element={<Courses />}/>
+          <Route path="/about" element={<About/>}/>
         </Routes>
       </Router>
     </main>
