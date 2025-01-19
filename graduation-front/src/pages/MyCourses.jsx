@@ -4,6 +4,8 @@ import courseImage from "../assets/images/course.jpg"; // Import the image
 import { FaPlay } from "react-icons/fa"; // Import the play icon
 import { motion } from "framer-motion"; // Import Framer Motion
 import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for routing
+
 // Fade Up Animation Variants
 export const FadeUp = (delay = 0) => {
   return {
@@ -22,6 +24,12 @@ export const FadeUp = (delay = 0) => {
 };
 
 const MyCourses = () => {
+  const navigate = useNavigate(); // Initialize the navigate function
+
+  const handleStartWatching = () => {
+    navigate(`/CoursePage`); 
+  };
+
   return (
     <>
       <Navbar />
@@ -45,6 +53,7 @@ const MyCourses = () => {
                   <h3 className="font-semibold mb-1 text-blue text-lg">Course Title {index + 1}</h3>
                   <p className="text-red text-sm mb-2">Course Category</p>
                   <button 
+                    onClick={() => handleStartWatching(index + 1)} // Pass the course index to the function
                     className="h-[40px] flex items-center justify-center gap-2 text-white font-semibold text-sm w-full bg-blue hover:bg-red py-2 rounded transition-all delay-250"
                   >
                     <FaPlay className="text-white" />
@@ -56,7 +65,7 @@ const MyCourses = () => {
           ))}
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </>
   );
 };
