@@ -1,5 +1,5 @@
 {
-  "name": "Membership-program-for-private-family-planning-providers",
+  "name": "membership-program-for-private-family-planning-providers",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -20,7 +20,8 @@
     "react-icons": "^5.4.0",
     "react-intersection-observer": "^9.15.0",
     "react-lazy-load": "^4.0.1",
-    "react-router-dom": "^7.1.2"
+    "react-router-dom": "^7.1.2",
+    "react-scripts": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -36,5 +37,10 @@
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",
     "vite": "^6.0.7"
-  }
+  },
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
+  "main": "eslint.config.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
