@@ -53,7 +53,7 @@ const Navbar = () => {
                 navigate("/myProfile");
                 setIsDropdownOpen(false);
               }}
-              className="cursor-pointer hover:text-gray-300"
+              className="cursor-pointer"
             >
               My Profile
             </p>
@@ -62,13 +62,13 @@ const Navbar = () => {
                 navigate("/myCourses");
                 setIsDropdownOpen(false);
               }}
-              className="cursor-pointer hover:text-gray-300"
+              className="cursor-pointer"
             >
               My Courses
             </p>
             <p
               onClick={handleLogout}
-              className="cursor-pointer hover:text-gray-300"
+              className="cursor-pointer"
             >
               Logout
             </p>

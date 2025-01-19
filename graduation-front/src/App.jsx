@@ -10,6 +10,7 @@ import About from "./pages/About";
 import CourseDesc from "./pages/CourseDesc";
 import MyCourses from "./pages/MyCourses";
 import MyProfile from "./pages/MyProfile";
+import CoursePage from "./pages/CoursePage";
 // import Navbar from "./components/Navbar";
 
 const App = () => {
@@ -35,9 +36,9 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/courses" element={<Courses />}/>
           <Route path="/about" element={<About/>}/>
-          <Route path="/myCourses" element={<my-courses/>}/>
+          <Route path="/myCourses" element={<MyCourses/>}/>
           <Route path="/myProfile" element ={<MyProfile/>}/>
-          <Route path="/coursePage" element={<MyCourses/>}/>
+          <Route path="/coursePage" element={<CoursePage/>}/>
           <Route path="/courseDesc" element={<CourseDesc/>}/>
         </Routes>
       </Router>

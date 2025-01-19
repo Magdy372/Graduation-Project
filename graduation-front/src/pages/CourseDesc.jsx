@@ -7,6 +7,9 @@ import courseImage from "../assets/images/course.jpg"; // Import the image
 import Typography from "@mui/material/Typography";
 import { motion } from "framer-motion"; // Import framer motion
 import Footer from "../components/Footer";
+import ModalCourse from "../components/ModalCourse"; // Import the Modal component
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Fade Up Animation Variants
 export const FadeUp = (delay = 0) => {
@@ -26,6 +29,18 @@ export const FadeUp = (delay = 0) => {
 };
 
 const CourseDesc = () => {
+  const [showModal, setShowModal] = useState(false); // State to control modal visibility
+  const navigate = useNavigate();
+
+  const handleCloseModal = () => {
+    setShowModal(false); // Close the modal manually
+    navigate("/"); // Redirect after closing the modal
+  };
+
+  const handleEnrollClick = () => {
+    setShowModal(true); // Show the modal when "Enroll Now" is clicked
+  };
+
   return (
     <>
       <Navbar />
@@ -103,6 +118,16 @@ const CourseDesc = () => {
               </CardContent>
             </Card>
 
+            {/*Course description card */}
+            <Card className="mb-8">
+              <CardHeader
+                title={<Typography variant="h6 text-red text-lg">Course Description</Typography>}
+              />
+              <CardContent>
+                    <p className="text-blue">Lorem Ipsum is simply dummy text of the printing and typesetting</p>
+              </CardContent>
+            </Card>
+
             {/* Course Chapters Card */}
             <Card className="mb-8">
               <CardHeader
@@ -157,6 +182,8 @@ const CourseDesc = () => {
                   className="h-[50px] text-white font-semibold text-lg w-full bg-blue hover:bg-red py-2 rounded transition-all delay-250"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  type="button"
+                  onClick={handleEnrollClick} // Trigger modal on click
                 >
                   Enroll Now
                 </motion.button>
@@ -164,6 +191,8 @@ const CourseDesc = () => {
             </Card>
           </motion.aside>
         </div>
+        {showModal && <ModalCourse onClose={handleCloseModal} />}
+
         <Footer/>
       </div>
     </>
