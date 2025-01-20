@@ -14,6 +14,7 @@ import CoursePage from "./pages/CoursePage";
 // import Navbar from "./components/Navbar";
 import Layout from "./pages/layout";
 import DashboardPage from "./pages/Dashboard";
+import UploadCourse from "./pages/UploadCourse";
 
 const App = () => {
   return (
@@ -51,7 +52,7 @@ const App = () => {
             <Route path="Pharmacists" element={<h1 className="title">الصيادلة </h1>} />
             <Route path="Admins" element={<h1 className="title">المشرفين</h1>} />
             <Route path="courses" element={<h1 className="title">الدورات التدريبية</h1>} />
-            <Route path="Upload-Course" element={<h1 className="title">اضافة دورة تدريبية</h1>} />
+            <Route path="UploadCourse" element={<UploadCourse/>} />
             <Route path="settings" element={<h1 className="title">إعدادات</h1>} />
           </Route>
         </Routes>

@@ -54,7 +54,7 @@ export const navbarLinks = [
             {
                 label: "اضافة دورة تدريبية",
                 icon: PackagePlus,
-                path: "/layout/Upload-Course",
+                path: "/layout/UploadCourse",
             },
             
         ],
