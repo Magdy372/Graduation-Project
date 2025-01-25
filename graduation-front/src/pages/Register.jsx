@@ -28,11 +28,61 @@ export const FadeUp = (delay) => {
 const Register = () => {
   const navigate = useNavigate(); // Initialize the useNavigate hook
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowModal(true); // Show the modal on form submission // Adjust the delay as needed
+    
+    console.log("Form submission started");
+    const password = e.target.pass.value;
+  const confirmPassword = e.target.confirmPass.value;
+    // Check if password and confirm password match
+    if (password !== confirmPassword)  {
+      alert("Passwords do not match!");
+      return;
+    }
+  
+    // Create a FormData object to send files and form data
+    const formData = new FormData();
+  
+    // Append form fields
+    formData.append("firstname", e.target.firstName.value);
+    formData.append("lastname", e.target.lastName.value);
+    formData.append("phonenumber", e.target.phone.value);
+    formData.append("email", e.target.email.value);
+    formData.append('password', password);
+  
+    // Append files
+    formData.append("licenseFile", e.target.license.files[0]);
+    formData.append("professionLicenseFile", e.target.practice.files[0]);
+    formData.append("syndicateCardFile", e.target.syndicate.files[0]);
+    formData.append("commercialRegisterFile", e.target.commercial.files[0]);
+    formData.append("taxCardFile", e.target.tax.files[0]);
+  
+    console.log("FormData created:", formData);
+  
+    try {
+      console.log("Sending request to backend...");
+  
+      // Send the form data to the backend
+      const response = await fetch("http://localhost:8085/users/with-documents", {
+        method: "POST",
+        body: formData,
+      });
+  
+      console.log("Response received:", response);
+  
+      if (response.ok) {
+        console.log("Form submitted successfully");
+        setShowModal(true); // Show the modal on successful submission
+      } else {
+        console.error("Failed to submit form. Status:", response.status);
+        const errorData = await response.json();
+        console.error("Error details:", errorData);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
   };
-  const [showModal, setShowModal] = useState(false); // State to control modal visibility
+  const [showModal, setShowModal] = useState(false); 
 
   const handleCloseModal = () => {
     setShowModal(false); // Close the modal manually
@@ -69,7 +119,7 @@ const Register = () => {
             <h2 className="text-[30px] font-bold text-red mb-6 text-center">
               Register
             </h2>
-            <form className="flex flex-col" onSubmit={handleSubmit}>
+            <form className="flex flex-col" onSubmit={handleSubmit} enctype="multipart/form-data">
               {/* Other Form Inputs */}
               <div className="flex space-x-4 mb-4">
                 {/* First Name */}
@@ -131,29 +181,31 @@ const Register = () => {
               </div>
               </div>
               <div className="flex space-x-4 mb-4">
-              <div className="flex-1">
-             <label htmlFor="pass" className="text-m font-medium text-blue mb-2 block">
-                Password
-              </label>
-              <input
-                id="pass"
-                name="pass"
-                type="password"
-                className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
-              />
-              </div>
-              <div className="flex-1">
-             <label htmlFor="confirmPass" className="text-m font-medium text-blue mb-2 block">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPass"
-                name="confirmPass"
-                type="text"
-                className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
-              />
-              </div>
-              </div>
+  <div className="flex-1">
+    <label htmlFor="pass" className="text-m font-medium text-blue mb-2 block">
+      Password
+    </label>
+    <input
+      id="pass"
+      name="pass"
+      type="password"
+      className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
+      required
+    />
+  </div>
+  <div className="flex-1">
+    <label htmlFor="confirmPass" className="text-m font-medium text-blue mb-2 block">
+      Confirm Password
+    </label>
+    <input
+      id="confirmPass"
+      name="confirmPass"
+      type="password" 
+      className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
+      required
+    />
+  </div>
+</div>
   
               {/* File Uploads: Grouping two uploads per line */}
               <div className="flex space-x-4 mb-4">
