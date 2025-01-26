@@ -22,12 +22,14 @@
     @apply overflow-hidden text-ellipsis text-sm font-medium text-slate-600 dark:text-slate-400;
 }
 .sidebar-item {
-   @apply flex h-[40px] w-full flex-shrink-0 items-center gap-x-3 rounded-lg p-3 text-base font-medium text-slate-900 transition-colors hover:bg-red dark:text-slate-50 dark:hover:bg-blue;
-  /* &.active{
-    @apply bg-blue text-slate-50 dark:bg-blue;
-
-   }*/
-}
+    @apply flex h-[40px] w-full flex-shrink-0 items-center gap-x-3 rounded-lg p-3 text-base font-medium text-blue transition-colors hover:bg-red dark:text-slate-50 dark:hover:bg-white;
+  
+    /* Adding hover effect to make the text white */
+    &:hover {
+      @apply text-white; /* This will turn the text color to white on hover */
+    }
+  }
+  
 .title {
     @apply text-3xl font-semibold text-slate-900 transition-colors dark:text-slate-50;
 }
