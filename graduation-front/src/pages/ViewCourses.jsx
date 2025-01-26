@@ -58,7 +58,7 @@ const mockCourses = [
   { id: 6, name: "Professional Development and Ethics", category: "Professional Development", image: courseImage },
 ];
 
-const Courses = () => {
+const ViewCourses = () => {
   const navigate = useNavigate();
   const [filterCourses, setFilterCourses] = useState(mockCourses);
   const [categories, setCategories] = useState([
@@ -262,4 +262,4 @@ const Courses = () => {
   );
 };
 
-export default Courses;
+export default ViewCourses;

@@ -18,7 +18,7 @@ import UploadCourse from "./pages/UploadCourse";
 import Pharmacists from "./pages/Pharmacists";
 import Doctors from "./pages/Doctors";
 import ViewCourses from "./pages/ViewCourses";
-
+import AdminProfile from "./pages/AdminProfile";
 const App = () => {
   return (
     <main className="overflow-x-hidden bg-white text-blue">
@@ -47,6 +47,7 @@ const App = () => {
           <Route path="/coursePage" element={<CoursePage/>}/>
           <Route path="/courseDesc" element={<CourseDesc/>}/>
           <Route path="/layout" element={<Layout />}>
+          
             {/* Default route (index) */}
             <Route index element={<DashboardPage />} />
             <Route path="analytics" element={<h1 className="title"> التحليلات البيانية</h1>} />
@@ -55,7 +56,7 @@ const App = () => {
             <Route path="Pharmacists" element={<Pharmacists/>} />
             <Route path="ViewCourses" element={<ViewCourses/>} />
             <Route path="UploadCourse" element={<UploadCourse/>} />
-            <Route path="settings" element={<h1 className="title">إعدادات</h1>} />
+            <Route path="AdminProfile" element={<AdminProfile/>} />
           </Route>
         </Routes>
       </Router>

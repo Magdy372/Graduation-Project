@@ -1,13 +1,26 @@
-import { ChartColumn, Home, NotepadText, Package, PackagePlus, Settings, UserCheck, UserPlus, Users } from "lucide-react";
+import { ChartColumn, Home, LayoutDashboard, LogOut, NotepadText, Package, PackagePlus, User, UserCheck, UserPlus, Users } from "lucide-react";
 import ProfileImage from "../assets/images/profile-image.jpg"
 import ProductImage from "../assets/images/course.jpg"
+import { FaUserDoctor } from "react-icons/fa6";
+import { MdLocalPharmacy, MdOutlineLocalPharmacy } from "react-icons/md";
 export const navbarLinks = [
     {
-        title: "العدادات",
+        // title: "إعدادات",
+         links: [
+             {
+                 label: " ملف شخصى",
+                 icon: User,
+                 path: "/layout/AdminProfile",
+             },
+         ],
+     },
+    {
+
+       // title: "العدادات",
         links: [
             {
                 label: "لوحة البيانات",
-                icon: Home,
+                icon: LayoutDashboard,
                 path: "/layout",
                 
             },
@@ -24,23 +37,23 @@ export const navbarLinks = [
         ],
     },
     {
-        title: "المستخدمين",
+        //title: "المستخدمين",
         links: [
             {
                 label: "الأطباء",
-                icon: Users,
+                icon: FaUserDoctor,
                 path: "/layout/Doctors",
             },
             {
                 label: "الصيادلة",
-                icon: UserPlus,
+                icon: MdLocalPharmacy,
                 path: "/layout/Pharmacists",
             },
             
         ],
     },
     {
-        title: "الدورات التدريبية",
+        //title: "الدورات التدريبية",
         links: [
             {
                 label: "الدورات التدريبية",
@@ -56,11 +69,11 @@ export const navbarLinks = [
         ],
     },
     {
-        title: "إعدادات",
+       // title: "إعدادات",
         links: [
             {
-                label: "إعدادات",
-                icon: Settings,
+                label: "تسجيل الخروج",
+                icon: LogOut,
                 path: "/layout/settings",
             },
         ],
