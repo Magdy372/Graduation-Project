@@ -15,6 +15,8 @@ import CoursePage from "./pages/CoursePage";
 import Layout from "./pages/layout";
 import DashboardPage from "./pages/Dashboard";
 import UploadCourse from "./pages/UploadCourse";
+import Pharmacists from "./pages/Pharmacists";
+import Doctors from "./pages/Doctors";
 
 const App = () => {
   return (
@@ -48,8 +50,8 @@ const App = () => {
             <Route index element={<DashboardPage />} />
             <Route path="analytics" element={<h1 className="title"> التحليلات البيانية</h1>} />
             <Route path="reports" element={<h1 className="title"> التقارير</h1>} />
-            <Route path="Doctors" element={<h1 className="title">الأطباء</h1>} />
-            <Route path="Pharmacists" element={<h1 className="title">الصيادلة </h1>} />
+            <Route path="Doctors" element={<Doctors/>} />
+            <Route path="Pharmacists" element={<Pharmacists/>} />
             <Route path="Admins" element={<h1 className="title">المشرفين</h1>} />
             <Route path="courses" element={<h1 className="title">الدورات التدريبية</h1>} />
             <Route path="UploadCourse" element={<UploadCourse/>} />
