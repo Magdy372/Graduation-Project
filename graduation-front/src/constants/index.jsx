@@ -36,11 +36,7 @@ export const navbarLinks = [
                 icon: UserPlus,
                 path: "/layout/Pharmacists",
             },
-            {
-                label: "المشرفين",
-                icon: UserCheck,
-                path: "/layout/Admins",
-            },
+            
         ],
     },
     {
@@ -49,7 +45,7 @@ export const navbarLinks = [
             {
                 label: "الدورات التدريبية",
                 icon: Package,
-                path: "/layout/courses",
+                path: "/layout/ViewCourses",
             },
             {
                 label: "اضافة دورة تدريبية",

@@ -17,6 +17,7 @@ import DashboardPage from "./pages/Dashboard";
 import UploadCourse from "./pages/UploadCourse";
 import Pharmacists from "./pages/Pharmacists";
 import Doctors from "./pages/Doctors";
+import ViewCourses from "./pages/ViewCourses";
 
 const App = () => {
   return (
@@ -52,8 +53,7 @@ const App = () => {
             <Route path="reports" element={<h1 className="title"> التقارير</h1>} />
             <Route path="Doctors" element={<Doctors/>} />
             <Route path="Pharmacists" element={<Pharmacists/>} />
-            <Route path="Admins" element={<h1 className="title">المشرفين</h1>} />
-            <Route path="courses" element={<h1 className="title">الدورات التدريبية</h1>} />
+            <Route path="ViewCourses" element={<ViewCourses/>} />
             <Route path="UploadCourse" element={<UploadCourse/>} />
             <Route path="settings" element={<h1 className="title">إعدادات</h1>} />
           </Route>
