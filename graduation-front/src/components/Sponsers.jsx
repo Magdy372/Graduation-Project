@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import AC4HLogo from '../assets/logos/AC4H Logo.png';
 import PathfinderLogo from '../assets/logos/Pathfinder Logo.png';
 import USAIDLogo from '../assets/logos/USAID Logo.png';
+import miuLogo from '../assets/logos/miu.png';  
 
 const SlideLeft = (delay) => {
   return {
@@ -76,6 +77,22 @@ const Sponsers = () => {
               loading="lazy"
             />
           </motion.div>
+
+          {/* Sponsor 4 */}
+          <motion.div
+            variants={SlideLeft(1.1)}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="bg-[#f4f4f4] rounded-2xl flex flex-col gap-4 items-center justify-center p-4 py-7 hover:bg-white hover:scale-110 duration-300 hover:shadow-2xl"
+          >
+            <img
+              src={miuLogo}  // Direct import usage
+              alt="Sponsor 4"
+              className="w-[200px] h-[200px] object-contain"
+              loading="lazy"
+            />
+          </motion.div>          
         </div>
       </div>
     </section>
