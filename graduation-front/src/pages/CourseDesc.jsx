@@ -193,8 +193,9 @@ const CourseDesc = () => {
         </div>
         {showModal && <ModalCourse onClose={handleCloseModal} />}
 
-        <Footer/>
       </div>
+      <Footer/>
+
     </>
   );
 };

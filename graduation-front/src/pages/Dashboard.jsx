@@ -8,7 +8,6 @@ import { FaUserMd, FaBook, FaPills, FaCalendarAlt} from "react-icons/fa";
 
 
 
-import Footer from "../components/Footer";
 const DashboardPage = () => {
     return (
       <div className="flex flex-col gap-y-4">
@@ -249,7 +248,6 @@ const DashboardPage = () => {
                     </div>
                 </div>
                 </div>
-                <Footer />
       </div>
     )
   }
