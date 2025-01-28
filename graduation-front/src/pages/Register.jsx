@@ -63,7 +63,7 @@ const Register = () => {
       console.log("Sending request to backend...");
   
       // Send the form data to the backend
-      const response = await fetch("http://localhost:8085/users/with-documents", {
+      const response = await fetch("http://localhost:8084/users/with-documents", {
         method: "POST",
         body: formData,
       });
