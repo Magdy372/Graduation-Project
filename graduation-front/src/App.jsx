@@ -19,6 +19,7 @@ import Pharmacists from "./pages/Pharmacists";
 import Doctors from "./pages/Doctors";
 import ViewCourses from "./pages/ViewCourses";
 import AdminProfile from "./pages/AdminProfile";
+import Login from "./pages/Login";
 const App = () => {
   return (
     <main className="overflow-x-hidden bg-white text-blue">
@@ -40,6 +41,7 @@ const App = () => {
 
           {/* Register route */}
           <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/courses" element={<Courses />}/>
           <Route path="/about" element={<About/>}/>
           <Route path="/myCourses" element={<MyCourses/>}/>
