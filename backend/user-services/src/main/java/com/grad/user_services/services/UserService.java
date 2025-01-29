@@ -3,6 +3,7 @@ package com.grad.user_services.services;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
@@ -24,6 +25,18 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private FileStorageService fileStorageService;
+
+    public User saveUser(@Valid User user) {
+        // Encrypt the password before saving
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        
+        // Save the user without documents
+        return userRepository.save(user);
+    }
+    public User getUserById(Long id) {
+        Optional<User> userOptional = userRepository.findById(id);
+        return userOptional.orElse(null); // Return user if found, else null
+    }
     public User saveUserWithDocuments(@Valid @ModelAttribute UserWithDocumentsDTO userWithDocumentsDTO) {
         // Save files and get their paths
         String licenseFilePath = fileStorageService.store(userWithDocumentsDTO.getLicenseFile());
