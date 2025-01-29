@@ -5,6 +5,7 @@ import MOHLogo from "../assets/logos/MOH Logo.png";
 import AC4HLogo from "../assets/logos/AC4H Logo.png";
 import PathfinderLogo from "../assets/logos/Pathfinder Logo.png";
 import USAIDLogo from "../assets/logos/USAID Logo.png";
+import miuLogo from '../assets/logos/miu.png'
 
 const Footer = () => {
   return (
@@ -86,8 +87,14 @@ const Footer = () => {
               <img
                 src={USAIDLogo}
                 alt="Sponsor 3"
-                className="w-32 h-32 object-contain"
+                className="w-28 h-32 object-contain"
               />
+              <img
+                src={miuLogo}
+                alt="Sponsor 4"
+                className="w-28 h-32 object-contain"
+              />
+
             </div>
           </div>
         </div>

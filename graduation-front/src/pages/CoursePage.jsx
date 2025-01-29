@@ -1,7 +1,7 @@
 import { FaArrowLeft, FaPlayCircle, FaDownload } from 'react-icons/fa'; 
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
-import videoDemo from '../assets/videos/demo.mp4';
+import videoDemo from '../assets/videos/rec.mp4';
 import { Card, CardHeader, CardContent } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Footer from '../components/Footer';
@@ -78,7 +78,7 @@ const CoursePage = () => {
         <div className="flex items-center justify-between p-4 bg-white">
           <button
             onClick={() => navigate('/MyCourses')}
-            className="mb-3 p-3 bg-white text-blue border w-full hover:bg-red hover:text-white rounded-md flex items-center gap-2 text-left w-[250px]"
+            className="mb-3 p-3 bg-white text-blue border w-[250px] hover:bg-red hover:text-white rounded-md flex items-center gap-2 text-left w-[250px]"
           >
             <FaArrowLeft />
             <span>Back to my courses page</span>
@@ -184,7 +184,7 @@ const CoursePage = () => {
                     Course Summary
                   </Typography>
                   <button
-                    className="text-lg mb-3 p-3 bg-blue text-white border w-full hover:bg-red rounded-md flex items-center gap-2 text-left w-[150px] text-center"
+                    className="text-lg mb-3 p-3 bg-blue text-white border w-[140px] hover:bg-red rounded-md flex items-center gap-2 text-left w-[150px] text-center"
                   >
                     <FaDownload />
                     Download
@@ -200,8 +200,11 @@ const CoursePage = () => {
           </Card>
         </div>
 
-        <Footer />
       </div>
+      <br/>
+      <br/>
+      <br/>
+      <Footer/>
     </>
   );
 };

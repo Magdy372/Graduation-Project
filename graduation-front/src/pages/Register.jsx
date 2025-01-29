@@ -119,7 +119,7 @@ const Register = () => {
             <h2 className="text-[30px] font-bold text-red mb-6 text-center">
               Register
             </h2>
-            <form className="flex flex-col" onSubmit={handleSubmit} enctype="multipart/form-data">
+            <form className="flex flex-col" onSubmit={handleSubmit} encType="multipart/form-data">
               {/* Other Form Inputs */}
               <div className="flex space-x-4 mb-4">
                 {/* First Name */}
