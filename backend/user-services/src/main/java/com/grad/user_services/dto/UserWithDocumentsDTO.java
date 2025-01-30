@@ -25,6 +25,7 @@ public class UserWithDocumentsDTO {
     private String email;
     @NotBlank(message = "Password is required")
     private String password;
+ 
 
     // Getters and Setters
     public String getPassword() {

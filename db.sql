@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Jan 29, 2025 at 01:24 AM
+-- Generation Time: Jan 30, 2025 at 07:05 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,21 @@ SET time_zone = "+00:00";
 --
 -- Database: `grad`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `admins`
+--
+
+CREATE TABLE `admins` (
+  `id` bigint(20) NOT NULL,
+  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -163,17 +178,9 @@ CREATE TABLE `users` (
   `phone_number` varchar(15) NOT NULL,
   `email` varchar(255) NOT NULL,
   `user_document_id` bigint(20) DEFAULT NULL,
-  `password` varchar(255) NOT NULL
+  `password` varchar(255) NOT NULL,
+  `role` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `first_name`, `last_name`, `phone_number`, `email`, `user_document_id`, `password`) VALUES
-(21, 'omar', 'abdelmonem', '+201003138219', 'omar21208230@miuegypt.edu.eg', 60, '$2a$10$nvklkKU9Y6gLtnTrxNIwIusavqSBBxP/jhsW/bznBvQMBX/W.K/qi'),
-(24, 'omar', 'abdelmonem', '+201003138219', 'os30@gmail.com', 63, '$2a$10$QXV/l.KUbqzuDtgpFeiYJ.ipd2KFwmwEzsoKEFDfcv72nVTYTKaaO'),
-(25, 'John', 'Doe', '1234567890', 'john.doe@example.com', NULL, '$2a$10$orhNDRDSh2ADC8R4ykHTK.zT6tlkL0EsA8.zNedaw4jNCu5dcCUMi');
 
 -- --------------------------------------------------------
 
@@ -189,14 +196,6 @@ CREATE TABLE `user_documents` (
   `commercial_register_file` varchar(255) DEFAULT NULL,
   `tax_card_file` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `user_documents`
---
-
-INSERT INTO `user_documents` (`id`, `license_file`, `profession_license_file`, `syndicate_card_file`, `commercial_register_file`, `tax_card_file`) VALUES
-(60, '4df0b8f5-a1b7-4528-afa6-c1ced58b43d4_Lecture 1_ Mobile Programming_F24.pdf', 'a59b1c62-939d-4301-a4c2-96a069c77219_Lecture 1_ Mobile Programming_F24.pdf', 'ebf241d5-e3a6-40cf-918d-6d0d8b7caf54_Lecture 1_ Mobile Programming_F24.pdf', '980d8d53-193d-43d5-9662-00799aa5078d_Lecture 1_ Mobile Programming_F24.pdf', '2233381b-c22a-447e-8d0c-8f7d2dfc1a85_Lecture 1_ Mobile Programming_F24.pdf'),
-(63, 'ced54cb1-32a8-4e48-8785-0f87e0440b6f_Lecture 1_ Mobile Programming_F24.pdf', '0375ad1c-1ed9-4e3b-b5ed-7614f572a4bf_Lecture 1_ Mobile Programming_F24.pdf', 'f3e9b3e3-f98c-44ab-ac83-1115cbfca450_Lecture 1_ Mobile Programming_F24.pdf', '3260aafb-1edf-46ee-a4c7-9e83861a8a66_Lecture 1_ Mobile Programming_F24.pdf', '4c2645e5-733a-428a-a227-f01e120c15de_Lecture 1_ Mobile Programming_F24.pdf');
 
 -- --------------------------------------------------------
 
@@ -230,6 +229,13 @@ INSERT INTO `video` (`id`, `title`, `video_path`, `chapter_id`) VALUES
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `admins`
+--
+ALTER TABLE `admins`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Indexes for table `category`
@@ -297,6 +303,12 @@ ALTER TABLE `video`
 --
 
 --
+-- AUTO_INCREMENT for table `admins`
+--
+ALTER TABLE `admins`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
@@ -336,13 +348,13 @@ ALTER TABLE `product`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `user_documents`
 --
 ALTER TABLE `user_documents`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
 
 --
 -- AUTO_INCREMENT for table `video`

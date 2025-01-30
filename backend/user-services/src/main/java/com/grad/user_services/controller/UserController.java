@@ -10,6 +10,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,49 +35,53 @@ public class UserController {
         }
         return ResponseEntity.ok(user);
     }
-    @PostMapping("/add")
-    public ResponseEntity<User> addUser(@RequestBody User user) {
-        try {
-            User savedUser = userService.saveUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);  // Return the created user
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);  // Handle any errors
-        }
+  @PostMapping("/add")
+public ResponseEntity<User> addUser(@Valid @RequestBody User user, BindingResult bindingResult) {
+    if (bindingResult.hasErrors()) {
+        // Print validation errors
+        bindingResult.getAllErrors().forEach(error -> System.out.println(error.getDefaultMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
+
+    try {
+        User savedUser = userService.saveUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    }
+}
+
 
     @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers(); // Assume this method exists in the service
         return ResponseEntity.ok(users);
     }
+   
     @PostMapping(value = "/with-documents", consumes = "multipart/form-data")
-    public ResponseEntity<User> createUserWithDocuments(
-        @RequestPart("firstname") String firstname,
-        @RequestPart("lastname") String lastname,
-        @RequestPart("phonenumber") String phonenumber,
-        @RequestPart("email") String email,
-        @RequestPart("password") String password,
-        @RequestPart("licenseFile") MultipartFile licenseFile,
-        @RequestPart("professionLicenseFile") MultipartFile professionLicenseFile,
-        @RequestPart("syndicateCardFile") MultipartFile syndicateCardFile,
-        @RequestPart("commercialRegisterFile") MultipartFile commercialRegisterFile,
-        @RequestPart("taxCardFile") MultipartFile taxCardFile
-    ) {
-        UserWithDocumentsDTO userWithDocumentsDTO = new UserWithDocumentsDTO();
-        userWithDocumentsDTO.setFirstname(firstname);
-        userWithDocumentsDTO.setLastname(lastname);
-        userWithDocumentsDTO.setPhonenumber(phonenumber);
-        userWithDocumentsDTO.setEmail(email);
-        userWithDocumentsDTO.setPassword(password);
-    
-        userWithDocumentsDTO.setLicenseFile(licenseFile);
-        userWithDocumentsDTO.setProfessionLicenseFile(professionLicenseFile);
-        userWithDocumentsDTO.setSyndicateCardFile(syndicateCardFile);
-        userWithDocumentsDTO.setCommercialRegisterFile(commercialRegisterFile);
-        userWithDocumentsDTO.setTaxCardFile(taxCardFile);
-    
-        User savedUser = userService.saveUserWithDocuments(userWithDocumentsDTO);
-        return ResponseEntity.ok(savedUser);
+    public ResponseEntity<?> createUserWithDocuments(
+            @Valid @ModelAttribute UserWithDocumentsDTO userWithDocumentsDTO,
+            BindingResult result) throws Exception {
+
+        // Check for validation errors
+     if (result.hasErrors()) {
+    for (FieldError error : result.getFieldErrors()) {
+        // Log or print each error's field and message
+        System.out.println("Field: " + error.getField() + ", Error: " + error.getDefaultMessage());
+    }
+    // Return the errors back to the frontend
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getFieldErrors());
+}
+
+
+        try {
+            // Save the user with documents
+            User savedUser = userService.saveUserWithDocuments(userWithDocumentsDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        } catch (Exception e) {
+            // Log the error and rethrow as a custom exception
+            throw new Exception("Error creating user with documents: " + e.getMessage());
+        }
     }
 }
