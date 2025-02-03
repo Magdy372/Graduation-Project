@@ -1,5 +1,5 @@
 // Define the base URL for the API
-const BASE_URL = "http://localhost:8084";
+const BASE_URL = "http://localhost:8089";
 
 // Register User Service
 export const registerUser = async (formData) => {

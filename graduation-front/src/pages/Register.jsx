@@ -1,14 +1,35 @@
+
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import Modal from "../components/Modal";
 import { motion } from "framer-motion";
-import { registerUser, uploadFiles } from "../services/UserService"; // Import the services
+import { useNavigate } from "react-router-dom";
+import Modal from "../components/Modal"; // Import the Modal component
+import Navbar from "../components/Navbar";
+
+// Define motion variants
+export const FadeUp = (delay) => {
+  return {
+    initial: {
+      opacity: 0,
+      y: 50,
+    },
+    animate: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        duration: 0.5,
+        delay: delay,
+        ease: "easeInOut",
+      },
+    },
+  };
+};
 
 const Register = () => {
-  const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate(); // Initialize the useNavigate hook
+  const [showModal, setShowModal] = useState(false); 
   const [fileNames, setFileNames] = useState({
     license: "No file chosen",
     practice: "No file chosen",
@@ -16,56 +37,82 @@ const Register = () => {
     commercial: "No file chosen",
     tax: "No file chosen",
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({}); // State to hold error messages
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const password = e.target.pass.value;
     const confirmPassword = e.target.confirmPass.value;
-
-    // Password validation
+  
+    // Check if password and confirm password match
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-
+  
     const formData = new FormData();
     formData.append("firstname", e.target.firstName.value);
     formData.append("lastname", e.target.lastName.value);
     formData.append("phonenumber", e.target.phone.value);
     formData.append("email", e.target.email.value);
-    formData.append("password", password);
-
-    // Append the file fields to the FormData
+    formData.append('password', password);
+    
+    // Append the file fields to the FormData, but don't upload yet
     formData.append("licenseFile", e.target.license.files[0]);
     formData.append("professionLicenseFile", e.target.practice.files[0]);
     formData.append("syndicateCardFile", e.target.syndicate.files[0]);
     formData.append("commercialRegisterFile", e.target.commercial.files[0]);
     formData.append("taxCardFile", e.target.tax.files[0]);
-
+  
     try {
-      const userResponse = await registerUser(formData);
-      if (userResponse.success) {
-        setShowModal(true);
-
-        const fileResponse = await uploadFiles(formData);
-        if (fileResponse.success) {
-          console.log("Files uploaded successfully");
-        } else {
-          console.error("File upload failed");
+      // First, submit the user data without the files
+      const response = await fetch("http://localhost:8084/users/with-documents", {
+        method: "POST",
+        body: formData
+      });
+  
+      if (response.ok) {
+        setShowModal(true); // Show the modal on successful submission
+  
+        // Now upload the files if submission is successful
+        const fileFormData = new FormData();
+        fileFormData.append("licenseFile", e.target.license.files[0]);
+        fileFormData.append("professionLicenseFile", e.target.practice.files[0]);
+        fileFormData.append("syndicateCardFile", e.target.syndicate.files[0]);
+        fileFormData.append("commercialRegisterFile", e.target.commercial.files[0]);
+        fileFormData.append("taxCardFile", e.target.tax.files[0]);
+  
+        // Here you can call an endpoint to upload the PDF files after the form submission is successful
+        const fileResponse = await fetch("http://localhost:8084/upload-pdfs", {
+          method: "POST",
+          body: fileFormData,
+        });
+  
+        if (!fileResponse.ok) {
+          const errorData = await fileResponse.json();
+          console.error("Error uploading files:", errorData);
+          alert("File upload failed!");
         }
       } else {
-        setErrors(userResponse.errors || {});
+        const errorData = await response.json();
+        console.error("Error details:", errorData);
+  
+        // Map errors to the state for displaying
+        const mappedErrors = {};
+        errorData.forEach((error) => {
+          mappedErrors[error.field] = error.defaultMessage; // Store error messages by field name
+        });
+        setErrors(mappedErrors); // Set error messages in state
       }
     } catch (error) {
       console.error("Error submitting form:", error);
     }
   };
-
+  
   const handleCloseModal = () => {
-    setShowModal(false);
-    navigate("/");
+    setShowModal(false); // Close the modal manually
+    navigate("/"); // Redirect after the modal shows
   };
 
   const handleFileChange = (e) => {
@@ -93,29 +140,35 @@ const Register = () => {
             {/* First Name */}
             <div className="flex space-x-4 mb-4">
               <div className="flex-1">
+               
                 <label htmlFor="firstname" className="text-m font-medium text-blue mb-2 block">
                   First Name
                 </label>
                 <input
+                  
                   id="firstname"
                   name="firstName"
                   type="text"
                   className={`bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none ${errors.firstName ? 'border-red-600' : ''}`}
                 />
+               
                 {errors.firstname && <span className="text-red-600 text-sm">{errors.firstname}</span>}
               </div>
 
               {/* Last Name */}
               <div className="flex-1">
+               
                 <label htmlFor="lastname" className="text-m font-medium text-blue mb-2 block">
                   Last Name
                 </label>
                 <input
+                 
                   id="lastname"
                   name="lastName"
                   type="text"
                   className={`bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none ${errors.lastName ? 'border-red-600' : ''}`}
                 />
+               
                 {errors.lastname && <span className="text-red-600 text-sm">{errors.lastname}</span>}
               </div>
             </div>
@@ -140,11 +193,13 @@ const Register = () => {
                   Phone number
                 </label>
                 <input
+                  
                   id="phonenumber"
                   name="phone"
                   type="text"
                   className={`bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none ${errors.phone ? 'border-red-600' : ''}`}
                 />
+               
                 {errors.phonenumber && <span className="text-red-600 text-sm">{errors.phonenumber}</span>}
               </div>
             </div>
@@ -156,11 +211,13 @@ const Register = () => {
                   Password
                 </label>
                 <input
+                 
                   id="password"
                   name="pass"
                   type="password"
                   className={`bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none ${errors.pass ? 'border-red-600' : ''}`}
                 />
+              
                 {errors.password && <span className="text-red-600 text-sm">{errors.password}</span>}
               </div>
               <div className="flex-1">
