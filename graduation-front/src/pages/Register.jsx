@@ -139,30 +139,30 @@ const Register = () => {
             {/* First Name */}
             <div className="flex space-x-4 mb-4">
               <div className="flex-1">
-                <label htmlFor="firstName" className="text-m font-medium text-blue mb-2 block">
+                <label htmlFor="firstname" className="text-m font-medium text-blue mb-2 block">
                   First Name
                 </label>
                 <input
-                  id="firstName"
+                  id="firstname"
                   name="firstName"
                   type="text"
                   className={`bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none ${errors.firstName ? 'border-red-600' : ''}`}
                 />
-                {errors.firstName && <span className="text-red-600 text-sm">{errors.firstName}</span>}
+                {errors.firstname && <span className="text-red-600 text-sm">{errors.firstname}</span>}
               </div>
 
               {/* Last Name */}
               <div className="flex-1">
-                <label htmlFor="lastName" className="text-m font-medium text-blue mb-2 block">
+                <label htmlFor="lastname" className="text-m font-medium text-blue mb-2 block">
                   Last Name
                 </label>
                 <input
-                  id="lastName"
+                  id="lastname"
                   name="lastName"
                   type="text"
                   className={`bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none ${errors.lastName ? 'border-red-600' : ''}`}
                 />
-                {errors.lastName && <span className="text-red-600 text-sm">{errors.lastName}</span>}
+                {errors.lastname && <span className="text-red-600 text-sm">{errors.lastname}</span>}
               </div>
             </div>
 
@@ -186,12 +186,12 @@ const Register = () => {
                   Phone number
                 </label>
                 <input
-                  id="phone"
+                  id="phonenumber"
                   name="phone"
                   type="text"
                   className={`bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none ${errors.phone ? 'border-red-600' : ''}`}
                 />
-                {errors.phone && <span className="text-red-600 text-sm">{errors.phone}</span>}
+                {errors.phonenumber && <span className="text-red-600 text-sm">{errors.phonenumber}</span>}
               </div>
             </div>
 
@@ -202,12 +202,12 @@ const Register = () => {
                   Password
                 </label>
                 <input
-                  id="pass"
+                  id="password"
                   name="pass"
                   type="password"
                   className={`bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none ${errors.pass ? 'border-red-600' : ''}`}
                 />
-                {errors.pass && <span className="text-red-600 text-sm">{errors.pass}</span>}
+                {errors.password && <span className="text-red-600 text-sm">{errors.password}</span>}
               </div>
               <div className="flex-1">
                 <label htmlFor="confirmPass" className="text-m font-medium text-blue mb-2 block">
