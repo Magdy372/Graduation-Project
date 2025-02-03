@@ -30,6 +30,8 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+    @Column(nullable = true)
+    private String imageUrl;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chapter> chapters;

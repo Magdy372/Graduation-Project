@@ -3,8 +3,8 @@ package com.grad.user_services.model;
 
 
 public enum Role {
-    ROLE_ADMIN("ROLE_ADMIN"),
-    ROLE_USER("ROLE_USER");
+    ROLE_ADMIN("ADMIN"),
+    ROLE_USER("USER");
 
     private final String roleName;
 

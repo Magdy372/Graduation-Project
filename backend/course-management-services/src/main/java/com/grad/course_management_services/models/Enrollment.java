@@ -22,10 +22,10 @@ public class Enrollment {
     private Long id;
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;  // Foreign key for user (keep as Long)
+    private Long userId; 
 
     @Column(name = "course_id", nullable = false)
-    private Long courseId;  // Foreign key for course (keep as Long)
+    private Long courseId; 
 
     @Column(nullable = false)
     private LocalDateTime enrollmentDate = LocalDateTime.now();

@@ -11,8 +11,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
-@NoArgsConstructor
+
 public class Category {
 
     @Id
@@ -21,5 +20,15 @@ public class Category {
 
     @Column(nullable = false)
     private String name;
+
+    public Category() {
+    }
+
+    public Category(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+ 
 
 }

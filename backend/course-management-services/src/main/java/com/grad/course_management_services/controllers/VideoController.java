@@ -1,12 +1,15 @@
 package com.grad.course_management_services.controllers;
 
 import com.grad.course_management_services.models.Video;
+import com.grad.course_management_services.services.ChapterService;
 import com.grad.course_management_services.services.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +19,8 @@ public class VideoController {
 
     @Autowired
     private VideoService videoService;
+     @Autowired
+    private ChapterService chapterService;
 
     // Get all videos
     @GetMapping
@@ -49,5 +54,10 @@ public class VideoController {
     public ResponseEntity<Void> deleteVideo(@PathVariable Long id) {
         videoService.deleteVideo(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+      // Endpoint to upload a video
+    @PostMapping("/upload/{chapterId}")
+    public Video uploadVideo(@RequestParam("file") MultipartFile file, @PathVariable Long chapterId) throws IOException {
+        return chapterService.saveVideo(file, chapterId);
     }
 }

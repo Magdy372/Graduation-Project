@@ -1,0 +1,17 @@
+<!-- home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    <h2>Welcome, <span th:text="${firstName}">User</span></h2> <!-- Display first name dynamically -->
+    
+    <!-- Show login failure message -->
+    <div>
+        <p th:if="${param.error}">Invalid username or password. Please try again.</p>
+    </div>
+</body>
+</html>

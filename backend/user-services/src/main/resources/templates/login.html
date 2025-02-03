@@ -1,0 +1,33 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <form action="/login" method="post">
+        <div>
+            <label for="username">Email:</label>
+            <input type="text" id="username" name="username" required placeholder="Enter your email"/>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required placeholder="Enter your password"/>
+        </div>
+        <div>
+            <button type="submit">Login</button>
+        </div>
+    </form>
+    <div>
+        <p><a href="/signup">Don't have an account? Sign up here</a></p>
+    </div>
+
+    <!-- Show login failure message -->
+    <div>
+        <p th:if="${param.error}">Invalid username or password. Please try again.</p>
+    </div>
+</body>
+</html>

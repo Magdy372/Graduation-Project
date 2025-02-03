@@ -11,8 +11,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import com.grad.user_services.dao.AdminRepository;
 import com.grad.user_services.dao.UserRepository;
 import com.grad.user_services.dto.UserWithDocumentsDTO;
+import com.grad.user_services.model.Admin;
+import com.grad.user_services.model.BaseAccount;
 import com.grad.user_services.model.User;
 import com.grad.user_services.model.UserDocument;
 
@@ -25,6 +28,8 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private FileStorageService fileStorageService;
+    @Autowired
+    private AdminRepository adminRepository;
 
     public User saveUser(@Valid User user) {
         // Encrypt the password before saving
@@ -33,10 +38,20 @@ public class UserService {
         // Save the user without documents
         return userRepository.save(user);
     }
-    public User getUserById(Long id) {
-        Optional<User> userOptional = userRepository.findById(id);
-        return userOptional.orElse(null); // Return user if found, else null
+    public BaseAccount  getUserById(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            return user;
+        }
+
+        Admin admin = adminRepository.findById(id).orElse(null);
+        if (admin != null) {
+            return admin;
+        }
+
+        return null; // Return null if no account found
     }
+    
     public User saveUserWithDocuments(@Valid @ModelAttribute UserWithDocumentsDTO userWithDocumentsDTO) {
         // Save files and get their paths
         String licenseFilePath = fileStorageService.store(userWithDocumentsDTO.getLicenseFile());
@@ -71,5 +86,8 @@ public class UserService {
     }
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+    public List<Admin> getAllAdmins() {
+        return adminRepository.findAll();
     }
 }

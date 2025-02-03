@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,10 +22,13 @@ import lombok.ToString;
 @Entity
 @Table(name = "users")
 @Getter
+
 @Setter
 @ToString
+
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class User extends BaseAccount {
 
     @NotBlank(message = "Phone number is required")
@@ -45,7 +49,7 @@ public class User extends BaseAccount {
     @Override
     public void setRole() {
         if (this.role == null) {
-            this.role = Role.ROLE_USER.getRoleName(); // Default to USER role if none provided
+            this.role = Role.ROLE_USER.getRoleName(); 
         }
     }
     

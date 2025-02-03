@@ -10,12 +10,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.grad.user_services.dto.UserWithDocumentsDTO;
+import com.grad.user_services.model.BaseAccount;
 import com.grad.user_services.model.User;
 import com.grad.user_services.services.UserService;
 
@@ -26,10 +28,12 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
+@PreAuthorize("hasAuthority('Admin')")
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUserById(@PathVariable Long userId) {
-        User user = userService.getUserById(userId);
+    public ResponseEntity<BaseAccount> getUserById(@PathVariable Long userId) {
+        BaseAccount user = userService.getUserById(userId);
+        System.out.println("====");
+        System.out.println(user);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
@@ -53,7 +57,7 @@ public ResponseEntity<User> addUser(@Valid @RequestBody User user, BindingResult
 }
 
 
-    @GetMapping("/all")
+    @GetMapping("/")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers(); // Assume this method exists in the service
         return ResponseEntity.ok(users);

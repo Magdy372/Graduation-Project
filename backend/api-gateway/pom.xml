@@ -32,6 +32,10 @@
 	</properties>
 	<dependencies>
     <dependency>
+	 <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-gateway</artifactId>
     </dependency>
@@ -45,6 +49,12 @@
         <scope>test</scope>
     </dependency>
 </dependencies>
+  <!-- Jakarta Servlet API -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
 	<dependencyManagement>
 		<dependencies>
