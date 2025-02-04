@@ -165,7 +165,7 @@ class MedicalLectureSummarizer:
             logger.error(f"Error generating abstractive summary: {str(e)}")
             return ""
 
-    def generate_extractive_summary(self, text: str, ratio: float = 0.6) -> str:
+    def generate_extractive_summary(self, text: str, ratio: float = 0.3) -> str:
         """Generate extractive summary using BERT extractive summarizer."""
         try:
             chunks = self.chunk_text(text)
@@ -297,7 +297,8 @@ class MedicalLectureSummarizer:
 if __name__ == "__main__":
     summarizer = MedicalLectureSummarizer()
     result = summarizer.process_video(
-        video_path="C:/Users/dell/Downloads/test1.mp4",
+        #video_path="C:/Users/dell/Downloads/test1.mp4",
+        video_path = "C:/Users/dell/Desktop/Graduation-Project1/Summarization/test1.mp4",
         summary_type="both",
         output_dir="output",
         reference_summary="Picture this, a machine that could organize your cupboard just as you like it, or serve every member of the house a customized cup of coffee. These are the products of artificial intelligence. Well, these machines are artificially incorporated with human-like intelligence to perform tasks as we do. Here is a robot we built in our lab, which is now dropped onto a field. This portrays the robot's reasoning ability. After a short stroll, the robot now encounters a stream that it cannot swim across. These three capabilities make the robot artificially intelligent. Week AI, also called Narrow AI, focuses solely on one task. When you ask Alexa to play Despacito, it picks up the key words, play, and Despacito, and runs a program it is trained to. Alexa cannot respond to a question it isn't trained to answer. And that brings us to our second category of AI, Strong AI. Now, this is much like the robots that only exist in fiction as of now. Machine learning is a technique to achieve AI and deep learning in turn is a subset of machine learning. In fact, Elon Musk predicts that the human mind and body will be enhanced by AI implants, which would make us partly cyborgs. Do not forget to leave your answer to the quiz in the comment section below."  # Replace with actual reference
