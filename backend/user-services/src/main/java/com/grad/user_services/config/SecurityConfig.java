@@ -50,7 +50,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/authenticate", "/api/v1/auth/register").permitAll() // Allow these endpoints for registration and login
                 .requestMatchers("/layout").hasRole("ADMIN") // Protected route for admin
-                .requestMatchers("/users/**").permitAll() // Allow users route without authentication
+                .requestMatchers("/users/view-all/**").permitAll() // Allow users route without authentication
+                .requestMatchers("/users/**").permitAll()// Allow users route for admin
                 .anyRequest().authenticated() // Any other requests should be authenticated
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class) // Add JWT authentication filter

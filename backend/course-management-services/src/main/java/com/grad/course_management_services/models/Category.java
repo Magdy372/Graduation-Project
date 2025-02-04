@@ -1,6 +1,7 @@
 package com.grad.course_management_services.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class Category {
     private Long id;
 
     @Column(nullable = false)
+    @NotBlank(message = "Category name is required")
     private String name;
 
     public Category() {

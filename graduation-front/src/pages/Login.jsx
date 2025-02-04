@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Footer from "../components/Footer";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
@@ -27,15 +27,41 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const validateForm = () => {
+    let isValid = true;
+    setEmailError("");
+    setPasswordError("");
+
+    if (!email.trim()) {
+      setEmailError("Email is required.");
+      isValid = false;
+    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setEmailError("Invalid email format.");
+      isValid = false;
+    }
+
+    if (!password.trim()) {
+      setPasswordError("Password is required.");
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setError("");
 
+    if (!validateForm()) return;
+
+    setIsLoading(true);
     const payload = {
       email: email.trim(),
-      password: password,
+      password: password.trim(),
     };
 
     try {
@@ -43,31 +69,30 @@ const Login = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          "Accept": "application/json",
         },
         body: JSON.stringify(payload),
-        credentials: 'include'
+        credentials: "include",
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Store JWT token
         if (data.token) {
-          localStorage.setItem('jwt_token', data.token);
+          localStorage.setItem("jwt_token", data.token);
         }
-        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem("isAuthenticated", "true");
         window.location.replace(data.redirect);
       } else {
         setError(data.message || "Invalid email or password. Please try again.");
       }
     } catch (err) {
-      console.error('Login error:', err);
+      console.error("Login error:", err);
       setError("Network error. Please try again later.");
     } finally {
       setIsLoading(false);
     }
-};
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -81,6 +106,7 @@ const Login = () => {
         >
           <h2 className="text-3xl font-bold text-red mb-6 text-center">Login</h2>
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Email Input */}
             <div>
               <label htmlFor="email" className="text-m font-medium text-blue block mb-2">
                 Email
@@ -91,12 +117,15 @@ const Login = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
-                required
+                className={`bg-white-300 text-red border-b-2 rounded-none p-2 w-full 
+                  ${emailError ? "border-red-500" : "border-gray-300"} focus:bg-gray-100 focus:outline-none`}
+               // required
                 disabled={isLoading}
               />
+              {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
             </div>
 
+            {/* Password Input */}
             <div>
               <label htmlFor="password" className="text-m font-medium text-blue block mb-2">
                 Password
@@ -107,25 +136,29 @@ const Login = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
-                required
+                className={`bg-white-300 text-red border-b-2 rounded-none p-2 w-full 
+                  ${passwordError ? "border-red-500" : "border-gray-300"} focus:bg-gray-100 focus:outline-none`}
+               // required
                 disabled={isLoading}
               />
+              {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
             </div>
 
+            {/* General Error Message */}
             {error && (
               <div className="bg-red-50 border-l-4 border-red-500 p-4">
                 <p className="text-red-700 text-sm">{error}</p>
               </div>
             )}
 
+            {/* Submit Button */}
             <button
               className={`w-full text-l bg-red text-white text-center py-3 px-5 rounded-md 
-                ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue transition duration-300'}`}
+                ${isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue transition duration-300"}`}
               type="submit"
               disabled={isLoading}
             >
-              {isLoading ? 'Logging in...' : 'Login'}
+              {isLoading ? "Logging in..." : "Login"}
             </button>
           </form>
         </motion.div>

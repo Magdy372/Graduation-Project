@@ -40,6 +40,17 @@ public class User extends BaseAccount {
     @JoinColumn(name = "user_document_id", referencedColumnName = "id")
     private UserDocument userDocument;
 
+    @Column(name = "approved")
+    private boolean approved;
+
+    public boolean isApproved() {
+        return approved;
+    }
+
+    public void setApproved(boolean approved) {
+        this.approved = approved;
+    }
+
     // Constructor to initialize with fields
     public User(String firstname, String lastname, String email, String password) {
         super(firstname, lastname, email, password, Role.ROLE_USER);  // Default role is USER

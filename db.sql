@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3307
--- Generation Time: Feb 04, 2025 at 07:27 AM
+-- Host: 127.0.0.1:3306
+-- Generation Time: Feb 04, 2025 at 07:41 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -59,8 +59,7 @@ CREATE TABLE `category` (
 --
 
 INSERT INTO `category` (`id`, `name`) VALUES
-(13, 'aaaaaaaa'),
-(31, 'aaa');
+(1, 'Pharm');
 
 -- --------------------------------------------------------
 
@@ -79,8 +78,9 @@ CREATE TABLE `chapter` (
 --
 
 INSERT INTO `chapter` (`id`, `title`, `course_id`) VALUES
-(36, 'a7', 16),
-(38, 'aaa', 18);
+(19, 'aaaaaa', 13),
+(20, 'aaaaaa', 14),
+(21, 'ss', 15);
 
 -- --------------------------------------------------------
 
@@ -101,8 +101,10 @@ CREATE TABLE `course` (
 --
 
 INSERT INTO `course` (`id`, `name`, `description`, `category_id`, `image_url`) VALUES
-(16, 'course 1', 'coura 1 ds', 13, '/uploads/coursesimages/947cfa7b-2729-4337-a7f8-90ec292d4203_WIN_20230218_16_42_23_Pro.jpg'),
-(18, 'course 2', 'aa', 13, '/uploads/coursesimages/4f397732-2b07-4fa5-a8de-75ba011d829d_1955103.webp');
+(13, 'aaaa', 'sss', 1, '/uploads/coursesimages/a86282a6-596d-478a-a9cf-dae1ebabc3f0_backiee-98927.jpg'),
+(14, 'aaaa', 'sss', 1, '/uploads/coursesimages/9f185503-81dc-4cef-86b5-86767a31a20e_backiee-98927.jpg'),
+(15, 'ss', 'ss', 1, '/uploads/coursesimages/f3e5944f-820c-48f1-bf7d-835c15875a7e_backiee-96330.jpg'),
+(16, 'new', 'new', 1, '/uploads/coursesimages/7dfff71d-4340-40f2-bb60-8bfa089a4b37_WhatsApp Image 2024-09-05 at 15.18.01_94aa6faa.jpg');
 
 -- --------------------------------------------------------
 
@@ -174,22 +176,17 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `user_document_id` bigint(20) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
-  `role` varchar(255) NOT NULL
+  `role` varchar(255) NOT NULL,
+  `accepted` bit(1) NOT NULL,
+  `approved` bit(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `first_name`, `last_name`, `phone_number`, `email`, `user_document_id`, `password`, `role`) VALUES
-(35, 'John', 'Doe', '1234567890', 'o@gmail.com', 84, '$2a$12$SETYmSWaOvB8bhtTMQrGGe4swf2NVHT2sLz9559h3YuFrW.p2MHP.', 'USER'),
-(38, 'oma', 'aa', '0102393939', 'aa@gmail.com', 87, '$2a$10$pdou6.V/JXa4CyKwZ1DHHuyyjAKMeUPRSenom4xgVCp00MnyxyQbe', 'USER'),
-(39, 'Omar', 'Salah', '010003138219', 'mm@gmail.com', 88, '$2a$10$Frhk6A7UQFPq96nPgIaWFOqM8NiUeCPq/wjZadqei7PI0Gp3jsC2K', 'USER'),
-(42, 'Omar', 'Salah', '01003138219', 'admin@gmail.com', 91, '$2a$10$nSsV8nnVMGELVQFb.dIcRu3kkr8n4OrXUYEyOoJCmYv6f6PzFiReG', 'USER'),
-(43, 'Omar', 'Salah', '01003138219', 'admin22@gmail.com', 92, '$2a$10$RdlLyxgKDjts.w6xlQUG4ufmQJD.m3q3bz/cWBoQ6Rlh8WKDhU21a', 'USER'),
-(50, 'Omar', 'Salah', '010003138219', 'admin@g', 99, '$2a$10$2ap6js1LzYAPBlwWBxm4N.s.G8ec56Xw4fVtYL67Ezv7sg2p0zTKa', 'USER'),
-(69, 'Omar', 'Salah', '010003138219', 'admin22222@gmail.com', 118, '$2a$10$5BK2UrIBK.fmUgRF5rAhFOvnPIxciomUoPpHMHXgxDkRCy0gc841a', 'USER'),
-(70, 'Omar', 'Salah', '010003138219', 'admin123@gmail.com', 119, '$2a$10$aKZjsnJutsmwghbO6a8xtuLSm7O6rGSyek6IOG10/iQMVJyiowYom', 'USER');
+INSERT INTO `users` (`id`, `first_name`, `last_name`, `phone_number`, `email`, `user_document_id`, `password`, `role`, `accepted`, `approved`) VALUES
+(57, 'mahmoud', 'hossam', '01001762250', 'mahmoud584@gmail.com', 106, '$2a$10$Hv3sFT1hrmBSSvDGeLp0yudQdDairHMqbVxyxH7CqvH7JP3ZhKk/a', 'USER', b'0', b'1');
 
 -- --------------------------------------------------------
 
@@ -215,11 +212,13 @@ INSERT INTO `user_documents` (`id`, `license_file`, `profession_license_file`, `
 (85, 'a4a23ec3-bb8c-4c5f-98ee-fa7007360408_Lecture 1_ Mobile Programming_F24.pdf', '9c960bcc-6a6f-4fd0-8d18-9d86fdb3290c_Lecture 1_ Mobile Programming_F24.pdf', 'd8891be5-2f94-4c65-998a-d509cd458b1d_Lecture 1_ Mobile Programming_F24.pdf', '5d1cff85-180f-4c54-8e88-a67d94b188a6_Lecture 1_ Mobile Programming_F24.pdf', '92dec8b0-805b-42d7-a72f-54b7f0abe840_Lecture 1_ Mobile Programming_F24.pdf'),
 (87, '00e5d05b-db4b-4990-8870-6d75e06878c9_Lecture 1_ Mobile Programming_F24.pdf', '4c4e44a8-f06b-43d7-9d95-58d0ce461ac0_Lecture 1_ Mobile Programming_F24.pdf', '04c0de54-aebc-4689-8e4d-67cb42e3cef6_Lecture 1_ Mobile Programming_F24.pdf', 'bdb23df6-8721-49b1-a963-628ca3e6b340_Lecture 1_ Mobile Programming_F24.pdf', 'cdd22a84-a393-4250-b47c-5961a4032a33_Lecture 1_ Mobile Programming_F24.pdf'),
 (88, '96f228d2-787d-437d-91bd-ed6742547126_Lecture 1_ Mobile Programming_F24.pdf', 'a0b2cc52-ff15-4563-96da-e7c97a4cc79c_Lecture 1_ Mobile Programming_F24.pdf', '4ea66ac9-8064-4465-a09f-c82a43bfba5a_Lecture 1_ Mobile Programming_F24.pdf', '0abada68-dcdf-414a-a533-eef8714bb0e2_Lecture 1_ Mobile Programming_F24.pdf', '3c7810e6-c44e-4266-9cb9-18f29c693648_Lecture 1_ Mobile Programming_F24.pdf'),
-(91, '959ab672-7fd1-4145-af29-698814f87404_Lecture 1_ Mobile Programming_F24.pdf', '1274990a-9aa0-449b-b75e-edec488b7010_Lecture 1_ Mobile Programming_F24.pdf', 'cd954e3e-d7db-4387-aab0-c518d78bbf49_Lecture 1_ Mobile Programming_F24.pdf', '62a77bf9-1fd6-4c09-93f3-fc045bc02627_Lecture 1_ Mobile Programming_F24.pdf', '89027b57-c462-494d-969c-a5abe72825c6_Lecture 1_ Mobile Programming_F24.pdf'),
-(92, '5daf9de3-3432-4b66-bb20-3a02443113f5_Lecture 1_ Mobile Programming_F24.pdf', '65112171-ccd9-4297-8460-ec8c783bc21b_Lecture 1_ Mobile Programming_F24.pdf', '5211e802-78ab-432f-8eed-d6191a7e6ab0_Lecture 1_ Mobile Programming_F24.pdf', 'bdb27ec2-9c92-49f6-97c5-03468386f4dc_Lecture 1_ Mobile Programming_F24.pdf', '3369821a-b67d-4257-85ba-fbdcd0cec515_Lecture 1_ Mobile Programming_F24.pdf'),
-(99, 'beb3b956-af25-44da-8c77-2e8bb096690c_Lecture 1_ Mobile Programming_F24.pdf', 'd9c5a9c4-0cc5-461a-86ab-5380d80f3c97_Lecture 1_ Mobile Programming_F24.pdf', 'f07f7f92-e082-4844-a4cf-f8df9a83b873_Lecture 1_ Mobile Programming_F24.pdf', 'feb5d284-9792-49b2-95eb-925087aa5553_Lecture 1_ Mobile Programming_F24.pdf', '74c6bb2d-fdb1-41a6-80d5-23a3dc1bc1eb_Lecture 1_ Mobile Programming_F24.pdf'),
-(118, '368482ab-03a3-4099-aeb9-c1d7c2258a99_Lecture 1_ Mobile Programming_F24.pdf', '23b46b1d-9156-4c7b-afb9-881129b16ed3_Lecture 1_ Mobile Programming_F24.pdf', 'b7192be3-45c7-404e-9b80-d1919f2c9d38_Lecture 1_ Mobile Programming_F24.pdf', '66495f25-6411-48d5-95c0-cc4e6d498a1c_Lecture 1_ Mobile Programming_F24.pdf', 'b9305090-a23c-4329-a18b-1a5992d743d3_Lecture 1_ Mobile Programming_F24.pdf'),
-(119, '784759bb-ad12-46c1-aa45-ef8b42a69b31_Lecture 1_ Mobile Programming_F24.pdf', 'aaa97af0-405e-4215-bc02-d124d97aed30_Lecture 1_ Mobile Programming_F24.pdf', '9e275b9e-a32b-44a8-8065-8314847ad52b_Lecture 1_ Mobile Programming_F24.pdf', '7e1681d4-4b17-43f3-8a9d-df63c96fa390_Lecture 1_ Mobile Programming_F24.pdf', 'd2115311-bd39-48ad-a3a9-109f8b84e988_Lecture 1_ Mobile Programming_F24.pdf');
+(89, '4e496f27-6657-495e-a25f-f2c72ab20fc6_2025.pdf', 'e0b208af-5e85-48e6-819f-063967cd1352_2025.pdf', '17a27a0a-a350-4e4e-bd96-72513679c610_2025.pdf', 'f2b635b2-8d6b-47f6-bd3a-9304adb8df0a_2025.pdf', '7a43012d-36c2-4919-a3b9-ec4f731165c7_2025.pdf'),
+(96, '7a596314-7d61-4ca4-9dcc-0c583bbca8bc_2025.pdf', '7ba057e0-2e71-4076-b030-54454319ced3_2025.pdf', '6d8ddd97-2f7d-4002-95ba-a606db3653a1_2025.pdf', 'f4842940-9744-4221-b646-349a6d49c43b_2025.pdf', 'b18a8a44-5b62-4c40-8cfe-dd835c46e911_2025.pdf'),
+(97, '95b8731b-aa01-40c4-b3ea-4d67c71661fa_2025.pdf', '52717d9e-5995-44c0-99e5-02dc89fc0e3c_2025.pdf', '87dcaf84-e7c7-46e8-98b1-af22694c64da_2025.pdf', '8d173730-65cc-4dbf-908b-592be22ad103_2025.pdf', '78d7b598-3ae1-48ab-828a-cff41efb13af_2025.pdf'),
+(98, 'a9ee509f-ea6f-4318-8858-bbffca2fcc14_2025.pdf', '9b564202-1e01-4b6b-9fe8-64a51099cf09_2025.pdf', 'd934d63b-44d3-4387-85f3-8dcf69005a40_2025.pdf', '1c73ec4f-4b91-4b77-bfc4-7d5b1cc587e0_2025.pdf', '562ae43f-249c-478c-8e78-f53166c56e65_2025.pdf'),
+(102, 'c1434846-711d-41af-8f14-22004e6197eb_2025.pdf', 'be2880a4-fc10-4e96-8468-144c420ee52c_2025.pdf', 'ac96a92e-e74b-45e7-91b8-cd0bc6d102d8_2025.pdf', 'c7c9fef4-d87b-4a00-84e7-f2aa691a0238_2025.pdf', '90924475-a0b2-4932-98c6-a697ec4e3fe0_2025.pdf'),
+(103, '8e1ec5c3-014b-43c4-97d2-f9e35890451c_2025.pdf', '521fb9c5-1230-4e31-9b46-92b1b7e41ae8_2025.pdf', '90632a6b-5447-4c77-ab97-900a3bdeb4e5_2025.pdf', '8a2f0b73-3321-425b-85e4-3b0f2a184a63_2025.pdf', '91b7a405-a765-4f29-9b2c-d6cffb0e24a7_2025.pdf'),
+(106, '92e0e52a-377d-4ace-a3fe-a57fca51854c_2025.pdf', '4a1c98e8-5237-46ad-9ed1-48fd8fb47dc5_2025.pdf', 'e1f79e7a-e5ec-4c26-8a37-50d952e7bebe_2025.pdf', '7c08f477-bfc2-46f6-a65e-72d13d3717d5_2025.pdf', 'cd2d5001-68ca-4770-b45e-515c81d1b861_2025.pdf');
 
 -- --------------------------------------------------------
 
@@ -233,13 +232,6 @@ CREATE TABLE `video` (
   `video_path` varchar(255) NOT NULL,
   `chapter_id` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `video`
---
-
-INSERT INTO `video` (`id`, `title`, `video_path`, `chapter_id`) VALUES
-(31, 'car', '/uploads/videos/4784691a-066b-4183-a94a-a83b1c8afcf3_1955103.webp', 38);
 
 --
 -- Indexes for dumped tables
@@ -327,19 +319,19 @@ ALTER TABLE `admins`
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `chapter`
 --
 ALTER TABLE `chapter`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `course`
 --
 ALTER TABLE `course`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `enrollment`
@@ -363,19 +355,19 @@ ALTER TABLE `product`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
 -- AUTO_INCREMENT for table `user_documents`
 --
 ALTER TABLE `user_documents`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=120;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
 
 --
 -- AUTO_INCREMENT for table `video`
 --
 ALTER TABLE `video`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables

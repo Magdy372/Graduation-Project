@@ -1,51 +1,95 @@
-import React, { useState } from "react";
-import { Trash } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import { motion } from "framer-motion";
 
-const initialDoctorsList = [
-  { id: 1, name: "د. أحمد علي", specialty: "أخصائي أمراض القلب", contact: "ahmed.ali@email.com" },
-  { id: 2, name: "د. سارة حسين", specialty: "أخصائية الأمراض الجلدية", contact: "sara.hussein@email.com" },
-  { id: 3, name: "د. عمر خالد", specialty: "طبيب أطفال", contact: "omar.khaled@email.com" },
-  { id: 4, name: "د. منى صالح", specialty: "أخصائية الأعصاب", contact: "mona.saleh@email.com" },
-  { id: 5, name: "د. كريم زكي", specialty: "أخصائي جراحة العظام", contact: "kareem.zaki@email.com" },
-];
+const ViewUsers = () => {
+  const navigate = useNavigate();
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-const Doctors = () => {
-  const [doctors, setDoctors] = useState(initialDoctorsList);
+  // Fetch users
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("http://localhost:8089/users/view-all");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setUsers(data);
+        setFilteredUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleDelete = (id) => {
-    const updatedDoctors = doctors.filter((doctor) => doctor.id !== id);
-    setDoctors(updatedDoctors);
-  };
+    fetchUsers();
+  }, []);
+
+  // Handle search
+  useEffect(() => {
+    const filtered = users.filter((user) =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+  }, [searchQuery, users]);
+
+  if (loading) {
+    return <p className="text-xl text-center w-full">Loading...</p>;
+  }
+
+  if (error) {
+    return <p className="text-xl text-center w-full">Error: {error}</p>;
+  }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen text-right" dir="rtl">
-      <h1 className="text-2xl font-bold mb-4">قائمة الأطباء</h1>
-      <ul className="space-y-4">
-        {doctors.map((doctor) => (
-          <li
-            key={doctor.id}
-            className="flex items-center justify-between p-4 bg-white shadow rounded-lg"
-          >
-            <div>
-              <h2 className="text-lg font-semibold">{doctor.name}</h2>
-              <p className="text-gray-700">التخصص: {doctor.specialty}</p>
-              <p className="text-gray-700">البريد الإلكتروني: {doctor.contact}</p>
-            </div>
-            <button
-              onClick={() => handleDelete(doctor.id)}
-              className="text-red-500 hover:text-red-700"
-              aria-label={`حذف ${doctor.name}`}
-            >
-              <Trash className="w-6 h-6" />
-            </button>
-          </li>
-        ))}
-      </ul>
-      {doctors.length === 0 && (
-        <p className="text-center text-gray-600 mt-4">لا توجد بيانات للأطباء حاليًا.</p>
-      )}
-    </div>
+    <>
+      <Navbar />
+      <div className="container mx-auto px-6 py-10">
+        <h1 className="text-3xl font-bold text-center mb-8">Users</h1>
+
+        {/* Search Bar */}
+        <div className="mb-8">
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {/* Users Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => (
+              <motion.div
+                key={user.id}
+                className="border border-gray-300 rounded-lg overflow-hidden shadow-md cursor-pointer transition-transform transform hover:scale-105 relative"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="p-5">
+                  <h2 className="text-xl font-semibold">{user.name}</h2>
+                  <p className="text-gray-600">{user.email}</p>
+                </div>
+              </motion.div>
+            ))
+          ) : (
+            <p className="text-xl text-center w-full">No users found</p>
+          )}
+        </div>
+      </div>
+    </>
   );
 };
 
-export default Doctors;
+export default ViewUsers;
