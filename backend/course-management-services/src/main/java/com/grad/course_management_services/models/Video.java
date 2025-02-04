@@ -1,5 +1,7 @@
 package com.grad.course_management_services.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,6 +29,7 @@ public class Video {
 
     @ManyToOne
     @JoinColumn(name = "chapter_id", nullable = false)
+    @JsonIgnore
     private Chapter chapter;
 
 }

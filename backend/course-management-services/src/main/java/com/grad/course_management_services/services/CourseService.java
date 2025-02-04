@@ -4,14 +4,19 @@ import com.grad.course_management_services.models.Category;
 import com.grad.course_management_services.models.Chapter;
 import com.grad.course_management_services.models.Course;
 import com.grad.course_management_services.models.User;
+import com.grad.course_management_services.models.Video;
 
-import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional;import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.grad.course_management_services.clients.UserServiceClient;
 import com.grad.course_management_services.dao.CategoryRepository;
 import com.grad.course_management_services.dao.ChapterRepository;
 import com.grad.course_management_services.dao.CourseRepository;
+import com.grad.course_management_services.dto.ChapterDTO;
+import com.grad.course_management_services.dto.CourseDTO;
 import com.grad.course_management_services.dto.CourseRequestDTO;
+import com.grad.course_management_services.dto.VideoDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +26,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseService {
@@ -31,7 +38,7 @@ public class CourseService {
     private final ChapterRepository chapterRepository;
     @Autowired
     private FileStorageService fileStorageService;
-
+    private static final Logger logger = LoggerFactory.getLogger(CourseService.class);
     public CourseService(CourseRepository courseRepository, CategoryRepository categoryRepository, ChapterRepository chapterRepository) {
         this.courseRepository = courseRepository;
         this.categoryRepository = categoryRepository;
@@ -83,15 +90,46 @@ public Course saveCourseDto(CourseRequestDTO requestDTO, MultipartFile image) th
     return course;
 }
     
-    
-    // Get all courses
-    public List<Course> getAllCourses() {
-        return courseRepository.findAll();
+ 
+ public CourseDTO getCourseById(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        return new CourseDTO(
+                course.getId(),
+                course.getName(),
+                course.getDescription(),
+                course.getImageUrl(),
+                course.getCategory() != null ? course.getCategory().getName() : null,
+                course.getChapters().stream().map(chapter -> new ChapterDTO(
+                        chapter.getId(),
+                        chapter.getTitle(),
+                        chapter.getVideos().stream().map(video -> new VideoDTO(
+                                video.getId(),
+                                video.getTitle(),
+                                video.getVideoPath()
+                        )).collect(Collectors.toList())
+                )).collect(Collectors.toList())
+        );
     }
 
-    // Get course by ID
-    public Optional<Course> getCourseById(Long id) {
-        return courseRepository.findById(id);
+    public List<CourseDTO> getAllCourses() {
+        return courseRepository.findAll().stream().map(course -> new CourseDTO(
+                course.getId(),
+                course.getName(),
+                course.getDescription(),
+                course.getImageUrl(),
+                course.getCategory() != null ? course.getCategory().getName() : null,
+                course.getChapters().stream().map(chapter -> new ChapterDTO(
+                        chapter.getId(),
+                        chapter.getTitle(),
+                        chapter.getVideos().stream().map(video -> new VideoDTO(
+                                video.getId(),
+                                video.getTitle(),
+                                video.getVideoPath()
+                        )).collect(Collectors.toList())
+                )).collect(Collectors.toList())
+        )).collect(Collectors.toList());
     }
 
     // Create or update a course
@@ -108,4 +146,45 @@ public Course saveCourseDto(CourseRequestDTO requestDTO, MultipartFile image) th
     public List<Course> getCoursesByCategoryId(Long categoryId) {
         return courseRepository.findByCategoryId(categoryId);
     }
+    @Transactional
+    public CourseDTO updateCourseDto(Long courseId, CourseDTO requestDTO, MultipartFile image) throws IOException {
+        // Fetch the existing course
+        final Course courseRef = courseRepository.findById(courseId) // Store in final reference
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+    
+        // Update basic course details
+        courseRef.setName(requestDTO.getName());
+        courseRef.setDescription(requestDTO.getDescription());
+    
+        // Update course image if provided
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = fileStorageService.storeFile(image);
+            courseRef.setImageUrl(imageUrl);
+        }
+    
+        // Update category if provided
+        if (requestDTO.getCategoryName() != null && !requestDTO.getCategoryName().trim().isEmpty()) {
+            Category category = categoryRepository.findByName(requestDTO.getCategoryName())
+                    .orElseGet(() -> categoryRepository.save(new Category(null, requestDTO.getCategoryName())));
+            courseRef.setCategory(category);
+        }
+    
+        // Save and return updated course as DTO
+        Course savedCourse = courseRepository.save(courseRef);
+        return convertToDto(savedCourse);
+    }
+    
+    // Convert Course to DTO without chapters/videos
+    private CourseDTO convertToDto(Course course) {
+        return new CourseDTO(
+                course.getId(),
+                course.getName(),
+                course.getDescription(),
+                course.getImageUrl(),
+                course.getCategory() != null ? course.getCategory().getName() : null,
+                new ArrayList<>() // No chapters/videos
+        );
+    }
+    
+        
 }

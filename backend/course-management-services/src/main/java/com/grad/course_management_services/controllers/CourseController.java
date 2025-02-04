@@ -1,5 +1,7 @@
 package com.grad.course_management_services.controllers;
 
+import com.grad.course_management_services.dto.ChapterDTO;
+import com.grad.course_management_services.dto.CourseDTO;
 import com.grad.course_management_services.dto.CourseRequestDTO;
 import com.grad.course_management_services.models.Course;
 import com.grad.course_management_services.services.CourseService;
@@ -21,20 +23,26 @@ public class CourseController {
     @Autowired
     private CourseService courseService;
 
-    // Get all courses
+    @GetMapping("/{id}")
+    public CourseDTO getCourse(@PathVariable Long id) {
+        return courseService.getCourseById(id);
+    }
+
     @GetMapping
-    public List<Course> getAllCourses() {
+    public List<CourseDTO> getAllCourses() {
         return courseService.getAllCourses();
     }
 
-    // Get course by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Course> getCourseById(@PathVariable Long id) {
-        Optional<Course> course = courseService.getCourseById(id);
-        return course.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    @PutMapping("/{courseId}")
+    public ResponseEntity<CourseDTO> updateCourse(
+            @PathVariable Long courseId,
+            @ModelAttribute CourseDTO courseRequestDTO,
+            @RequestParam(value = "image", required = false) MultipartFile image) throws IOException {
+        
+        CourseDTO updatedCourse = courseService.updateCourseDto(courseId, courseRequestDTO, image);
+        return ResponseEntity.ok(updatedCourse);
     }
-
+    
     // Get courses by category ID
     @GetMapping("/category/{categoryId}")
     public List<Course> getCoursesByCategoryId(@PathVariable Long categoryId) {

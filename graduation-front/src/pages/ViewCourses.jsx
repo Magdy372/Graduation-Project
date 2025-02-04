@@ -1,152 +1,163 @@
-import React, { Suspense, useEffect, useState } from "react";
-import courseImage from "../assets/images/course.jpg"; // Import the image
-import Footer from "../components/Footer";
-import { FaSearch } from "react-icons/fa"; // Import the search icon
+import React, { useEffect, useState, Suspense } from "react";
+import { FaSearch, FaEdit, FaTrash, FaPlus,FaCapsules, FaMicroscope, FaHandshake, FaSyringe, FaStethoscope } from "react-icons/fa";
+import { TbHeartRateMonitor } from "react-icons/tb";
 import { motion } from "framer-motion";
-import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
-import { FaEdit, FaTrash } from 'react-icons/fa';
-
-// Admins Data
-
-const handleDeleteCourse = (course, setFilterCourses, filterCourses) => {
-  if (window.confirm(`Are you sure you want to delete ${course.name}?`)) {
-    setFilterCourses(filterCourses.filter((item) => item.id !== course.id));
-  }
-};
-
-const FaStethoscope = React.lazy(() =>
-  import("react-icons/fa6").then((mod) => ({ default: mod.FaStethoscope })));
-const FaCapsules = React.lazy(() =>
-  import("react-icons/fa6").then((mod) => ({ default: mod.FaCapsules })));
-const FaMicroscope = React.lazy(() =>
-  import("react-icons/fa6").then((mod) => ({ default: mod.FaMicroscope })));
-const FaSyringe = React.lazy(() =>
-  import("react-icons/fa6").then((mod) => ({ default: mod.FaSyringe })));
-const TbHeartRateMonitor = React.lazy(() =>
-  import("react-icons/tb").then((mod) => ({ default: mod.TbHeartRateMonitor })));
-const FaHandshake = React.lazy(() =>
-  import("react-icons/fa").then((mod) => ({ default: mod.FaHandshake })));
-
-export const FadeUp = (delay) => {
-  return {
-    initial: {
-      opacity: 0,
-      y: 50,
-    },
-    animate: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        duration: 0.5,
-        delay: delay,
-        ease: "easeInOut",
-      },
-    },
-  };
-};
-
-// Sample mock courses data
-const mockCourses = [
-  { id: 1, name: "Clinical Practice", category: "Clinical", image: courseImage },
-  { id: 2, name: "Pharmacology and Therapeutics", category: "Pharmacy", image: courseImage },
-  { id: 3, name: "Research and Evidence-Based Medicine", category: "Research", image: courseImage },
-  { id: 4, name: "Public Health and Preventive Medicine", category: "Public Health", image: courseImage },
-  { id: 5, name: "Technology in Medicine and Pharmacy", category: "Technology", image: courseImage },
-  { id: 6, name: "Professional Development and Ethics", category: "Professional Development", image: courseImage },
-];
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 const ViewCourses = () => {
   const navigate = useNavigate();
-  const [filterCourses, setFilterCourses] = useState(mockCourses);
-  const [categories, setCategories] = useState([
-    "Clinical",
-    "Pharmacy",
-    "Research",
-    "Public Health",
-    "Technology",
-    "Professional Development",
-  ]); // Initial categories
-  const [newCategory, setNewCategory] = useState(""); // State for new category input
-  const [editingIndex, setEditingIndex] = useState(null); // State to track which category is being edited
-  const [editingValue, setEditingValue] = useState(""); // State for the value being edited
-  const [searchQuery, setSearchQuery] = useState(""); // Search query state
+  const [courses, setCourses] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
 
-  // Function to add a new category
-  const addCategory = () => {
-    if (newCategory && !categories.includes(newCategory)) {
-      setCategories([...categories, newCategory]);
-      setNewCategory(""); // Clear the input after adding
-    } else {
-      alert("Category already exists or is empty.");
-    }
-  };
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingValue, setEditingValue] = useState("");
+  const [newCategory, setNewCategory] = useState("");
 
-  // Function to save the edited category name
-  const saveEdit = (index) => {
-    if (editingValue) {
-      const updatedCategories = [...categories];
-      updatedCategories[index] = editingValue;
-      setCategories(updatedCategories);
-      setEditingIndex(null); // Clear edit state
-      setEditingValue(""); // Clear input
-    } else {
-      alert("Category name cannot be empty.");
-    }
-  };
+  // Fetch courses
+  useEffect(() => {
+    fetch("http://localhost:8087/api/courses")
+      .then((response) => response.json())
+      .then((data) => {
+        setCourses(data);
+        setFilteredCourses(data);
+      })
+      .catch((error) => console.error("Error fetching courses:", error));
+  }, []);
 
-  // Function to delete a category
-  const deleteCategory = (index) => {
-    if (window.confirm(`Are you sure you want to delete this category?`)) {
-      const updatedCategories = categories.filter((_, i) => i !== index);
-      setCategories(updatedCategories);
-    }
-  };
+  // Fetch categories
+  useEffect(() => {
+    fetch("http://localhost:8087/api/categories")
+      .then((response) => response.json())
+      .then((data) => setCategories(data))
+      .catch((error) => console.error("Error fetching categories:", error));
+  }, []);
 
-  // Filter courses by category and search query
-  const applyFilter = () => {
-    let filteredCourses = mockCourses;
+  // Apply Filters (Search & Category)
+  useEffect(() => {
+    let filtered = courses;
     if (searchQuery) {
-      filteredCourses = filteredCourses.filter((course) =>
+      filtered = filtered.filter((course) =>
         course.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-    setFilterCourses(filteredCourses);
+    if (selectedCategory) {
+      filtered = filtered.filter((course) => course.categoryName === selectedCategory);
+    }
+    setFilteredCourses(filtered);
+  }, [searchQuery, selectedCategory, courses]);
+
+  // Handle deleting a course
+  const handleDeleteCourse = (courseId) => {
+    if (window.confirm("Are you sure you want to delete this course?")) {
+      fetch(`http://localhost:8087/api/courses/${courseId}`, { method: "DELETE" })
+        .then(() => {
+          setCourses(courses.filter((course) => course.id !== courseId));
+        })
+        .catch((error) => console.error("Error deleting course:", error));
+    }
   };
 
-  useEffect(() => {
-    applyFilter(); // Apply filter whenever search query changes
-  }, [searchQuery]); // Dependency on search query
+  // Handle category selection
+  const setCategory = (category) => {
+    setSelectedCategory(category.name);
+  };
+
+    // Handle edit course button click (Navigate to EditCourse)
+    const handleEditCourse = (course) => {
+      navigate("/editCourse", { state: { course } });
+    };
+    const handleAddVideo = (course) => {
+      navigate("/addvideo", { state: { course } });
+    };
+  // Handle category edit
+  const saveEdit = (index) => {
+    if (editingValue.trim() === "") return;
+    const updatedCategories = [...categories];
+    updatedCategories[index].name = editingValue;
+
+    fetch(`http://localhost:8087/api/categories/${categories[index].id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: editingValue }),
+    })
+      .then(() => setCategories(updatedCategories))
+      .catch((error) => console.error("Error updating category:", error));
+
+    setEditingIndex(null);
+  };
+
+  // Handle category deletion
+  const deleteCategory = (index) => {
+    const categoryId = categories[index].id;
+    if (!window.confirm("Are you sure you want to delete this category?")) return;
+
+    fetch(`http://localhost:8087/api/categories/${categoryId}`, { method: "DELETE" })
+      .then(() => {
+        setCategories((prev) => prev.filter((_, i) => i !== index));
+      })
+      .catch((error) => console.error("Error deleting category:", error));
+  };
+
+  // Handle adding new category
+  const addCategory = () => {
+    if (newCategory.trim() === "") return;
+    const newCatObj = { name: newCategory };
+
+    fetch("http://localhost:8087/api/categories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newCatObj),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setCategories([...categories, data]);
+        setNewCategory("");
+      })
+      .catch((error) => console.error("Error adding category:", error));
+  };
 
   return (
     <>
-      <div>
-        <h1 className="text-2xl font-bold mb-4 ml-auto text-right"> الدورات التدريبية</h1>
+      <Navbar />
+      <div className="container mx-auto px-6 py-10">
+        <h1 className="text-3xl font-bold text-center mb-8"> الدورات التدريبية</h1>
 
-        {/* Courses Section */}
-        <div className="flex justify-between items-center p-6 mb-5">
-          <motion.h2
-            variants={FadeUp(0.6)}
-            initial="initial"
-            animate="animate"
-            className="text-blue text-2xl font-bold"
+        {/* Search & Category Filter */}
+        <div className="flex justify-between items-center mb-6">
+          <input
+            type="text"
+            placeholder="Search courses..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="p-3 border rounded-md w-1/2 shadow-sm focus:outline-none"
+          />
+          <FaSearch className="text-gray-500 ml-3 mt-3" />
+
+          {/* Category Dropdown */}
+          <select
+            className="p-3 border rounded-md shadow-sm focus:outline-none"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
           >
-            Browse through courses
-          </motion.h2>
+            <option value="">All Categories</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.name}>
+                {category.name}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className="flex gap-10 mt-5 px-5">
-          <div className="border border-gray p-5 rounded-lg">
+        <div className="flex gap-10">
+          {/* Categories Section */}
+          <div className="border border-gray p-5 rounded-lg w-1/4">
             <Suspense fallback={<div>Loading...</div>}>
-              <motion.div
-                variants={FadeUp(0.8)}
-                initial="initial"
-                animate="animate"
-                className="mt-5"
-              >
-                {/* Category Buttons */}
+              <motion.div className="mt-5">
                 {categories.map((category, index) => (
                   <div key={index} className="flex mb-3">
                     {editingIndex === index ? (
@@ -155,39 +166,25 @@ const ViewCourses = () => {
                         value={editingValue}
                         onChange={(e) => setEditingValue(e.target.value)}
                         className="p-2 border border-gray rounded-md w-full"
-                        onBlur={() => saveEdit(index)} // Save on blur
+                        onBlur={() => saveEdit(index)}
                         onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            saveEdit(index); // Save on Enter key
-                          }
+                          if (e.key === "Enter") saveEdit(index);
                         }}
                       />
                     ) : (
                       <button
-                        className="p-3 bg-white text-blue border w-full hover:bg-red hover:text-white rounded-md flex justify-between items-center"
+                        className={`p-3 w-full rounded-md flex justify-between items-center ${
+                          selectedCategory === category.name ? "bg-blue text-white" : "bg-white text-blue"
+                        }`}
                         onClick={() => setCategory(category)}
                       >
+                        {category.name}
                         <span className="flex items-center gap-2">
-                          {category === "Clinical" && <FaStethoscope />}
-                          {category === "Pharmacy" && <FaCapsules />}
-                          {category === "Research" && <FaMicroscope />}
-                          {category === "Public Health" && <TbHeartRateMonitor />}
-                          {category === "Technology" && <FaSyringe />}
-                          {category === "Professional Development" && <FaHandshake />}
-                          {category}
-                        </span>
-                        <span className="flex items-center gap-2">
-                          <FaEdit
-                            className="text-gray-600 cursor-pointer hover:text-blue-600"
-                            onClick={() => {
-                              setEditingIndex(index);
-                              setEditingValue(category);
-                            }}
-                          />
-                          <FaTrash
-                            className="text-gray-600 cursor-pointer hover:text-red-600"
-                            onClick={() => deleteCategory(index)}
-                          />
+                          <FaEdit className="text-gray-600 cursor-pointer hover:text-blue-600" onClick={() => {
+                            setEditingIndex(index);
+                            setEditingValue(category.name);
+                          }} />
+                          <FaTrash className="text-gray-600 cursor-pointer hover:text-red-600" onClick={() => deleteCategory(index)} />
                         </span>
                       </button>
                     )}
@@ -202,62 +199,67 @@ const ViewCourses = () => {
                   placeholder="New Category Name"
                   className="mb-3 p-2 border border-gray rounded-md w-full"
                 />
-                <button
-                  className="mb-3 p-3 bg-blue text-white border w-full hover:bg-red rounded-md"
-                  onClick={addCategory}
-                >
+                <button className="mb-3 p-3 bg-blue text-white border w-full hover:bg-red rounded-md" onClick={addCategory}>
                   Add Category
                 </button>
               </motion.div>
             </Suspense>
           </div>
 
-          {/* Courses Section */}
-          <motion.div
-            initial={{ x: 50, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: "easeInOut" }}
-            className="w-3/4"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filterCourses.slice(0, 10).map((course) => (
-                <div
-                  key={course.id}
-                  className="border border-blue-400 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500 relative"
-                  onClick={() =>
-                    navigate("/courseDesc", { state: { course } })
-                  }
-                >
-                  <img
-                    src={course.image}
-                    alt={course.name}
-                    className="w-full h-48 object-cover bg-transparent"
-                  />
-                  <div className="p-5">
-                    <div className="flex items-center gap-2 text-sm text-center text-red">
-                      <p>Available</p>
-                    </div>
-                    <p className="text-blue text-lg font-medium">
-                      {course.name}
-                    </p>
-                    <p className="text-red text-sm">{course.category}</p>
-                  </div>
-                  {/* Delete Icon Behind the Text */}
-                  <div className="absolute bottom-5 right-5">
-                    <FaTrash
-                      className="text-gray-600 cursor-pointer hover:text-red-600 transition-colors duration-200"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent the click from bubbling up
-                        handleDeleteCourse(course, setFilterCourses, filterCourses);
-                      }}
-                    />
-                  </div>
+                 {/* Courses Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredCourses.length > 0 ? (
+            filteredCourses.map((course) => (
+              <motion.div
+                key={course.id}
+                className="border border-gray-300 rounded-lg overflow-hidden shadow-md cursor-pointer transition-transform transform hover:scale-105 relative"
+                onClick={() => navigate("/courseDesc", { state: { course } })}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <img
+                  src={`http://localhost:8087${course.imageUrl}`}
+                  alt={course.name}
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-5">
+                  <h2 className="text-xl font-semibold">{course.name}</h2>
+                  <p className="text-gray-600">{course.categoryName}</p>
                 </div>
-              ))}
-            </div>
-          </motion.div>
+                {/* Delete Button */}
+                <div className="absolute bottom-5 right-5 flex space-x-3">
+                  <FaEdit
+                    className="text-blue-500 cursor-pointer hover:text-blue-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditCourse(course);
+                    }}
+                  />
+                  <FaTrash
+                    className="text-red-500 cursor-pointer hover:text-red-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteCourse(course.id);
+                    }}
+                  />
+                  <FaPlus
+                    className="text-green-500 cursor-pointer hover:text-green-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddVideo(course);
+                    }}
+                  />
+                </div>
+              </motion.div>
+              ))
+            ) : (
+              <p>No courses found.</p>
+            )}
+          </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };

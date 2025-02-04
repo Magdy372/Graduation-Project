@@ -1,7 +1,6 @@
 package com.grad.course_management_services.controllers;
 
 import com.grad.course_management_services.models.Video;
-import com.grad.course_management_services.services.ChapterService;
 import com.grad.course_management_services.services.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,53 +10,41 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/videos")
 public class VideoController {
-
+    
     @Autowired
     private VideoService videoService;
-     @Autowired
-    private ChapterService chapterService;
-
-    // Get all videos
-    @GetMapping
-    public List<Video> getAllVideos() {
-        return videoService.getAllVideos();
-    }
-
-    // Get video by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Video> getVideoById(@PathVariable Long id) {
-        Optional<Video> video = videoService.getVideoById(id);
-        return video.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-    }
-
-    // Get videos by chapter ID
-    @GetMapping("/chapter/{chapterId}")
-    public List<Video> getVideosByChapterId(@PathVariable Long chapterId) {
-        return videoService.getVideosByChapterId(chapterId);
-    }
-
-    // Create or update video
-    @PostMapping
-    public ResponseEntity<Video> createOrUpdateVideo(@RequestBody Video video) {
-        Video savedVideo = videoService.saveVideo(video);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedVideo);
-    }
-
-    // Delete video
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteVideo(@PathVariable Long id) {
-        videoService.deleteVideo(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-      // Endpoint to upload a video
+    
+    // Upload a video to a chapter
     @PostMapping("/upload/{chapterId}")
-    public Video uploadVideo(@RequestParam("file") MultipartFile file, @PathVariable Long chapterId) throws IOException {
-        return chapterService.saveVideo(file, chapterId);
+    public ResponseEntity<Video> uploadVideo(@PathVariable Long chapterId, 
+                                             @RequestParam("file") MultipartFile file,
+                                             @RequestParam("title") String title) throws IOException {
+        Video video = videoService.uploadVideo(chapterId, file, title);
+        return new ResponseEntity<>(video, HttpStatus.CREATED);
+    }
+    
+    // Get all videos of a chapter
+    @GetMapping("/chapter/{chapterId}")
+    public ResponseEntity<List<Video>> getVideosByChapter(@PathVariable Long chapterId) {
+        List<Video> videos = videoService.getVideosByChapter(chapterId);
+        return ResponseEntity.ok(videos);
+    }
+    
+    // Delete a video
+    @DeleteMapping("/{videoId}")
+    public ResponseEntity<Void> deleteVideo(@PathVariable Long videoId) {
+        videoService.deleteVideo(videoId);
+        return ResponseEntity.noContent().build();
+    }
+    
+    // Update video title
+    @PutMapping("/{videoId}/update-title")
+    public ResponseEntity<Video> updateVideoTitle(@PathVariable Long videoId, @RequestParam("title") String newTitle) {
+        Video updatedVideo = videoService.updateVideoTitle(videoId, newTitle);
+        return ResponseEntity.ok(updatedVideo);
     }
 }
