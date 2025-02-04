@@ -9,28 +9,28 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:5173")
 public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
 
     // Get all categories
-    @GetMapping
+    @GetMapping("/categories")
     public List<Category> getAllCategories() {
         return categoryService.getAllCategories();
     }
 
     // Get category by ID
-    @GetMapping("/{id}")
+    @GetMapping("categories/{id}")
     public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
         Optional<Category> category = categoryService.getCategoryById(id);
         return category.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
-    @PutMapping("/{id}")
+    @PutMapping("categories/{id}")
     public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody Category updatedCategory) {
         Optional<Category> existingCategory = categoryService.getCategoryById(id);
 
@@ -44,14 +44,15 @@ public class CategoryController {
         }
     }
     // Create or update category
-    @PostMapping
+    
+  @PostMapping("categories")
     public ResponseEntity<Category> createOrUpdateCategory(@RequestBody Category category) {
         Category savedCategory = categoryService.saveCategory(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
     }
 
     // Delete category
-    @DeleteMapping("/{id}")
+    @DeleteMapping("categories/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

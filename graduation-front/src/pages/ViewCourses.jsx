@@ -20,7 +20,7 @@ const ViewCourses = () => {
 
   // Fetch courses
   useEffect(() => {
-    fetch("http://localhost:8087/api/courses")
+    fetch("http://localhost:8084/api/courses")
       .then((response) => response.json())
       .then((data) => {
         setCourses(data);
@@ -31,7 +31,7 @@ const ViewCourses = () => {
 
   // Fetch categories
   useEffect(() => {
-    fetch("http://localhost:8087/api/categories")
+    fetch("http://localhost:8084/api/categories")
       .then((response) => response.json())
       .then((data) => setCategories(data))
       .catch((error) => console.error("Error fetching categories:", error));
@@ -54,7 +54,7 @@ const ViewCourses = () => {
   // Handle deleting a course
   const handleDeleteCourse = (courseId) => {
     if (window.confirm("Are you sure you want to delete this course?")) {
-      fetch(`http://localhost:8087/api/courses/${courseId}`, { method: "DELETE" })
+      fetch(`http://localhost:8084/api/courses/${courseId}`, { method: "DELETE" })
         .then(() => {
           setCourses(courses.filter((course) => course.id !== courseId));
         })
@@ -80,7 +80,7 @@ const ViewCourses = () => {
     const updatedCategories = [...categories];
     updatedCategories[index].name = editingValue;
 
-    fetch(`http://localhost:8087/api/categories/${categories[index].id}`, {
+    fetch(`http://localhost:8084/api/categories/${categories[index].id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: editingValue }),
@@ -96,7 +96,7 @@ const ViewCourses = () => {
     const categoryId = categories[index].id;
     if (!window.confirm("Are you sure you want to delete this category?")) return;
 
-    fetch(`http://localhost:8087/api/categories/${categoryId}`, { method: "DELETE" })
+    fetch(`http://localhost:8084/api/categories/${categoryId}`, { method: "DELETE" })
       .then(() => {
         setCategories((prev) => prev.filter((_, i) => i !== index));
       })
@@ -108,7 +108,7 @@ const ViewCourses = () => {
     if (newCategory.trim() === "") return;
     const newCatObj = { name: newCategory };
 
-    fetch("http://localhost:8087/api/categories", {
+    fetch("http://localhost:8084/api/categories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newCatObj),
@@ -219,7 +219,7 @@ const ViewCourses = () => {
                 transition={{ duration: 0.5 }}
               >
                 <img
-                  src={`http://localhost:8087${course.imageUrl}`}
+                  src={`http://localhost:8084${course.imageUrl}`}
                   alt={course.name}
                   className="w-full h-48 object-cover"
                 />

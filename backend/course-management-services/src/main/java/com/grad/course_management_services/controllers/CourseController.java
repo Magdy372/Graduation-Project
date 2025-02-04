@@ -5,6 +5,9 @@ import com.grad.course_management_services.dto.CourseDTO;
 import com.grad.course_management_services.dto.CourseRequestDTO;
 import com.grad.course_management_services.models.Course;
 import com.grad.course_management_services.services.CourseService;
+
+import jakarta.ws.rs.Consumes;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,23 +20,23 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/courses")
+@RequestMapping("/api/")
 public class CourseController {
 
     @Autowired
     private CourseService courseService;
 
-    @GetMapping("/{id}")
+    @GetMapping("courses/{id}")
     public CourseDTO getCourse(@PathVariable Long id) {
         return courseService.getCourseById(id);
     }
 
-    @GetMapping
+    @GetMapping("courses")
     public List<CourseDTO> getAllCourses() {
         return courseService.getAllCourses();
     }
 
-    @PutMapping("/{courseId}")
+    @PutMapping("courses/{courseId}")
     public ResponseEntity<CourseDTO> updateCourse(
             @PathVariable Long courseId,
             @ModelAttribute CourseDTO courseRequestDTO,
@@ -44,7 +47,7 @@ public class CourseController {
     }
     
     // Get courses by category ID
-    @GetMapping("/category/{categoryId}")
+    @GetMapping("courses/category/{categoryId}")
     public List<Course> getCoursesByCategoryId(@PathVariable Long categoryId) {
         return courseService.getCoursesByCategoryId(categoryId);
     }
@@ -56,17 +59,18 @@ public class CourseController {
     //     return ResponseEntity.status(HttpStatus.CREATED).body(savedCourse);
     // }
 
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Course> saveCourse(
-            @RequestPart(value = "image", required = false) MultipartFile image,
-            @RequestPart("requestDTO") CourseRequestDTO requestDTO) throws IOException {
-    
-        Course savedCourse = courseService.saveCourseDto(requestDTO, image);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedCourse);
-    }
-    
+  @PostMapping("courses") // Endpoint: POST /courses
+@Consumes({MediaType.MULTIPART_FORM_DATA_VALUE})
+public ResponseEntity<Course> saveCourse(
+        @RequestPart(value = "image", required = false) MultipartFile image,
+        @RequestPart("requestDTO") CourseRequestDTO requestDTO) throws IOException {
+
+    Course savedCourse = courseService.saveCourseDto(requestDTO, image);
+    return ResponseEntity.status(HttpStatus.CREATED).body(savedCourse);
+}
+
     // Delete course
-    @DeleteMapping("/{id}")
+    @DeleteMapping("courses/{id}")
     public ResponseEntity<Void> deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

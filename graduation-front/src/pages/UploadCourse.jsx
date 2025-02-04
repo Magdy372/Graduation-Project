@@ -18,7 +18,7 @@ const UploadCourse = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch("http://localhost:8087/api/categories");
+        const response = await fetch("http://localhost:8084/api/categories");
         if (response.ok) {
           const data = await response.json();
           setCategories(data);
@@ -55,7 +55,7 @@ const UploadCourse = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:8087/api/courses", {
+      const response = await fetch("http://localhost:8084/api/courses", {
         method: "POST",
         body: formData,
       });

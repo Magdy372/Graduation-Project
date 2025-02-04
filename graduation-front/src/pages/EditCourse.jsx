@@ -10,11 +10,11 @@ const EditCourse = () => {
   const [courseDescription, setCourseDescription] = useState(course.description);
   const [courseCategory, setCourseCategory] = useState(course.categoryName);
   const [courseImage, setCourseImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(`http://localhost:8087${course.imageUrl}`);
+  const [imagePreview, setImagePreview] = useState(`http://localhost:8084${course.imageUrl}`);
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8087/api/categories")
+    fetch("http://localhost:8084/api/categories")
       .then((res) => res.json())
       .then((data) => setCategories(data))
       .catch((error) => console.error("Error fetching categories:", error));
@@ -34,7 +34,7 @@ const EditCourse = () => {
     formData.append("categoryName", courseCategory);
     if (courseImage) formData.append("image", courseImage);
 
-    await fetch(`http://localhost:8087/api/courses/${course.id}`, {
+    await fetch(`http://localhost:8084/api/courses/${course.id}`, {
       method: "PUT",
       body: formData,
     });
