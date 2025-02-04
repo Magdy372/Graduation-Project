@@ -57,7 +57,7 @@ public ResponseEntity<User> addUser(@Valid @RequestBody User user, BindingResult
 }
 
 
-    @GetMapping("/")
+    @GetMapping("/view-all")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers(); // Assume this method exists in the service
         return ResponseEntity.ok(users);
