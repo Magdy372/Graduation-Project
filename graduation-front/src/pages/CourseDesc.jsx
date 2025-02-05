@@ -8,7 +8,7 @@ import courseImage from "../assets/images/course.jpg"; // Import the image
 import Typography from "@mui/material/Typography";
 import { motion } from "framer-motion"; // Import framer motion
 import Footer from "../components/Footer";
-import ModalCourse from "../components/ModalCourse"; // Import the Modal component
+import { Link } from 'react-router-dom'; // If you're using React Router for navigation
 import { useLocation, useNavigate } from "react-router-dom";
 
 // Fade Up Animation Variants
@@ -29,11 +29,43 @@ export const FadeUp = (delay = 0) => {
 };
 
 const CourseDesc = () => {
-  const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [course, setCourse] = useState(null); // State to store course details
   const [chapters, setChapters] = useState([]); // State to store course chapters
   const navigate = useNavigate();
   const location = useLocation(); // Access navigation state
+  const [recommendations, setRecommendations] = useState([]); // State for recommendations
+  
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      if (!course || !course.name.trim()) {
+        setRecommendations([]); // Clear recommendations if course name is empty
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:5000/recommend", {
+          method: "POST",  // Ensure this is POST
+          headers: {
+            "Content-Type": "application/json",  // Make sure this is set to application/json
+          },
+          body: JSON.stringify({
+            course: course.name,  // Send course name to backend
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setRecommendations(data.recommendations || []);
+        } else {
+          console.error("Failed to fetch recommendations");
+        }
+      } catch (error) {
+        console.error("Error fetching recommendations:", error);
+      }
+    };
+
+    fetchRecommendations();
+  }, [course]); // Fetch recommendations whenever course data changes
 
   // Fetch course details based on the course ID from navigation state
   useEffect(() => {
@@ -65,13 +97,11 @@ const CourseDesc = () => {
     fetchCourseDetails();
   }, [location.state?.course?.id]);
 
-  const handleCloseModal = () => {
-    setShowModal(false); // Close the modal manually
-    navigate("/"); // Redirect after closing the modal
-  };
-
   const handleEnrollClick = () => {
-    setShowModal(true); // Show the modal when "Enroll Now" is clicked
+    navigate("/CoursePage"); // Redirect to /CoursePage when "Enroll Now" is clicked
+  };
+  const handleRecClick = () => {
+    navigate("/CoursePage"); // Redirect to /CoursePage when "Enroll Now" is clicked
   };
 
   if (!course) {
@@ -83,19 +113,19 @@ const CourseDesc = () => {
       <Navbar />
       <div className="container mx-auto p-4">
         {/* Title Section */}
-        <motion.div 
+        <motion.div
           className="bg-red text-white p-8 rounded-t-lg"
-          variants={FadeUp(0.1)} 
-          initial="initial" 
+          variants={FadeUp(0.1)}
+          initial="initial"
           animate="animate"
         >
-          <motion.h1 
+          <motion.h1
             className="text-3xl font-bold mb-4"
             variants={FadeUp(0.2)}
           >
             {course.name}
           </motion.h1>
-          <motion.p 
+          <motion.p
             className="text-xl mb-4"
             variants={FadeUp(0.3)}
           >
@@ -122,16 +152,16 @@ const CourseDesc = () => {
 
         {/* Main Content */}
         <div className="flex flex-col md:flex-row gap-8 mt-8">
-          <motion.main 
+          <motion.main
             className="flex-group"
-            variants={FadeUp(0.8)} 
-            initial="initial" 
+            variants={FadeUp(0.8)}
+            initial="initial"
             animate="animate"
           >
             {/* What You Will Learn Card */}
             <Card className="mb-8">
               <CardHeader
-                title={<Typography variant="h6 text-red text-lg">What you will learn</Typography>}
+                title={<Typography variant="h6" className="text-red text-lg">What you will learn</Typography>}
               />
               <CardContent>
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -139,36 +169,25 @@ const CourseDesc = () => {
                     <IoMdCheckmarkCircleOutline className="mr-2 h-5 w-5 text-green-500 flex-shrink-0" />
                     <span>Lorem Ipsum is simply dummy text of the printing and typesetting</span>
                   </li>
-                  <li className="flex items-start text-blue">
-                    <IoMdCheckmarkCircleOutline className="mr-2 h-5 w-5 text-green-500 flex-shrink-0" />
-                    <span>Lorem Ipsum is simply dummy text of the printing and typesetting</span>
-                  </li>
-                  <li className="flex items-start text-blue">
-                    <IoMdCheckmarkCircleOutline className="mr-2 h-5 w-5 text-green-500 flex-shrink-0" />
-                    <span>Lorem Ipsum is simply dummy text of the printing and typesetting</span>
-                  </li>
-                  <li className="flex items-start text-blue">
-                    <IoMdCheckmarkCircleOutline className="mr-2 h-5 w-5 text-green-500 flex-shrink-0" />
-                    <span>Lorem Ipsum is simply dummy text of the printing and typesetting</span>
-                  </li>
+                  {/* More list items */}
                 </ul>
               </CardContent>
             </Card>
 
-            {/*Course description card */}
+            {/* Course description card */}
             <Card className="mb-8">
               <CardHeader
-                title={<Typography variant="h6 text-red text-lg">Course Description</Typography>}
+                title={<Typography variant="h6" className="text-red text-lg">Course Description</Typography>}
               />
               <CardContent>
-                    <p className="text-blue">{course.description}</p>
+                <p className="text-blue">{course.description}</p>
               </CardContent>
             </Card>
 
-           {/* Course Chapters Card */}
-           <Card className="mb-8">
+            {/* Course Chapters Card */}
+            <Card className="mb-8">
               <CardHeader
-                title={<Typography variant="h6 text-red text-lg">Course Chapters</Typography>}
+                title={<Typography variant="h6" className="text-red text-lg">Course Chapters</Typography>}
               />
               <CardContent>
                 <ul>
@@ -184,10 +203,10 @@ const CourseDesc = () => {
           </motion.main>
 
           {/* Sidebar */}
-          <motion.aside 
+          <motion.aside
             className="w-full md:w-[500px]"
-            variants={FadeUp(1.0)} 
-            initial="initial" 
+            variants={FadeUp(1.0)}
+            initial="initial"
             animate="animate"
           >
             <Card className="sticky top-4">
@@ -201,12 +220,12 @@ const CourseDesc = () => {
                     transition={{ type: "spring", stiffness: 300 }}
                   />
                 </div>
-                <motion.button 
+                <motion.button
                   className="h-[50px] text-white font-semibold text-lg w-full bg-blue hover:bg-red py-2 rounded transition-all delay-250"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   type="button"
-                  onClick={handleEnrollClick} // Trigger modal on click
+                  onClick={handleEnrollClick} // Trigger redirect to CoursePage
                 >
                   Enroll Now
                 </motion.button>
@@ -214,11 +233,41 @@ const CourseDesc = () => {
             </Card>
           </motion.aside>
         </div>
-        {showModal && <ModalCourse onClose={handleCloseModal} />}
+
+        
+<h3 className="text-2xl  text-red mt-5 mb-5 text-center">Recommended Courses</h3>
+
+<div className="flex flex-wrap gap-4 justify-center">
+  {recommendations.length > 0 ? (
+    recommendations.map((rec, index) => (
+      <Card key={index} className="w-[250px] bg-white shadow-md rounded-lg overflow-hidden">
+        <div  className="flex flex-col items-center">
+          {/* Course Image */}
+          <motion.img
+            className="w-full h-[150px] object-cover"
+            src={`http://localhost:8084${rec.imageUrl || '/default-course-image.jpg'}`} // Use the image URL from backend or default
+            alt={rec.title}
+            whileHover={{ scale: 1.1 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          />
+          {/* Course Title */}
+          <div className="p-4">
+            <h4 className="text-lg font-semibold text-blue">{rec.title}</h4>
+            <p hidden className="text-sm text-gray-600">Score: {rec.score.toFixed(2)}</p>
+          </div>
+        </div>
+      </Card>
+    ))
+  ) : (
+    <p>No recommendations available</p>
+  )}
+</div>
+
+
 
       </div>
-      <Footer/>
-
+   
+      <Footer />
     </>
   );
 };
