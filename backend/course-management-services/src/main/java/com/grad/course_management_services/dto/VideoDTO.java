@@ -13,4 +13,5 @@ public class VideoDTO {
     private Long id;
     private String title;
     private String videoPath;
+    private String videoSummary;
 }

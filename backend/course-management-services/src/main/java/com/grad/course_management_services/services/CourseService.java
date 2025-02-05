@@ -107,7 +107,8 @@ public Course saveCourseDto(CourseRequestDTO requestDTO, MultipartFile image) th
                         chapter.getVideos().stream().map(video -> new VideoDTO(
                                 video.getId(),
                                 video.getTitle(),
-                                video.getVideoPath()
+                                video.getVideoPath(),
+                                video.getVideoSummary()
                         )).collect(Collectors.toList())
                 )).collect(Collectors.toList())
         );
@@ -126,7 +127,8 @@ public Course saveCourseDto(CourseRequestDTO requestDTO, MultipartFile image) th
                         chapter.getVideos().stream().map(video -> new VideoDTO(
                                 video.getId(),
                                 video.getTitle(),
-                                video.getVideoPath()
+                                video.getVideoPath(),
+                                video.getVideoSummary()
                         )).collect(Collectors.toList())
                 )).collect(Collectors.toList())
         )).collect(Collectors.toList());

@@ -2,15 +2,21 @@ package com.grad.course_management_services.services;
 
 import com.grad.course_management_services.models.Chapter;
 import com.grad.course_management_services.models.Video;
+import com.grad.course_management_services.clients.SummarizationServiceClient;
 import com.grad.course_management_services.dao.ChapterRepository;
 import com.grad.course_management_services.dao.VideoRepository;
+import com.grad.course_management_services.dto.SummarizationResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -25,7 +31,11 @@ public class VideoService {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private SummarizationServiceClient summarizationClient;
+
     // Upload a video to a chapter
+    // Upload a video and save it to the database
     @Transactional
     public Video uploadVideo(Long chapterId, MultipartFile file, String title) throws IOException {
         Chapter chapter = chapterRepository.findById(chapterId)
@@ -38,10 +48,41 @@ public class VideoService {
         video.setVideoPath(videoPath);
         video.setChapter(chapter);
 
+        // Save the video without waiting for summarization
         Video savedVideo = videoRepository.save(video);
+
+        // Trigger summarization asynchronously
+        triggerSummarization(savedVideo.getId());
+
         return savedVideo;
     }
 
+    // Asynchronously trigger summarization
+    @Async
+    public void triggerSummarization(Long videoId) {
+        try {
+            Video video = videoRepository.findById(videoId)
+                    .orElseThrow(() -> new RuntimeException("Video not found"));
+
+            Map<String, String> request = new HashMap<>();
+            request.put("video_path", video.getVideoPath());
+
+            // Call the summarization service
+            SummarizationResponse response = summarizationClient.summarizeVideo(request);
+
+            // Update the video with the summary
+            if (response != null && response.getSummary() != null) {
+                video.setVideoSummary(response.getSummary());
+                videoRepository.save(video);
+            } else {
+                throw new RuntimeException("Summarization response was null");
+            }
+        } catch (Exception e) {
+            // Handle summarization failure (e.g., log the error)
+            e.printStackTrace();
+        }
+    }
+    
     // Get all videos for a specific chapter
     public List<Video> getVideosByChapter(Long chapterId) {
         return videoRepository.findByChapterId(chapterId);

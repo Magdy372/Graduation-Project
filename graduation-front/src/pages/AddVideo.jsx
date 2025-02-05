@@ -12,86 +12,115 @@ const AddVideo = () => {
   const [videoFile, setVideoFile] = useState(null);
   const [newChapterTitle, setNewChapterTitle] = useState("");
   const [newVideoTitle, setNewVideoTitle] = useState("");
+  const [isUploading, setIsUploading] = useState(false); // Loading state
 
+  // Fetch chapters when the page loads
   useEffect(() => {
-    fetch(`http://localhost:8084/api/courses/${course.id}/chapters`)
-      .then((response) => response.json())
-      .then((data) => setChapters(data))
-      .catch((error) => console.error("Error fetching chapters:", error));
+    fetchChapters();
   }, [course.id]);
 
+  const fetchChapters = async () => {
+    try {
+      const response = await fetch(`http://localhost:8084/api/courses/${course.id}/chapters`);
+      if (!response.ok) throw new Error("Failed to fetch chapters");
+      const data = await response.json();
+      setChapters(data);
+    } catch (error) {
+      console.error("Error fetching chapters:", error);
+    }
+  };
+
   // Add a new chapter
-  const handleAddChapter = () => {
+  const handleAddChapter = async () => {
     if (!newChapterTitle) return alert("Chapter title is required");
-    fetch(`http://localhost:8084/api/chapters/courses/${course.id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: newChapterTitle }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setChapters([...chapters, data]);
-        setNewChapterTitle("");
-      })
-      .catch((error) => console.error("Error adding chapter:", error));
+
+    try {
+      const response = await fetch(`http://localhost:8084/api/chapters/courses/${course.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: newChapterTitle }),
+      });
+
+      if (!response.ok) throw new Error("Failed to add chapter");
+      const data = await response.json();
+
+      setChapters([...chapters, data]);
+      setNewChapterTitle("");
+    } catch (error) {
+      console.error("Error adding chapter:", error);
+    }
   };
 
   // Delete a chapter
-  const handleDeleteChapter = (chapterId) => {
+  const handleDeleteChapter = async (chapterId) => {
     if (!window.confirm("Are you sure you want to delete this chapter?")) return;
-    fetch(`http://localhost:8084/api/chapters/${chapterId}`, { method: "DELETE" })
-      .then(() => {
-        setChapters(chapters.filter((ch) => ch.id !== chapterId));
-      })
-      .catch((error) => console.error("Error deleting chapter:", error));
+
+    try {
+      await fetch(`http://localhost:8084/api/chapters/${chapterId}`, { method: "DELETE" });
+      setChapters(chapters.filter((ch) => ch.id !== chapterId));
+    } catch (error) {
+      console.error("Error deleting chapter:", error);
+    }
   };
 
   // Upload a video
-  // Upload a video and refresh chapters to show newly added video
-const handleVideoUpload = () => {
+  const handleVideoUpload = async () => {
     if (!videoFile || !selectedChapter || !newVideoTitle) {
       return alert("Please select a chapter, video file, and enter a title");
     }
-  
+
+    setIsUploading(true); // Show loading indicator
+
     const formData = new FormData();
     formData.append("file", videoFile);
     formData.append("title", newVideoTitle);
     formData.append("chapterId", selectedChapter);
-  
-    fetch(`http://localhost:8084/api/videos/upload/${selectedChapter}`, {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json()) // Ensure we get the updated video data
-      .then(() => {
-        setVideoFile(null);
-        setNewVideoTitle("");
-  
-        // Fetch updated chapters after a successful video upload
-        fetch(`http://localhost:8084/api/courses/${course.id}/chapters`)
-          .then((res) => res.json())
-          .then((data) => setChapters(data));
-  
-        alert("Video uploaded successfully!");
-      })
-      .catch((error) => console.error("Error uploading video:", error));
+
+    try {
+      const response = await fetch(`http://localhost:8084/api/videos/upload/${selectedChapter}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Failed to upload video");
+
+      const data = await response.json();
+      console.log("Video upload response:", data);
+
+      // Reset fields
+      setVideoFile(null);
+      setNewVideoTitle("");
+
+      // Fetch updated chapters after a successful video upload
+      await fetchChapters();
+
+      alert("Video uploaded successfully!");
+    } catch (error) {
+      console.error("Error uploading video:", error);
+      alert("Video upload failed. Please try again.");
+    } finally {
+      setIsUploading(false); // Hide loading indicator
+    }
   };
-  const handleDeleteVideo = (videoId) => {
+
+  // Delete a video
+  const handleDeleteVideo = async (videoId) => {
     if (!window.confirm("Are you sure you want to delete this video?")) return;
-  
-    fetch(`http://localhost:8084/api/videos/${videoId}`, { method: "DELETE" })
-      .then(() => {
-        // Update state after deletion
-        setChapters((prevChapters) =>
-          prevChapters.map((chapter) => ({
-            ...chapter,
-            videos: chapter.videos.filter((video) => video.id !== videoId),
-          }))
-        );
-      })
-      .catch((error) => console.error("Error deleting video:", error));
+
+    try {
+      await fetch(`http://localhost:8084/api/videos/${videoId}`, { method: "DELETE" });
+
+      // Update state after deletion
+      setChapters((prevChapters) =>
+        prevChapters.map((chapter) => ({
+          ...chapter,
+          videos: chapter.videos.filter((video) => video.id !== videoId),
+        }))
+      );
+    } catch (error) {
+      console.error("Error deleting video:", error);
+    }
   };
-  
 
   return (
     <>
@@ -108,8 +137,10 @@ const handleVideoUpload = () => {
             value={newChapterTitle}
             onChange={(e) => setNewChapterTitle(e.target.value)}
           />
-          <button className="p-3 bg-green-500 text-white rounded-md flex items-center gap-2"
-            onClick={handleAddChapter}>
+          <button
+            className="p-3 bg-green-500 text-white rounded-md flex items-center gap-2"
+            onClick={handleAddChapter}
+          >
             <FaPlus /> Add Chapter
           </button>
         </div>
@@ -124,7 +155,9 @@ const handleVideoUpload = () => {
           >
             <option value="">Select a Chapter</option>
             {chapters.map((chapter) => (
-              <option key={chapter.id} value={chapter.id}>{chapter.title}</option>
+              <option key={chapter.id} value={chapter.id}>
+                {chapter.title}
+              </option>
             ))}
           </select>
         </div>
@@ -142,10 +175,13 @@ const handleVideoUpload = () => {
             />
             <input type="file" className="p-2 border rounded-md" onChange={(e) => setVideoFile(e.target.files[0])} />
             <button
-              
+              className={`p-3 rounded-md flex items-center gap-2 ${
+                isUploading ? "bg-gray-400 cursor-not-allowed" : "p-3 bg-green-500 text-white rounded-md flex items-center gap-2"
+              }`}
               onClick={handleVideoUpload}
+              disabled={isUploading}
             >
-              <FaPlus /> Submit Video
+              {isUploading ? "Uploading..." : <><FaPlus /> Submit Video</>}
             </button>
           </div>
         </div>
@@ -156,10 +192,7 @@ const handleVideoUpload = () => {
           <div key={chapter.id} className="mb-6 p-4 border rounded-md shadow-md bg-white">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">{chapter.title}</h3>
-              <button
-                className="text-red-500 flex items-center gap-2"
-                onClick={() => handleDeleteChapter(chapter.id)}
-              >
+              <button className="text-red-500 flex items-center gap-2" onClick={() => handleDeleteChapter(chapter.id)}>
                 <FaTrash /> Delete Chapter
               </button>
             </div>
@@ -168,10 +201,7 @@ const handleVideoUpload = () => {
                 chapter.videos.map((video) => (
                   <div key={video.id} className="flex items-center justify-between p-2 border rounded-md mt-2 bg-gray-100">
                     <span>{video.title}</span>
-                    <button
-                      className="text-red-500 flex items-center gap-2"
-                      onClick={() => handleDeleteVideo(video.id)}
-                    >
+                    <button className="text-red-500 flex items-center gap-2" onClick={() => handleDeleteVideo(video.id)}>
                       <FaTrash /> Delete Video
                     </button>
                   </div>

@@ -29,7 +29,7 @@ public class VideoController {
         } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
+    }   
     
     // Get all videos of a chapter
     @GetMapping("/chapter/{chapterId}")
