@@ -6,6 +6,7 @@ import com.grad.course_management_services.dao.ChapterRepository;
 import com.grad.course_management_services.dao.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ public class VideoService {
     private FileStorageService fileStorageService;
 
     // Upload a video to a chapter
+    @Transactional
     public Video uploadVideo(Long chapterId, MultipartFile file, String title) throws IOException {
         Chapter chapter = chapterRepository.findById(chapterId)
                 .orElseThrow(() -> new RuntimeException("Chapter not found"));
@@ -36,7 +38,8 @@ public class VideoService {
         video.setVideoPath(videoPath);
         video.setChapter(chapter);
 
-        return videoRepository.save(video);
+        Video savedVideo = videoRepository.save(video);
+        return savedVideo;
     }
 
     // Get all videos for a specific chapter

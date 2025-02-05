@@ -14,7 +14,7 @@ const AddVideo = () => {
   const [newVideoTitle, setNewVideoTitle] = useState("");
 
   useEffect(() => {
-    fetch(`http://localhost:8087/api/courses/${course.id}/chapters`)
+    fetch(`http://localhost:8084/api/courses/${course.id}/chapters`)
       .then((response) => response.json())
       .then((data) => setChapters(data))
       .catch((error) => console.error("Error fetching chapters:", error));
@@ -23,7 +23,7 @@ const AddVideo = () => {
   // Add a new chapter
   const handleAddChapter = () => {
     if (!newChapterTitle) return alert("Chapter title is required");
-    fetch(`http://localhost:8087/api/chapters/courses/${course.id}`, {
+    fetch(`http://localhost:8084/api/chapters/courses/${course.id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: newChapterTitle }),
@@ -39,7 +39,7 @@ const AddVideo = () => {
   // Delete a chapter
   const handleDeleteChapter = (chapterId) => {
     if (!window.confirm("Are you sure you want to delete this chapter?")) return;
-    fetch(`http://localhost:8087/api/chapters/${chapterId}`, { method: "DELETE" })
+    fetch(`http://localhost:8084/api/chapters/${chapterId}`, { method: "DELETE" })
       .then(() => {
         setChapters(chapters.filter((ch) => ch.id !== chapterId));
       })
@@ -56,8 +56,9 @@ const handleVideoUpload = () => {
     const formData = new FormData();
     formData.append("file", videoFile);
     formData.append("title", newVideoTitle);
+    formData.append("chapterId", selectedChapter);
   
-    fetch(`http://localhost:8087/api/videos/upload/${selectedChapter}`, {
+    fetch(`http://localhost:8084/api/videos/upload/${selectedChapter}`, {
       method: "POST",
       body: formData,
     })
@@ -67,7 +68,7 @@ const handleVideoUpload = () => {
         setNewVideoTitle("");
   
         // Fetch updated chapters after a successful video upload
-        fetch(`http://localhost:8087/api/courses/${course.id}/chapters`)
+        fetch(`http://localhost:8084/api/courses/${course.id}/chapters`)
           .then((res) => res.json())
           .then((data) => setChapters(data));
   
@@ -78,7 +79,7 @@ const handleVideoUpload = () => {
   const handleDeleteVideo = (videoId) => {
     if (!window.confirm("Are you sure you want to delete this video?")) return;
   
-    fetch(`http://localhost:8087/api/videos/${videoId}`, { method: "DELETE" })
+    fetch(`http://localhost:8084/api/videos/${videoId}`, { method: "DELETE" })
       .then(() => {
         // Update state after deletion
         setChapters((prevChapters) =>

@@ -14,10 +14,7 @@ public class SecurityConfig {
             .cors(cors -> cors.disable()) 
             .csrf(csrf -> csrf.disable()) 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/**").permitAll() // Allow all API requests
-                .requestMatchers("/uploads/**").permitAll() // Allow file access
-                .requestMatchers("/api/categories/**").permitAll() // Allow file access
-                .anyRequest().authenticated()
+                .anyRequest().permitAll() // Disable authentication for all requests
             );
 
         return http.build();

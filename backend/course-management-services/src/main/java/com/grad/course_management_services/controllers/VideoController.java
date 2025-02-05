@@ -22,9 +22,13 @@ public class VideoController {
     @PostMapping("/upload/{chapterId}")
     public ResponseEntity<Video> uploadVideo(@PathVariable Long chapterId, 
                                              @RequestParam("file") MultipartFile file,
-                                             @RequestParam("title") String title) throws IOException {
-        Video video = videoService.uploadVideo(chapterId, file, title);
-        return new ResponseEntity<>(video, HttpStatus.CREATED);
+                                             @RequestParam("title") String title) {
+        try {
+            Video video = videoService.uploadVideo(chapterId, file, title);
+            return new ResponseEntity<>(video, HttpStatus.CREATED);
+        } catch (IOException e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     // Get all videos of a chapter

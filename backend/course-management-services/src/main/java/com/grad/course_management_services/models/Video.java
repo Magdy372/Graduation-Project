@@ -33,7 +33,6 @@ public class Video {
     @ManyToOne
     @JoinColumn(name = "chapter_id", nullable = false)
     @JsonIgnore
-    @NotBlank(message = "Chapter is required")
     private Chapter chapter;
 
 }

@@ -43,7 +43,7 @@ const UploadCourse = () => {
             name: courseData.name,
             description: courseData.description,
             categoryName: courseData.categoryName,
-            chapterTitles: chapters.map((chapter) => chapter.name),
+            chapterTitles: chapters.map((chapter) => chapter.title),
           }),
         ],
         { type: "application/json" }
@@ -207,7 +207,7 @@ const ChapterList = ({ chapters, onAddChapter, onDeleteChapter }) => {
 
   const handleAddChapter = () => {
     if (newChapter.trim()) {
-      onAddChapter({ name: newChapter, status: "مسودة" });
+      onAddChapter({ title: newChapter });
       setNewChapter("");
     }
   };
@@ -216,7 +216,7 @@ const ChapterList = ({ chapters, onAddChapter, onDeleteChapter }) => {
     <div className="space-y-4">
       {chapters.map((chapter, index) => (
         <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-md">
-          <span>{chapter.name}</span>
+          <span>{chapter.title}</span>
           <button onClick={() => onDeleteChapter(index)} className="text-red-500">
             <FaTrash />
           </button>

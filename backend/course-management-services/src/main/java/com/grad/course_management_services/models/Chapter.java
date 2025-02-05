@@ -32,7 +32,6 @@ public class Chapter {
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
     @JsonBackReference 
-    @NotBlank(message = "Course is required")
     private Course course;
 
     @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
