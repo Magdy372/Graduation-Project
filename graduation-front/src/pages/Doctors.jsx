@@ -11,21 +11,17 @@ const ViewUsers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Function to fetch users with abort support
+  // Fetch users from API
   const fetchUsers = async (signal) => {
     try {
       const response = await fetch("http://localhost:8089/users/view-all", { signal });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      
       const data = await response.json();
       setUsers(data);
       setFilteredUsers(data);
     } catch (error) {
-      // If the fetch was aborted, don't update state
-      if (error.name === "AbortError") {
-        console.log("Fetch aborted");
-      } else {
+      if (error.name !== "AbortError") {
         console.error("Error fetching users:", error);
         setError(error.message);
       }
@@ -34,39 +30,50 @@ const ViewUsers = () => {
     }
   };
 
-  // Fetch users on component mount
   useEffect(() => {
     const controller = new AbortController();
-    const { signal } = controller;
-
-    fetchUsers(signal);
-
-    // Cleanup: abort fetch if the component unmounts
+    fetchUsers(controller.signal);
     return () => controller.abort();
   }, []);
 
-  // Handle search filtering
   useEffect(() => {
-    const filtered = users.filter((user) =>
-      user.firstname.toLowerCase().includes(searchQuery.toLowerCase())
+    setFilteredUsers(
+      users.filter((user) =>
+        user.firstname.toLowerCase().includes(searchQuery.toLowerCase())
+      )
     );
-    setFilteredUsers(filtered);
   }, [searchQuery, users]);
 
-  // Reload function for retrying fetch
+  // Function to approve a user
+  const handleAccept = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:8089/users/${userId}/approve`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+      // Update UI to reflect approval
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id === userId ? { ...user, approved: true } : user
+        )
+      );
+    } catch (error) {
+      console.error("Error approving user:", error);
+    }
+  };
+
+  // Reload function to retry fetch
   const handleReload = () => {
     setLoading(true);
     setError(null);
-    // Create a new AbortController for the new fetch
-    const controller = new AbortController();
-    fetchUsers(controller.signal);
+    fetchUsers(new AbortController().signal);
   };
 
-  if (loading) {
-    return <p className="text-xl text-center w-full">Loading...</p>;
-  }
-
-  if (error) {
+  if (loading) return <p className="text-xl text-center w-full">Loading...</p>;
+  if (error)
     return (
       <div className="text-xl text-center w-full">
         <p>Error: {error}</p>
@@ -78,7 +85,6 @@ const ViewUsers = () => {
         </button>
       </div>
     );
-  }
 
   return (
     <>
@@ -103,14 +109,40 @@ const ViewUsers = () => {
             filteredUsers.map((user) => (
               <motion.div
                 key={user.id}
-                className="border border-gray-300 rounded-lg overflow-hidden shadow-md cursor-pointer transition-transform transform hover:scale-105 relative"
+                className="border border-gray-300 rounded-lg overflow-hidden shadow-md p-5 transition-transform transform hover:scale-105"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <div className="p-5">
-                  <h2 className="text-xl font-semibold">{user.firstname}</h2>
-                  <p className="text-gray-600">{user.email}</p>
+                <h2 className="text-xl font-semibold">{user.firstname}</h2>
+                <p className="text-gray-600">{user.email}</p>
+                <p className="text-gray-600">{user.phonenumber}</p>
+
+                {/* User Documents */}
+                {["professionLicenseFilePath", "licenseFilePath", "syndicateCardFilePath", "commercialRegisterFilePath", "taxCardFilePath"].map(
+                  (field) =>
+                    user[field] && (
+                      <img
+                        key={field}
+                        src={`http://localhost:8089/uploads/${user[field].split("\\").pop()}`}
+                        alt={user.firstname}
+                        className="w-full h-48 object-cover mt-2"
+                        onError={(e) => (e.target.src = "/default-placeholder.png")}
+                      />
+                    )
+                )}
+
+                {/* Accept Button */}
+                <div className="mt-4 flex gap-4">
+                  <button
+                    onClick={() => handleAccept(user.id)}
+                    className={`px-4 py-2 text-white rounded-lg transition ${
+                      user.approved ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"
+                    }`}
+                    disabled={user.approved}
+                  >
+                    {user.approved ? "Approved ✅" : "Accept"}
+                  </button>
                 </div>
               </motion.div>
             ))

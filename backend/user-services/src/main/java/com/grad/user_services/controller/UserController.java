@@ -107,4 +107,16 @@ public ResponseEntity<User> addUser(@Valid @RequestBody User user, BindingResult
             throw new Exception("Error creating user with documents: " + e.getMessage());
         }
     }
+
+    @PutMapping("/{id}/approve")
+public ResponseEntity<?> approveUser(@PathVariable Long id) {
+    boolean isApproved = userService.approveUser(id);
+    
+    if (!isApproved) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found or already approved.");
+    }
+    
+    return ResponseEntity.ok("User has been approved successfully.");
+}
+
 }

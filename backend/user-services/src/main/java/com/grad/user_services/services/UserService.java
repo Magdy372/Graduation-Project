@@ -127,5 +127,24 @@ public class UserService {
         }
         return null;
     }
-     
+
+
+    public boolean approveUser(Long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (!user.isApproved()) {  // Check if not already approved
+                user.setApproved(true);
+                userRepository.save(user);
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 }
