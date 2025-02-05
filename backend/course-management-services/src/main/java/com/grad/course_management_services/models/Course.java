@@ -44,7 +44,6 @@ public class Course {
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference 
-  
     private List<Chapter> chapters;
 
 }
