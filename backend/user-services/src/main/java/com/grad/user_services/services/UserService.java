@@ -43,9 +43,11 @@ public class UserService {
     }
     // Get User by ID
     public UserResponseDTO getUserById(Long id) {
-        User user = userRepository.findById(id).orElse(null);
-        return user != null ? mapToUserResponseDTO(user) : null;
+        return userRepository.findById(id)
+                .map(this::mapToUserResponseDTO)
+                .orElse(null);
     }
+    
     
     public User saveUserWithDocuments(@Valid @ModelAttribute UserWithDocumentsDTO userWithDocumentsDTO) {
         // Save files and get their paths
@@ -81,23 +83,36 @@ public class UserService {
     }
     // Get All Users
     public List<UserResponseDTO> getAllUsers() {
-        return userRepository.findAll().stream()
+        return userRepository.findAll()
+                .stream()
                 .map(this::mapToUserResponseDTO)
                 .collect(Collectors.toList());
     }
+    
     public List<Admin> getAllAdmins() {
         return adminRepository.findAll();
     }
         // Helper method to map User to UserResponseDTO
-    private UserResponseDTO mapToUserResponseDTO(User user) {
-        UserResponseDTO userResponseDTO = new UserResponseDTO();
-        userResponseDTO.setId(user.getId());
-        userResponseDTO.setFirstname(user.getFirstname());
-        userResponseDTO.setLastname(user.getLastname());
-        userResponseDTO.setPhonenumber(user.getPhonenumber());
-        userResponseDTO.setEmail(user.getEmail());
-        return userResponseDTO;
-    }
+        private UserResponseDTO mapToUserResponseDTO(User user) {
+            UserResponseDTO userResponseDTO = new UserResponseDTO();
+            userResponseDTO.setId(user.getId());
+            userResponseDTO.setFirstname(user.getFirstname());
+            userResponseDTO.setLastname(user.getLastname());
+            userResponseDTO.setPhonenumber(user.getPhonenumber());
+            userResponseDTO.setEmail(user.getEmail());
+        
+            // Map document fields if the user has documents
+            if (user.getUserDocument() != null) {
+                userResponseDTO.setLicenseFilePath(user.getUserDocument().getLicenseFilePath());
+                userResponseDTO.setProfessionLicenseFilePath(user.getUserDocument().getProfessionLicenseFilePath());
+                userResponseDTO.setSyndicateCardFilePath(user.getUserDocument().getSyndicateCardFilePath());
+                userResponseDTO.setCommercialRegisterFilePath(user.getUserDocument().getCommercialRegisterFilePath());
+                userResponseDTO.setTaxCardFilePath(user.getUserDocument().getTaxCardFilePath());
+            }
+        
+            return userResponseDTO;
+        }
+        
     public UserResponseDTO updateUser(Long id, UserDTO userDTO) {
         User user = userRepository.findById(id).orElse(null);
         if (user != null) {

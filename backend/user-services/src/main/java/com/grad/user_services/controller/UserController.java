@@ -32,14 +32,15 @@ public class UserController {
 
 
    // Get User by ID
-   @GetMapping("/{userId}")
-   public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long userId) {
-       UserResponseDTO user = userService.getUserById(userId);
-       if (user == null) {
-           return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-       }
-       return ResponseEntity.ok(user);
-   }
+   @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
+        UserResponseDTO userResponseDTO = userService.getUserById(id);
+        return userResponseDTO != null 
+            ? ResponseEntity.ok(userResponseDTO) 
+            : ResponseEntity.notFound().build();
+    }
+
+   
   @PostMapping("/add")
 public ResponseEntity<User> addUser(@Valid @RequestBody User user, BindingResult bindingResult) {
     if (bindingResult.hasErrors()) {
