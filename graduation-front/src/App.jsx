@@ -21,6 +21,7 @@ import AdminProfile from "./pages/AdminProfile";
 import Login from "./pages/Login";
 import EditCourse from "./pages/EditCourse";
 import AddVideo from "./pages/AddVideo";
+import ExamPage from "./pages/ExamPage";
 
 const App = () => {
   return (
@@ -52,6 +53,8 @@ const App = () => {
           <Route path="/courseDesc" element={<CourseDesc />} />
           <Route path="/editCourse" element={<EditCourse />} />
           <Route path="/addvideo" element={<AddVideo />} />
+          <Route path="/exam" element={<ExamPage/>}/>
+
           <Route path="/layout" element={<Layout />}>
             {/* Default route (index) */}
             <Route index element={<DashboardPage />} />
