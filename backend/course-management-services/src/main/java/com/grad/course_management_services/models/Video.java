@@ -35,4 +35,7 @@ public class Video {
     @JsonIgnore
     private Chapter chapter;
 
+    @Column(nullable = true)
+    private String videoSummary;
+
 }
