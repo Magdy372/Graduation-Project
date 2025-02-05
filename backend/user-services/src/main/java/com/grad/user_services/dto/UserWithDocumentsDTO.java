@@ -25,7 +25,16 @@ public class UserWithDocumentsDTO {
     private String email;
     @NotBlank(message = "Password is required")
     private String password;
+    private boolean approved;
  
+
+    public boolean isApproved() {
+        return approved;
+    }
+
+    public void setApproved(boolean approved) {
+        this.approved = approved;
+    }
 
     // Getters and Setters
     public String getPassword() {

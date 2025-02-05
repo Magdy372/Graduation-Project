@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 import com.grad.user_services.dao.AdminRepository;
 import com.grad.user_services.dao.UserRepository;
+import com.grad.user_services.dto.UserDTO;
+import com.grad.user_services.dto.UserResponseDTO;
 import com.grad.user_services.dto.UserWithDocumentsDTO;
 import com.grad.user_services.model.Admin;
 import com.grad.user_services.model.BaseAccount;
@@ -38,18 +41,10 @@ public class UserService {
         // Save the user without documents
         return userRepository.save(user);
     }
-    public BaseAccount  getUserById(Long id) {
+    // Get User by ID
+    public UserResponseDTO getUserById(Long id) {
         User user = userRepository.findById(id).orElse(null);
-        if (user != null) {
-            return user;
-        }
-
-        Admin admin = adminRepository.findById(id).orElse(null);
-        if (admin != null) {
-            return admin;
-        }
-
-        return null; // Return null if no account found
+        return user != null ? mapToUserResponseDTO(user) : null;
     }
     
     public User saveUserWithDocuments(@Valid @ModelAttribute UserWithDocumentsDTO userWithDocumentsDTO) {
@@ -84,10 +79,38 @@ public class UserService {
         // Save User (UserDocument will be saved automatically due to CascadeType.ALL)
         return userRepository.save(user);
     }
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    // Get All Users
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::mapToUserResponseDTO)
+                .collect(Collectors.toList());
     }
     public List<Admin> getAllAdmins() {
         return adminRepository.findAll();
     }
+        // Helper method to map User to UserResponseDTO
+    private UserResponseDTO mapToUserResponseDTO(User user) {
+        UserResponseDTO userResponseDTO = new UserResponseDTO();
+        userResponseDTO.setId(user.getId());
+        userResponseDTO.setFirstname(user.getFirstname());
+        userResponseDTO.setLastname(user.getLastname());
+        userResponseDTO.setPhonenumber(user.getPhonenumber());
+        userResponseDTO.setEmail(user.getEmail());
+        return userResponseDTO;
+    }
+    public UserResponseDTO updateUser(Long id, UserDTO userDTO) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            user.setFirstname(userDTO.getFirstname());
+            user.setLastname(userDTO.getLastname());
+            user.setPhonenumber(userDTO.getPhonenumber());
+            user.setEmail(userDTO.getEmail());
+            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+
+            User updatedUser = userRepository.save(user);
+            return mapToUserResponseDTO(updatedUser);
+        }
+        return null;
+    }
+     
 }

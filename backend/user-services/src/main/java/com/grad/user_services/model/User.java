@@ -39,6 +39,7 @@ public class User extends BaseAccount {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_document_id", referencedColumnName = "id")
     private UserDocument userDocument;
+ 
 
     @Column(name = "approved")
     private boolean approved;

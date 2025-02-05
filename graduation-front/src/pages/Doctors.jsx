@@ -11,42 +11,73 @@ const ViewUsers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch users
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch("http://localhost:8089/users/view-all");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setUsers(data);
-        setFilteredUsers(data);
-      } catch (error) {
+  // Function to fetch users with abort support
+  const fetchUsers = async (signal) => {
+    try {
+      const response = await fetch("http://localhost:8089/users/view-all", { signal });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setUsers(data);
+      setFilteredUsers(data);
+    } catch (error) {
+      // If the fetch was aborted, don't update state
+      if (error.name === "AbortError") {
+        console.log("Fetch aborted");
+      } else {
         console.error("Error fetching users:", error);
         setError(error.message);
-      } finally {
-        setLoading(false);
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchUsers();
+  // Fetch users on component mount
+  useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
+    fetchUsers(signal);
+
+    // Cleanup: abort fetch if the component unmounts
+    return () => controller.abort();
   }, []);
 
-  // Handle search
+  // Handle search filtering
   useEffect(() => {
     const filtered = users.filter((user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase())
+      user.firstname.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredUsers(filtered);
   }, [searchQuery, users]);
+
+  // Reload function for retrying fetch
+  const handleReload = () => {
+    setLoading(true);
+    setError(null);
+    // Create a new AbortController for the new fetch
+    const controller = new AbortController();
+    fetchUsers(controller.signal);
+  };
 
   if (loading) {
     return <p className="text-xl text-center w-full">Loading...</p>;
   }
 
   if (error) {
-    return <p className="text-xl text-center w-full">Error: {error}</p>;
+    return (
+      <div className="text-xl text-center w-full">
+        <p>Error: {error}</p>
+        <button
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          onClick={handleReload}
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -78,7 +109,7 @@ const ViewUsers = () => {
                 transition={{ duration: 0.5 }}
               >
                 <div className="p-5">
-                  <h2 className="text-xl font-semibold">{user.name}</h2>
+                  <h2 className="text-xl font-semibold">{user.firstname}</h2>
                   <p className="text-gray-600">{user.email}</p>
                 </div>
               </motion.div>

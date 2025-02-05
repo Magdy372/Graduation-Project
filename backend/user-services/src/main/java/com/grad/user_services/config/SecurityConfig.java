@@ -44,23 +44,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource())) // CORS configuration
-            .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless API
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session management
+            // Configure CORS using your provided configuration
+            .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
+            // Disable CSRF protection as it's typically unnecessary for stateless APIs
+            .csrf(csrf -> csrf.disable())
+            // Set session management to stateless (optional if you're not using sessions)
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // Permit all requests without any authentication
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/auth/authenticate", "/api/v1/auth/register").permitAll() // Allow these endpoints for registration and login
-                .requestMatchers("/layout").hasRole("ADMIN") // Protected route for admin
-                .requestMatchers("/users/view-all/**").permitAll() // Allow users route without authentication
-                .requestMatchers("/users/**").permitAll()// Allow users route for admin
-                .anyRequest().authenticated() // Any other requests should be authenticated
+                .anyRequest().permitAll()
             )
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class) // Add JWT authentication filter
-            .formLogin(login -> login.disable()) // Disable form login (we are using JWT)
-            .httpBasic(basic -> basic.disable()); // Disable HTTP basic authentication
+            // Disable form login and HTTP Basic authentication
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable());
     
         return http.build();
     }
-    
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

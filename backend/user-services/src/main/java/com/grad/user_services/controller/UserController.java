@@ -16,6 +16,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.grad.user_services.dto.UserDTO;
+import com.grad.user_services.dto.UserResponseDTO;
 import com.grad.user_services.dto.UserWithDocumentsDTO;
 import com.grad.user_services.model.BaseAccount;
 import com.grad.user_services.model.User;
@@ -28,17 +30,16 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-@PreAuthorize("hasAuthority('Admin')")
-    @GetMapping("/{userId}")
-    public ResponseEntity<BaseAccount> getUserById(@PathVariable Long userId) {
-        BaseAccount user = userService.getUserById(userId);
-        System.out.println("====");
-        System.out.println(user);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-        return ResponseEntity.ok(user);
-    }
+
+   // Get User by ID
+   @GetMapping("/{userId}")
+   public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long userId) {
+       UserResponseDTO user = userService.getUserById(userId);
+       if (user == null) {
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+       }
+       return ResponseEntity.ok(user);
+   }
   @PostMapping("/add")
 public ResponseEntity<User> addUser(@Valid @RequestBody User user, BindingResult bindingResult) {
     if (bindingResult.hasErrors()) {
@@ -54,14 +55,31 @@ public ResponseEntity<User> addUser(@Valid @RequestBody User user, BindingResult
         ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
+    
 }
 
+   @PutMapping("/{userId}")
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long userId, @Valid @RequestBody UserDTO userDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(error -> System.out.println(error.getDefaultMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
 
+        UserResponseDTO updatedUser = userService.updateUser(userId, userDTO);
+        if (updatedUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(updatedUser);
+    }
+
+
+     // Get All Users
     @GetMapping("/view-all")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers(); // Assume this method exists in the service
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        List<UserResponseDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
+
    
     @PostMapping(value = "/with-documents", consumes = "multipart/form-data")
     public ResponseEntity<?> createUserWithDocuments(
