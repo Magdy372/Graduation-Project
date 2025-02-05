@@ -24,8 +24,16 @@ class MedicalSummarizer:
             device=self.device,
             in_memory=True
         )
+
+        # self.tokenizer = AutoTokenizer.from_pretrained("google/bigbird-pegasus-large-pubmed")
+        # self.model = AutoModelForSeq2SeqLM.from_pretrained("google/bigbird-pegasus-large-pubmed").to(self.device)
+
         self.tokenizer = AutoTokenizer.from_pretrained("Ram20307/bart-finetuned-pubmed")
         self.model = AutoModelForSeq2SeqLM.from_pretrained("Ram20307/bart-finetuned-pubmed").to(self.device)
+
+        # self.tokenizer = AutoTokenizer.from_pretrained("google/pegasus-pubmed")
+        # self.model = AutoModelForSeq2SeqLM.from_pretrained("google/pegasus-pubmed").to(self.device)
+
 
     def extract_audio(self, audio_path: str) -> bool:
         """Audio extraction from static video file"""

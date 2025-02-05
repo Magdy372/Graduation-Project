@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { IoBookOutline } from "react-icons/io5";
 import { BiCategoryAlt, BiGlobe, BiPlayCircle } from "react-icons/bi";
@@ -8,8 +9,7 @@ import Typography from "@mui/material/Typography";
 import { motion } from "framer-motion"; // Import framer motion
 import Footer from "../components/Footer";
 import ModalCourse from "../components/ModalCourse"; // Import the Modal component
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // Fade Up Animation Variants
 export const FadeUp = (delay = 0) => {
@@ -30,7 +30,40 @@ export const FadeUp = (delay = 0) => {
 
 const CourseDesc = () => {
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
+  const [course, setCourse] = useState(null); // State to store course details
+  const [chapters, setChapters] = useState([]); // State to store course chapters
   const navigate = useNavigate();
+  const location = useLocation(); // Access navigation state
+
+  // Fetch course details based on the course ID from navigation state
+  useEffect(() => {
+    const fetchCourseDetails = async () => {
+      const courseId = location.state?.course?.id; // Get course ID from navigation state
+      if (courseId) {
+        try {
+          // Fetch course details
+          const courseResponse = await fetch(`http://localhost:8084/api/courses/${courseId}`);
+          if (!courseResponse.ok) {
+            throw new Error("Failed to fetch course details");
+          }
+          const courseData = await courseResponse.json();
+          setCourse(courseData); // Set course details in state
+
+          // Fetch chapters for the course
+          const chaptersResponse = await fetch(`http://localhost:8084/api/courses/${courseId}/chapters`);
+          if (!chaptersResponse.ok) {
+            throw new Error("Failed to fetch chapters");
+          }
+          const chaptersData = await chaptersResponse.json();
+          setChapters(chaptersData); // Set chapters in state
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      }
+    };
+
+    fetchCourseDetails();
+  }, [location.state?.course?.id]);
 
   const handleCloseModal = () => {
     setShowModal(false); // Close the modal manually
@@ -40,6 +73,10 @@ const CourseDesc = () => {
   const handleEnrollClick = () => {
     setShowModal(true); // Show the modal when "Enroll Now" is clicked
   };
+
+  if (!course) {
+    return <div>Loading...</div>; // Show loading state while fetching course details
+  }
 
   return (
     <>
@@ -56,7 +93,7 @@ const CourseDesc = () => {
             className="text-3xl font-bold mb-4"
             variants={FadeUp(0.2)}
           >
-            Pharmacology and Therapeutics
+            {course.name}
           </motion.h1>
           <motion.p 
             className="text-xl mb-4"
@@ -67,11 +104,11 @@ const CourseDesc = () => {
           <div className="flex items-center space-x-4 mt-2 text-sm">
             <motion.span className="flex items-center space-x-1" variants={FadeUp(0.4)}>
               <BiCategoryAlt />
-              <span>Category</span>
+              <span>Category: {course.categoryName}</span>
             </motion.span>
             <motion.span className="flex items-center space-x-1" variants={FadeUp(0.5)}>
               <IoBookOutline />
-              <span>Course chapters</span>
+              <span>Course chapters: {chapters.length}</span>
             </motion.span>
             <motion.span className="flex items-center space-x-1" variants={FadeUp(0.6)}>
               <BiGlobe />
@@ -124,37 +161,23 @@ const CourseDesc = () => {
                 title={<Typography variant="h6 text-red text-lg">Course Description</Typography>}
               />
               <CardContent>
-                    <p className="text-blue">Lorem Ipsum is simply dummy text of the printing and typesetting</p>
+                    <p className="text-blue">{course.description}</p>
               </CardContent>
             </Card>
 
-            {/* Course Chapters Card */}
-            <Card className="mb-8">
+           {/* Course Chapters Card */}
+           <Card className="mb-8">
               <CardHeader
                 title={<Typography variant="h6 text-red text-lg">Course Chapters</Typography>}
               />
               <CardContent>
                 <ul>
-                  <li className="flex items-center">
-                    <BiPlayCircle className="mr-2 h-4 w-4" />
-                    <span className="text-blue">Part 1</span>
-                  </li>
-                  <li className="flex items-center">
-                    <BiPlayCircle className="mr-2 h-4 w-4" />
-                    <span className="text-blue">Part 2</span>
-                  </li>
-                  <li className="flex items-center">
-                    <BiPlayCircle className="mr-2 h-4 w-4" />
-                    <span className="text-blue">Part 3</span>
-                  </li>
-                  <li className="flex items-center">
-                    <BiPlayCircle className="mr-2 h-4 w-4" />
-                    <span className="text-blue">Part 4</span>
-                  </li>
-                  <li className="flex items-center">
-                    <BiPlayCircle className="mr-2 h-4 w-4" />
-                    <span className="text-blue">Part 5</span>
-                  </li>
+                  {chapters.map((chapter, index) => (
+                    <li key={index} className="flex items-center">
+                      <BiPlayCircle className="mr-2 h-4 w-4" />
+                      <span className="text-blue">{chapter.title}</span>
+                    </li>
+                  ))}
                 </ul>
               </CardContent>
             </Card>
@@ -172,7 +195,7 @@ const CourseDesc = () => {
                 <div className="aspect-video mb-4 rounded-lg flex items-center justify-center">
                   <motion.img
                     className="w-[550px] h-[300px] rounded"
-                    src={courseImage}
+                    src={`http://localhost:8084${course.imageUrl}`}
                     alt="Course Thumbnail"
                     whileHover={{ scale: 1.1 }}
                     transition={{ type: "spring", stiffness: 300 }}

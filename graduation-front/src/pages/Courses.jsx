@@ -45,28 +45,30 @@ export const FadeUp = (delay) => {
   };
 };
 
-// Sample mock courses data
-const mockCourses = [
-  { id: 1, name: "Clinical Practice", category: "Clinical", image: courseImage },
-  { id: 2, name: "Pharmacology and Therapeutics", category: "Pharmacy", image: courseImage },
-  { id: 3, name: "Research and Evidence-Based Medicine", category: "Research", image: courseImage },
-  { id: 4, name: "Public Health and Preventive Medicine", category: "Public Health", image: courseImage },
-  { id: 5, name: "Technology in Medicine and Pharmacy", category: "Technology", image: courseImage },
-  { id: 6, name: "Professional Development and Ethics", category: "Professional Development", image: courseImage },
-];
-
 const Courses = () => {
   const navigate = useNavigate();
-  const [filterCourses, setFilterCourses] = useState(mockCourses);
+  const [filterCourses, setFilterCourses] = useState([]);
   const [category, setCategory] = useState(""); // Category state
   const [searchQuery, setSearchQuery] = useState(""); // Search query state
+  const [courses, setCourses] = useState([]); // State to store fetched courses
+
+  // Fetch courses from the backend
+  useEffect(() => {
+    fetch("http://localhost:8084/api/courses")
+      .then((response) => response.json())
+      .then((data) => {
+        setCourses(data);
+        setFilterCourses(data);
+      })
+      .catch((error) => console.error("Error fetching courses:", error));
+  }, []);
 
   // Filter courses by category and search query
   const applyFilter = () => {
-    let filteredCourses = mockCourses;
+    let filteredCourses = courses;
     if (category) {
       filteredCourses = filteredCourses.filter(
-        (course) => course.category === category
+        (course) => course.categoryName === category
       );
     }
     if (searchQuery) {
@@ -79,7 +81,7 @@ const Courses = () => {
 
   useEffect(() => {
     applyFilter(); // Apply filter whenever category or search query changes
-  }, [category, searchQuery]); // Dependency on category and search query
+  }, [category, searchQuery, courses]); // Dependency on category, search query, and courses
 
   return (
     <>
@@ -207,7 +209,7 @@ const Courses = () => {
                   } // Navigate to CourseDesc page with course data
                 >
                   <img
-                    src={course.image}
+                    src={`http://localhost:8084${course.imageUrl}`}
                     alt={course.name}
                     className="w-full h-48 object-cover bg-transparent"
                   />
@@ -218,7 +220,7 @@ const Courses = () => {
                     <p className="text-blue text-lg font-medium">
                       {course.name}
                     </p>
-                    <p className="text-red text-sm">{course.category}</p>
+                    <p className="text-red text-sm">{course.categoryName}</p>
                   </div>
                 </div>
               ))}
