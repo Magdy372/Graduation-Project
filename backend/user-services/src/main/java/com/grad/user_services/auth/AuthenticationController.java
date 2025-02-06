@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.grad.user_services.exceptions.AuthenticationException;
+import com.grad.user_services.Exceptions.AuthenticationException;
 
 import java.io.IOException;
 

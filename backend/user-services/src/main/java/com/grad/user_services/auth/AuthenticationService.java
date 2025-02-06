@@ -1,7 +1,7 @@
 package com.grad.user_services.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.grad.user_services.exceptions.AuthenticationException;
+import com.grad.user_services.Exceptions.AuthenticationException;
 import com.grad.user_services.config.JwtService;
 import com.grad.user_services.dao.AdminRepository;
 import com.grad.user_services.dao.UserRepository;

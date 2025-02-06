@@ -46,3 +46,11 @@ export const refreshAccessToken = async () => {
         return null;
     }
 };
+
+// tokenUtils.js
+export const getRoleFromToken = (token) => {
+    if (!token) return null;
+    const decodedToken = jwtDecode(token);
+    return decodedToken.roles; // Assuming the role is stored in the 'role' field of the JWT
+  };
+  

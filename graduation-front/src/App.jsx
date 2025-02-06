@@ -1,34 +1,35 @@
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";  // Make sure this is imported
+
+// Import your pages and components
 import Hero from "./components/Hero";
 import Services from "./components/Services";
 import Banner from "./components/Banner";
 import Sponsers from "./components/Sponsers";
 import Footer from "./components/Footer";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Register from "./pages/Register";
 import Courses from "./pages/Courses";
 import About from "./pages/About";
-import CourseDesc from "./pages/CourseDesc";
 import MyCourses from "./pages/MyCourses";
 import MyProfile from "./pages/MyProfile";
-import CoursePage from "./pages/CoursePage";
-import Layout from "./pages/layout";
+import CourseDesc from "./pages/CourseDesc";
 import DashboardPage from "./pages/Dashboard";
-import UploadCourse from "./pages/UploadCourse";
-import Pharmacists from "./pages/Pharmacists";
 import Doctors from "./pages/Doctors";
+import Pharmacists from "./pages/Pharmacists";
 import ViewCourses from "./pages/ViewCourses";
+import UploadCourse from "./pages/UploadCourse";
 import AdminProfile from "./pages/AdminProfile";
 import Login from "./pages/Login";
-import EditCourse from "./pages/EditCourse";
-import AddVideo from "./pages/AddVideo";
+import Layout from "./pages/layout";
 
-
+// Public Routes
 const App = () => {
   return (
     <main className="overflow-x-hidden bg-white text-blue">
       <Router>
         <Routes>
-          {/* Home route */}
+          {/* Public Routes */}
           <Route
             path="/"
             element={
@@ -41,30 +42,97 @@ const App = () => {
               </>
             }
           />
-
-          {/* Register route */}
-          <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/about" element={<About />} />
+          <Route path="/courseDesc" element={<CourseDesc />} />
           <Route path="/myCourses" element={<MyCourses />} />
           <Route path="/myProfile" element={<MyProfile />} />
-          <Route path="/coursePage" element={<CoursePage />} />
-          <Route path="/courseDesc" element={<CourseDesc />} />
-          <Route path="/editCourse" element={<EditCourse />} />
-          <Route path="/addvideo" element={<AddVideo />} />
-          
 
+          {/* Protected Routes */}
           <Route path="/layout" element={<Layout />}>
-            {/* Default route (index) */}
-            <Route index element={<DashboardPage />} />
-            <Route path="analytics" element={<h1 className="title"> التحليلات البيانية</h1>} />
-            <Route path="reports" element={<h1 className="title"> التقارير</h1>} />
-            <Route path="Doctors" element={<Doctors />} />
-            <Route path="Pharmacists" element={<Pharmacists />} />
-            <Route path="ViewCourses" element={<ViewCourses />} />
-            <Route path="UploadCourse" element={<UploadCourse />} />
-            <Route path="AdminProfile" element={<AdminProfile />} />
+            {/* Protected Routes for Admin */}
+            <Route
+              index
+              element={
+                <ProtectedRoute
+                  element={<DashboardPage />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="analytics"
+              element={
+                <ProtectedRoute
+                  element={<h1 className="title">التحليلات البيانية</h1>}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="reports"
+              element={
+                <ProtectedRoute
+                  element={<h1 className="title">التقارير</h1>}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="Doctors"
+              element={
+                <ProtectedRoute
+                  element={<Doctors />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="Pharmacists"
+              element={
+                <ProtectedRoute
+                  element={<Pharmacists />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="ViewCourses"
+              element={
+                <ProtectedRoute
+                  element={<ViewCourses />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="UploadCourse"
+              element={
+                <ProtectedRoute
+                  element={<UploadCourse />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="AdminProfile"
+              element={
+                <ProtectedRoute
+                  element={<AdminProfile />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
           </Route>
         </Routes>
       </Router>
