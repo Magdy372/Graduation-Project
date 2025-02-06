@@ -22,6 +22,10 @@ import UploadCourse from "./pages/UploadCourse";
 import AdminProfile from "./pages/AdminProfile";
 import Login from "./pages/Login";
 import Layout from "./pages/layout";
+import CoursePage from "./pages/CoursePage";
+import AddVideo from "./pages/AddVideo";
+
+
 
 // Public Routes
 const App = () => {
@@ -49,6 +53,9 @@ const App = () => {
           <Route path="/courseDesc" element={<CourseDesc />} />
           <Route path="/myCourses" element={<MyCourses />} />
           <Route path="/myProfile" element={<MyProfile />} />
+          <Route path="/coursePage" element={<CoursePage />} />
+          <Route path="/addvideo" element={<AddVideo />} />
+
 
           {/* Protected Routes */}
           <Route path="/layout" element={<Layout />}>

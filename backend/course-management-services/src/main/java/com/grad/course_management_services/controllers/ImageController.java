@@ -14,11 +14,31 @@ import java.nio.file.Paths;
 public class ImageController {
 
     private final String UPLOAD_DIR = "uploads/coursesimages/";
+    private final String VID_DIR = "uploads/videos/";
+
 
     @GetMapping("/coursesimages/{filename}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
         try {
             Path filePath = Paths.get(UPLOAD_DIR).resolve(filename).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists() && resource.isReadable()) {
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/videos/{filename}")
+    public ResponseEntity<Resource> getVideo(@PathVariable String filename) {
+        try {
+            Path filePath = Paths.get(VID_DIR).resolve(filename).normalize();
             Resource resource = new UrlResource(filePath.toUri());
 
             if (resource.exists() && resource.isReadable()) {

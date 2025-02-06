@@ -1,110 +1,145 @@
-import { FaArrowLeft, FaPlayCircle, FaDownload } from 'react-icons/fa'; 
-import Navbar from '../components/Navbar';
-import { useNavigate } from 'react-router-dom';
-import videoDemo from '../assets/videos/rec.mp4';
+import React, { useState, useEffect } from 'react';
+import { FaArrowLeft, FaPlayCircle, FaDownload } from 'react-icons/fa';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardContent } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import Footer from '../components/Footer';
-import { useState, useEffect } from 'react'; 
-import Confetti from 'react-confetti'; 
-import ModalCongrat from '../components/ModalCongrat';  
 import { motion } from 'framer-motion';
+import Confetti from 'react-confetti';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import ModalCongrat from '../components/ModalCongrat';
+import videoDemo from '../assets/videos/rec.mp4';
 
-// Fade-up animation definition
-const FadeUp = (delay) => {
-  return {
-    initial: { opacity: 0, y: 50 },
-    animate: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        duration: 0.5,
-        delay: delay,
-        ease: "easeInOut",
-      },
+const FadeUp = (delay) => ({
+  initial: { opacity: 0, y: 50 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      duration: 0.5,
+      delay: delay,
+      ease: "easeInOut",
     },
-  };
-};
+  },
+});
 
 const CoursePage = () => {
   const navigate = useNavigate();
-  const [part4Clicked, setPart4Clicked] = useState(false); // State to track if Part 4 is clicked
-  const [finished, setFinished] = useState(false); // State to track if Finished button is clicked
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth); // To make the confetti responsive
-  const [windowHeight, setWindowHeight] = useState(window.innerHeight); // To make the confetti responsive
-  const [showModal, setShowModal] = useState(false); // State to control the modal visibility
-  const [examStarted, setExamStarted] = useState(
-    localStorage.getItem('examState') === 'true' // Initialize examStarted from localStorage
-  );
-  const [examSubmitted, setExamSubmitted] = useState(false); // State to track if the exam has been submitted
-  const [userAnswers, setUserAnswers] = useState(
-    JSON.parse(localStorage.getItem('userAnswers')) || {} // Initialize userAnswers from localStorage
-  );
+  const location = useLocation();
+  const { courseId } = location.state || {};
+  
+  const [course, setCourse] = useState(null);
+  const [chapters, setChapters] = useState([]);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [watchedVideos, setWatchedVideos] = useState(() => {
+    const saved = localStorage.getItem(`watchedVideos_${courseId}`);
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+  const [examStarted, setExamStarted] = useState(false);
+  const [examSubmitted, setExamSubmitted] = useState(false);
+  const [userAnswers, setUserAnswers] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
-  const handleResize = () => {
-    setWindowWidth(window.innerWidth);
-    setWindowHeight(window.innerHeight);
-  };
-
+  // Fetch course data
   useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
+    const fetchCourseData = async () => {
+      try {
+        const courseRes = await fetch(`http://localhost:8084/api/courses/${courseId}`);
+        const chaptersRes = await fetch(`http://localhost:8084/api/courses/${courseId}/chapters`);
+        
+        const courseData = await courseRes.json();
+        const chaptersData = await chaptersRes.json();
+        
+        setCourse(courseData);
+        setChapters(chaptersData);
+        
+        if (chaptersData.length > 0 && chaptersData[0].videos.length > 0) {
+          setSelectedVideo(chaptersData[0].videos[0]);
+        }
+      } catch (error) {
+        console.error('Error fetching course data:', error);
+      }
     };
+
+    fetchCourseData();
+  }, [courseId]);
+
+  // Window resize handler
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      setWindowHeight(window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Save exam state and answers to localStorage whenever they change
+  // Save watched videos to localStorage
   useEffect(() => {
-    localStorage.setItem('examState', examStarted);
-  }, [examStarted]);
+    localStorage.setItem(
+      `watchedVideos_${courseId}`,
+      JSON.stringify(Array.from(watchedVideos))
+    );
+  }, [watchedVideos, courseId]);
 
-  useEffect(() => {
-    localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
-  }, [userAnswers]);
-
-  // Function to handle Part 4 click
-  const handlePart4Click = () => {
-    setPart4Clicked(true); // Show the "Finished" button after Part 4 is clicked
+  const handleVideoWatched = (videoId) => {
+    const newWatchedVideos = new Set(watchedVideos);
+    newWatchedVideos.add(videoId);
+    setWatchedVideos(newWatchedVideos);
   };
 
-  // Function to handle Finished button click
-  const handleFinishedClick = () => {
-    setFinished(true); // Trigger confetti effect when "Finished" is clicked
-    setShowModal(true); // Show the modal on finish
+  const allVideosWatched = () => {
+    const totalVideos = chapters.reduce(
+      (total, chapter) => total + chapter.videos.length,
+      0
+    );
+    return watchedVideos.size === totalVideos;
   };
 
-  // Function to handle Exam button click
-  const handleExamClick = () => {
-    setExamStarted(true); // Start the exam
+  const handleVideoEnded = () => {
+    if (selectedVideo) {
+      handleVideoWatched(selectedVideo.id);
+    }
   };
 
-  // Function to handle Submit Exam button click
-  const handleSubmitExam = () => {
-    setExamSubmitted(true); // Mark the exam as submitted
-    setFinished(true); // Trigger confetti effect
-    setShowModal(true); // Show the modal
-    setExamStarted(false); // End the exam
-    localStorage.removeItem('examState'); // Clear exam state from localStorage
-    localStorage.removeItem('userAnswers'); // Clear user answers from localStorage
+  const handleExamStart = () => {
+    setExamStarted(true);
   };
 
-  // Function to handle user's answer selection
   const handleAnswerSelect = (questionIndex, selectedOption) => {
-    setUserAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      [questionIndex]: selectedOption,
+    setUserAnswers(prev => ({
+      ...prev,
+      [questionIndex]: selectedOption
     }));
   };
 
-  // Close the modal and navigate to the home page
-  const handleCloseModal = () => {
-    setShowModal(false);
-    navigate('/'); // Navigate to the home page
+  const calculateScore = () => {
+    let correct = 0;
+    examQuestions.forEach((question, index) => {
+      if (userAnswers[index] === question.answer) {
+        correct++;
+      }
+    });
+    return (correct / examQuestions.length) * 100;
   };
 
-  // Dummy MCQ questions and answers
+  const handleExamSubmit = () => {
+    const score = calculateScore();
+    setExamSubmitted(true);
+    setShowModal(true);
+    // You can add API call here to save the exam results
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    navigate('/');
+  };
+
   const examQuestions = [
     {
       question: "What is the capital of France?",
@@ -131,23 +166,23 @@ const CoursePage = () => {
       options: ["Harper Lee", "Mark Twain", "J.K. Rowling", "Ernest Hemingway"],
       answer: "Harper Lee"
     }    
+    // Add more questions as needed
   ];
 
+  if (!course || !chapters.length) return <div>Loading...</div>;
+
   return (
-    <div className="flex flex-col min-h-screen"> {/* Full height container */}
-      {/* Confetti effect */}
-      {finished && <Confetti width={windowWidth} height={windowHeight} />}
+    <div className="flex flex-col min-h-screen">
+      {examSubmitted && <Confetti width={windowWidth} height={windowHeight} />}
       {showModal && <ModalCongrat onClose={handleCloseModal} />}
-  
+
       <Navbar />
-  
-      {/* Content Wrapper */}
+
       <div className="flex-grow flex flex-col bg-white m-6">
         <div className="flex items-center justify-between p-4 bg-white">
           <button
             onClick={() => navigate('/MyCourses')}
             className="mb-3 p-3 bg-white text-blue border w-[250px] hover:bg-red hover:text-white rounded-md flex items-center gap-2 text-left"
-            disabled={examStarted && !examSubmitted}
           >
             <FaArrowLeft />
             <span>Back to my courses page</span>
@@ -158,69 +193,59 @@ const CoursePage = () => {
             initial="initial"
             animate="animate"
           >
-            Research and Evidence-Based Medicine
+            {course.name}
           </motion.h1>
         </div>
-  
-        {/* Main Content (Sidebar + Video) */}
+
         <div className="flex gap-10 mt-5 px-5 flex-grow">
-          {/* Sidebar */}
+          {/* Video List Sidebar */}
           <div className="border border-gray p-5 rounded-lg w-[250px]">
-            <motion.button
-              className="mb-3 p-3 bg-white text-blue border w-full hover:bg-red hover:text-white rounded-md flex items-center gap-2 text-left"
-              variants={FadeUp(0.3)}
-              initial="initial"
-              animate="animate"
-              disabled={examStarted && !examSubmitted}
-            >
-              <FaPlayCircle />
-              <span>Part 1</span>
-            </motion.button>
-            <motion.button
-              className="mb-3 p-3 bg-white text-blue border w-full hover:bg-red hover:text-white rounded-md flex items-center gap-2 text-left"
-              variants={FadeUp(0.4)}
-              initial="initial"
-              animate="animate"
-              disabled={examStarted && !examSubmitted}
-            >
-              <FaPlayCircle />
-              <span>Part 2</span>
-            </motion.button>
-            <motion.button
-              className="mb-3 p-3 bg-white text-blue border w-full hover:bg-red hover:text-white rounded-md flex items-center gap-2 text-left"
-              variants={FadeUp(0.5)}
-              initial="initial"
-              animate="animate"
-              disabled={examStarted && !examSubmitted}
-            >
-              <FaPlayCircle />
-              <span>Part 3</span>
-            </motion.button>
-            <motion.button
-              onClick={handlePart4Click}
-              className="mb-3 p-3 bg-white text-blue border w-full hover:bg-red hover:text-white rounded-md flex items-center gap-2 text-left"
-              variants={FadeUp(0.6)}
-              initial="initial"
-              animate="animate"
-              disabled={examStarted && !examSubmitted}
-            >
-              <FaPlayCircle />
-              <span>Part 4</span>
-            </motion.button>
-            {part4Clicked && !examStarted && (
+            {chapters.map((chapter, chapterIndex) => (
+              <div key={chapter.id} className="mb-4">
+                <motion.div
+                  className="font-semibold mb-2 text-blue"
+                  variants={FadeUp(0.3 + chapterIndex * 0.1)}
+                  initial="initial"
+                  animate="animate"
+                >
+                  {chapter.title}
+                </motion.div>
+                {chapter.videos.map((video, videoIndex) => (
+                  <motion.button
+                    key={video.id}
+                    onClick={() => setSelectedVideo(video)}
+                    className={`mb-2 p-2 w-full text-left rounded-md flex items-center gap-2 ${
+                      selectedVideo?.id === video.id 
+                        ? 'bg-red text-white' 
+                        : 'bg-white text-blue hover:bg-red hover:text-white'
+                    }`}
+                    variants={FadeUp(0.4 + chapterIndex * 0.1 + videoIndex * 0.05)}
+                    initial="initial"
+                    animate="animate"
+                  >
+                    <FaPlayCircle />
+                    <span>{video.title}</span>
+                    {watchedVideos.has(video.id) && (
+                      <span className="ml-auto text-sm">✓</span>
+                    )}
+                  </motion.button>
+                ))}
+              </div>
+            ))}
+            {allVideosWatched() && !examStarted && !examSubmitted && (
               <motion.button
-                onClick={handleExamClick}
-                className="mb-3 p-3 bg-white text-blue border w-full hover:bg-red hover:text-white rounded-md flex items-center gap-2 text-left"
-                variants={FadeUp(0.7)}
+                onClick={handleExamStart}
+                className="mt-4 p-3 bg-blue text-white w-full rounded-md hover:bg-red"
+                variants={FadeUp(0.9)}
                 initial="initial"
                 animate="animate"
               >
-                <span>Start Exam</span>
+                Start Exam
               </motion.button>
             )}
           </div>
-  
-          {/* Video Section */}
+
+          {/* Main Content Area */}
           <div className="flex-1 flex justify-center items-start mt-3 ml-3">
             <motion.div
               className="w-full max-w-[1200px]"
@@ -229,32 +254,48 @@ const CoursePage = () => {
               animate="animate"
             >
               {!examStarted ? (
+                // Video Player Section
                 <>
-                  <video controls className="w-full h-[500px]">
-                    <source src={videoDemo} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                  <div className="bg-white mt-3">
-                    <div className="flex justify-between items-center">
-                      <motion.h2
-                        className="text-2xl font-semibold mb-2"
-                        variants={FadeUp(0.9)}
-                        initial="initial"
-                        animate="animate"
+                  {selectedVideo && (
+                    <>
+                      <video 
+                        key={selectedVideo.id} // Add this line to force re-render
+                        controls 
+                        className="w-full h-[500px]"
+                        onEnded={handleVideoEnded}
+                        crossOrigin="anonymous"  // Add this line
                       >
-                        Part 1
-                      </motion.h2>
-                    </div>
-                  </div>
+                        <source src={`http://localhost:8084${selectedVideo.videoPath}`} type="video/mp4"                 crossOrigin="anonymous"  // Add this line
+                          />
+                      </video>
+                      <div className="bg-white mt-3">
+                        <div className="flex justify-between items-center">
+                          <h2 className="text-2xl font-semibold mb-2">
+                            {selectedVideo.title}
+                          </h2>
+                        </div>
+                        <p className="text-gray-600">
+                          {course.description}
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </>
               ) : (
-                <div className="w-full h-full">
+                // Exam Section
+                <div className="w-full h-full p-6 bg-white rounded-lg shadow">
+                  <h2 className="text-2xl font-semibold mb-6">Course Examination</h2>
                   {examQuestions.map((question, index) => (
                     <div key={index} className="mb-6">
-                      <h3 className="text-xl font-semibold mb-2">{question.question}</h3>
+                      <h3 className="text-xl font-semibold mb-2">
+                        Question {index + 1}: {question.question}
+                      </h3>
                       <div className="flex flex-col gap-2">
                         {question.options.map((option, i) => (
-                          <label key={i} className="flex items-center gap-2">
+                          <label 
+                            key={i} 
+                            className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded cursor-pointer"
+                          >
                             <input
                               type="radio"
                               name={`question-${index}`}
@@ -262,6 +303,7 @@ const CoursePage = () => {
                               checked={userAnswers[index] === option}
                               onChange={() => handleAnswerSelect(index, option)}
                               disabled={examSubmitted}
+                              className="form-radio"
                             />
                             {option}
                           </label>
@@ -269,54 +311,49 @@ const CoursePage = () => {
                       </div>
                     </div>
                   ))}
-                  <button
-                    onClick={handleSubmitExam}
-                    className="mt-4 p-3 bg-blue text-white border hover:bg-red rounded-md"
-                    disabled={examSubmitted}
-                  >
-                    Submit Exam
-                  </button>
+                  {!examSubmitted && (
+                    <button
+                      onClick={handleExamSubmit}
+                      className="mt-4 p-3 bg-blue text-white border hover:bg-red rounded-md"
+                      disabled={Object.keys(userAnswers).length !== examQuestions.length}
+                    >
+                      Submit Exam
+                    </button>
+                  )}
                 </div>
               )}
             </motion.div>
           </div>
         </div>
-        
-        {/* About the Course Section */}
-        {!examStarted && (
-          <div className="mt-8 px-5">
-            <Card className="bg-white shadow-lg rounded-xl border border-gray w-full">
-              <CardHeader
-                title={
-                  <div className="flex justify-between items-center">
-                    <Typography variant="h6" className="text-red font-semibold text-lg">
-                      Course Summary
-                    </Typography>
-                    <button
-                      className="text-lg mb-3 p-3 bg-blue text-white border w-[140px] hover:bg-red rounded-md flex items-center gap-2 text-left w-[150px] text-center"
-                      disabled={examStarted && !examSubmitted}
-                    >
-                      <FaDownload />
-                      Download
-                    </button>
-                  </div>
-                }
-              />
-              <CardContent>
-                <Typography variant="body1" color="textSecondary" className="text-blue">
-                  Lorem Ipsum is simply dummy text of the printing and typesetting industry...
-                </Typography>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+
+        {/* Course Summary Section */}
+        <div className="mt-8 px-5">
+          <Card className="bg-white shadow-lg rounded-xl border border-gray w-full">
+            <CardHeader
+              title={
+                <div className="flex justify-between items-center">
+                  <Typography variant="h6" className="text-red font-semibold text-lg">
+                    Course Summary
+                  </Typography>
+                  <button className="text-lg mb-3 p-3 bg-blue text-white border w-[140px] hover:bg-red rounded-md flex items-center gap-2 text-left w-[150px] text-center">
+                    <FaDownload />
+                    Download
+                  </button>
+                </div>
+              }
+            />
+            <CardContent>
+              <Typography variant="body1" color="textSecondary" className="text-blue">
+                {selectedVideo?.videoSummary || 'No summary available'}
+              </Typography>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-  
-      {/* Footer (Always at Bottom) */}
+
       <Footer />
     </div>
   );
-  
 };
 
 export default CoursePage;
