@@ -10,6 +10,8 @@ import { motion } from "framer-motion"; // Import framer motion
 import Footer from "../components/Footer";
 import { Link } from 'react-router-dom'; // If you're using React Router for navigation
 import { useLocation, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+
 
 // Fade Up Animation Variants
 export const FadeUp = (delay = 0) => {
@@ -97,8 +99,42 @@ const CourseDesc = () => {
     fetchCourseDetails();
   }, [location.state?.course?.id]);
 
-  const handleEnrollClick = () => {
-    navigate("/CoursePage"); // Redirect to /CoursePage when "Enroll Now" is clicked
+  const handleEnrollClick = async () => {
+    try {
+      const token = localStorage.getItem('access_token');  // Ensure this matches your actual token key
+
+        if (!token) {
+          navigate("/login"); // Redirect to login if no token
+          return;
+        }
+
+        // Decode the token to extract the userId
+        const decodedToken = jwtDecode(token);
+        const userId = decodedToken.userId;
+
+      // Get course ID from your component's state or props
+      const courseId = course.id; // Replace with your actual course ID source
+  
+      const response = await fetch('http://localhost:8084/enrollments/enroll', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `userId=${userId}&courseId=${courseId}`
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Enrollment failed');
+      }
+  
+      // If enrollment successful, navigate to course page
+      navigate("/MyCourses", { state: { courseId } });
+    } catch (error) {
+      console.error('Enrollment error:', error);
+      // Show error to user (you can use a toast or alert)
+      alert(error.message);
+    }
   };
   const handleRecClick = () => {
     navigate("/CoursePage"); // Redirect to /CoursePage when "Enroll Now" is clicked

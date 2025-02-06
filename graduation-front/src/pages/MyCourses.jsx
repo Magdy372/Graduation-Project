@@ -5,6 +5,8 @@ import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import { FaPlay } from "react-icons/fa";
 import { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
+
 
 export const FadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 50 },
@@ -26,11 +28,22 @@ const MyCourses = () => {
   const [loading, setLoading] = useState(true);
 
   // Hardcoded user ID for demonstration (replace with actual user ID when auth is implemented)
-  const userId = 57;
 
   useEffect(() => {
     const fetchEnrolledCourses = async () => {
       try {
+
+        const token = localStorage.getItem('access_token');  // Ensure this matches your actual token key
+
+        if (!token) {
+          navigate("/login"); // Redirect to login if no token
+          return;
+        }
+
+        // Decode the token to extract the userId
+        const decodedToken = jwtDecode(token);
+        const userId = decodedToken.userId;
+
         // First fetch user enrollments
         const enrollmentsResponse = await fetch(`http://localhost:8084/enrollments/user/${userId}`);
         const enrollments = await enrollmentsResponse.json();
