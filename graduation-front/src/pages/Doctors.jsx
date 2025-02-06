@@ -122,13 +122,16 @@ const ViewUsers = () => {
                 {["professionLicenseFilePath", "licenseFilePath", "syndicateCardFilePath", "commercialRegisterFilePath", "taxCardFilePath"].map(
                   (field) =>
                     user[field] && (
-                      <img
-                        key={field}
-                        src={`http://localhost:8089/uploads/${user[field].split("\\").pop()}`}
-                        alt={user.firstname}
-                        className="w-full h-48 object-cover mt-2"
-                        onError={(e) => (e.target.src = "/default-placeholder.png")}
-                      />
+                      <div key={field} className="mt-2">
+                        <a
+                          href={`http://localhost:8089/uploads/${user[field].split("\\").pop()}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:underline"
+                        >
+                          View {field.replace("FilePath", "")}
+                        </a>
+                      </div>
                     )
                 )}
 

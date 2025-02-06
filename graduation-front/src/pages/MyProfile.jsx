@@ -143,7 +143,7 @@ const MyProfile = () => {
                   type="text"
                   id="title"
                   name="title"
-                  value={"Sbak"|| ""}
+                 // value={"Sbak"|| ""}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   disabled
                 />
@@ -152,16 +152,78 @@ const MyProfile = () => {
           </form>
 
           {/* Display uploaded file paths */}
-          <div className="mt-6">
-            <h3 className="text-lg font-medium text-blue">Uploaded Documents</h3>
-            <ul>
-              <li><strong>License File:</strong> {userData.licenseFilePath}</li>
-              <li><strong>Profession License:</strong> {userData.professionLicenseFilePath}</li>
-              <li><strong>Syndicate Card:</strong> {userData.syndicateCardFilePath}</li>
-              <li><strong>Commercial Register:</strong> {userData.commercialRegisterFilePath}</li>
-              <li><strong>Tax Card:</strong> {userData.taxCardFilePath}</li>
-            </ul>
-          </div>
+        {/* Display uploaded file paths as downloadable links */}
+<div className="mt-6">
+  <h3 className="text-lg font-medium text-blue">Uploaded Documents</h3>
+  <ul>
+    {userData.licenseFilePath && (
+      <li>
+        <strong>License File:</strong> 
+        <a 
+          href={`http://localhost:8089/uploads/${userData.licenseFilePath}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="text-red-500 underline"
+        >
+          Open
+        </a>
+      </li>
+    )}
+    {userData.professionLicenseFilePath && (
+      <li>
+        <strong>Profession License:</strong> 
+        <a 
+          href={`http://localhost:8089/uploads/${userData.professionLicenseFilePath}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="text-red-500 underline"
+        >
+          Open
+        </a>
+      </li>
+    )}
+    {userData.syndicateCardFilePath && (
+      <li>
+        <strong>Syndicate Card:</strong> 
+        <a 
+          href={`http://localhost:8089/uploads/${userData.syndicateCardFilePath}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="text-red-500 underline"
+        >
+          Open
+        </a>
+      </li>
+    )}
+    {userData.commercialRegisterFilePath && (
+      <li>
+        <strong>Commercial Register:</strong> 
+        <a 
+          href={`http://localhost:8089/uploads/${userData.commercialRegisterFilePath}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="text-red-500 underline"
+        >
+          Open
+        </a>
+      </li>
+    )}
+    {userData.taxCardFilePath && (
+      <li>
+        <strong>Tax Card:</strong> 
+        <a 
+          href={`http://localhost:8089/uploads/${userData.taxCardFilePath}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="text-red-500 underline"
+        >
+          Open
+        </a>
+      </li>
+    )}
+  </ul>
+</div>
+
         </div>
         <br />
         <Footer />
