@@ -39,7 +39,7 @@ const EditCourse = () => {
       body: formData,
     });
     alert("Course updated successfully!");
-    navigate("/courses");
+    navigate("/layout/ViewCourses");
   };
 
   return (
@@ -57,6 +57,7 @@ const EditCourse = () => {
         <img src={imagePreview} alt="Course" className="w-32 h-32 mt-2" />
 
         <button type="submit" >Update Course</button>
+
       </form>
     </div>
   );

@@ -150,6 +150,7 @@ const AddVideo = () => {
       await fetchChapters();
 
       alert("تم رفع الفيديو بنجاح!");
+      navigate("/layout/ViewCourses");
     } catch (error) {
       console.error("Error uploading video:", error);
       alert("فشل رفع الفيديو. حاول مرة أخرى.");

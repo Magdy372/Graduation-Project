@@ -276,10 +276,10 @@ const Register = () => {
       type="text"
       className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
     >
-      <option value="">Select a title</option>
+      <option value="">المسمي الوظيفي</option>
       {/* Add your options here */}
-      <option value="DR">DR</option>
-      <option value="PHARMA">PHARMACIST</option>
+      <option value="دكتور">دكتور</option>
+      <option value="صيدلي">صيدلي</option>
     </select>
     {formErrors.title && (
       <span className="text-red-500 text-sm">{formErrors.title}</span>
@@ -295,34 +295,34 @@ const Register = () => {
       name="governate"
       className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
     >
-      <option value="">Select a governate</option>
-      {/* Add your options here */}
-      <option value="alexandria">Alexandria</option>
-<option value="aswan">Aswan</option>
-<option value="asuit">Asuit</option>
-<option value="beheira">Beheira</option>
-<option value="beni_suef">Beni Suef</option>
-<option value="cairo">Cairo</option>
-<option value="dakahlia">Dakahlia</option>
-<option value="damietta">Damietta</option>
-<option value="faiyum">Faiyum</option>
-<option value="giza">Giza</option>
-<option value="ismailia">Ismailia</option>
-<option value="kafr_el_sheikh">Kafr El Sheikh</option>
-<option value="luxor">Luxor</option>
-<option value="matruh">Matruh</option>
-<option value="minya">Minya</option>
-<option value="monufia">Monufia</option>
-<option value="new_valley">New Valley</option>
-<option value="nort_sinai">North Sinai</option>
-<option value="port_said">Port Said</option>
-<option value="qalubiya">Qalubiya</option>
-<option value="qena">Qena</option>
-<option value="red_sea">Red Sea</option>
-<option value="sharkia">Sharkia</option>
-<option value="sohag">Sohag</option>
-<option value="south_sinai">South Sinai</option>
-<option value="suez">Suez</option>
+      <option value="">اختر محافظة</option>
+<option value="alexandria">الإسكندرية</option>
+<option value="aswan">أسوان</option>
+<option value="asuit">أسيوط</option>
+<option value="beheira">البحيرة</option>
+<option value="beni_suef">بني سويف</option>
+<option value="cairo">القاهرة</option>
+<option value="dakahlia">الدقهلية</option>
+<option value="damietta">دمياط</option>
+<option value="faiyum">الفيوم</option>
+<option value="giza">الجيزة</option>
+<option value="ismailia">الإسماعيلية</option>
+<option value="kafr_el_sheikh">كفر الشيخ</option>
+<option value="luxor">الأقصر</option>
+<option value="matruh">مطروح</option>
+<option value="minya">المنيا</option>
+<option value="monufia">المنوفية</option>
+<option value="new_valley">الوادي الجديد</option>
+<option value="nort_sinai">شمال سيناء</option>
+<option value="port_said">بورسعيد</option>
+<option value="qalubiya">القليوبية</option>
+<option value="qena">قنا</option>
+<option value="red_sea">البحر الأحمر</option>
+<option value="sharkia">الشرقية</option>
+<option value="sohag">سوهاج</option>
+<option value="south_sinai">جنوب سيناء</option>
+<option value="suez">السويس</option>
+
 
     </select>
     {formErrors.governorate && (

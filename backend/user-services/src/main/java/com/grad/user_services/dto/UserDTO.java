@@ -25,6 +25,10 @@ public class UserDTO {
     @NotBlank(message = "Password is required")
     private String password;
 
+
+    private String title;
+    private String governorate;
+
     // Getters and Setters
     public String getFirstname() {
         return firstname;
@@ -64,5 +68,21 @@ public class UserDTO {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getGovernorate() {
+        return governorate;
+    }
+
+    public void setGovernorate(String governorate) {
+        this.governorate = governorate;
     }
 }

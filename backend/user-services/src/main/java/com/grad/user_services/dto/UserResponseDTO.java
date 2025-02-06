@@ -6,6 +6,8 @@ public class UserResponseDTO {
     private String lastname;
     private String phonenumber;
     private String email;
+    private String title;
+    private String governorate;
 
     // Document Fields
     private String licenseFilePath;
@@ -26,6 +28,12 @@ public class UserResponseDTO {
 
     public String getPhonenumber() { return phonenumber; }
     public void setPhonenumber(String phonenumber) { this.phonenumber = phonenumber; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getGovernorate() { return governorate; }
+    public void setGovernorate(String governorate) { this.governorate = governorate; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }

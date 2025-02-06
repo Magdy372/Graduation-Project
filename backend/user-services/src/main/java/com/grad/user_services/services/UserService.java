@@ -102,6 +102,8 @@ public class UserService {
             userResponseDTO.setLastname(user.getLastname());
             userResponseDTO.setPhonenumber(user.getPhonenumber());
             userResponseDTO.setEmail(user.getEmail());
+            userResponseDTO.setTitle(user.getTitle());
+            userResponseDTO.setGovernorate(user.getGovernorate());
         
             // Map document fields if the user has documents
             if (user.getUserDocument() != null) {
