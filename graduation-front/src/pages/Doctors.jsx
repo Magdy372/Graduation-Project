@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+//import jwtDecode from "jwt-decode";
 import Navbar from "../components/Navbar";
 import { motion } from "framer-motion";
 
@@ -11,12 +12,38 @@ const ViewUsers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch users from API
+  useEffect(() => {
+    // Get the token from localStorage
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+      navigate("/login"); // Redirect to login if no token
+      return;
+    }
+
+    try {
+      // const decodedToken = jwtDecode(token);
+
+      // // Check if the user has the "Admin" role
+      // if (!decodedToken.roles || !decodedToken.roles.includes("Admin")) {
+      //   navigate("/"); // Redirect if the user is not an admin
+      //   return;
+      // }
+
+      const controller = new AbortController();
+      fetchUsers(controller.signal);
+      return () => controller.abort();
+    } catch (error) {
+      console.error("Invalid token:", error);
+      navigate("/login"); // Redirect if the token is invalid
+    }
+  }, []);
+
   const fetchUsers = async (signal) => {
     try {
       const response = await fetch("http://localhost:8089/users/view-all", { signal });
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-      
+
       const data = await response.json();
       setUsers(data);
       setFilteredUsers(data);
@@ -31,12 +58,6 @@ const ViewUsers = () => {
   };
 
   useEffect(() => {
-    const controller = new AbortController();
-    fetchUsers(controller.signal);
-    return () => controller.abort();
-  }, []);
-
-  useEffect(() => {
     setFilteredUsers(
       users.filter((user) =>
         user.firstname.toLowerCase().includes(searchQuery.toLowerCase())
@@ -44,7 +65,6 @@ const ViewUsers = () => {
     );
   }, [searchQuery, users]);
 
-  // Function to approve a user
   const handleAccept = async (userId) => {
     try {
       const response = await fetch(`http://localhost:8089/users/${userId}/approve`, {
@@ -54,7 +74,6 @@ const ViewUsers = () => {
 
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-      // Update UI to reflect approval
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user.id === userId ? { ...user, approved: true } : user
@@ -65,7 +84,6 @@ const ViewUsers = () => {
     }
   };
 
-  // Reload function to retry fetch
   const handleReload = () => {
     setLoading(true);
     setError(null);
@@ -92,7 +110,6 @@ const ViewUsers = () => {
       <div className="container mx-auto px-6 py-10">
         <h1 className="text-3xl font-bold text-center mb-8">Users</h1>
 
-        {/* Search Bar */}
         <div className="mb-8">
           <input
             type="text"
@@ -103,7 +120,6 @@ const ViewUsers = () => {
           />
         </div>
 
-        {/* Users Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredUsers.length > 0 ? (
             filteredUsers.map((user) => (
@@ -118,7 +134,6 @@ const ViewUsers = () => {
                 <p className="text-gray-600">{user.email}</p>
                 <p className="text-gray-600">{user.phonenumber}</p>
 
-                {/* User Documents */}
                 {["professionLicenseFilePath", "licenseFilePath", "syndicateCardFilePath", "commercialRegisterFilePath", "taxCardFilePath"].map(
                   (field) =>
                     user[field] && (
@@ -135,7 +150,6 @@ const ViewUsers = () => {
                     )
                 )}
 
-                {/* Accept Button */}
                 <div className="mt-4 flex gap-4">
                   <button
                     onClick={() => handleAccept(user.id)}
@@ -144,7 +158,7 @@ const ViewUsers = () => {
                     }`}
                     disabled={user.approved}
                   >
-                    {user.approved ? "Approved ✅" : "Accept"}
+                    {user.approved ? "تم ✅" : "قبول"}
                   </button>
                 </div>
               </motion.div>

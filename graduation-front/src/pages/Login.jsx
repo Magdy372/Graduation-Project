@@ -8,12 +8,32 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(""); // Reset previous error
+    setEmailError(""); // Reset email error
+    setPasswordError(""); // Reset password error
     setIsLoading(true);
+
+    // Validate email and password
+    let hasError = false;
+    if (!email.trim()) {
+      setEmailError("البريد الإلكتروني مطلوب");
+      hasError = true;
+    }
+    if (!password.trim()) {
+      setPasswordError("كلمة المرور مطلوبة");
+      hasError = true;
+    }
+
+    if (hasError) {
+      setIsLoading(false);
+      return; // Prevent submission if there are validation errors
+    }
 
     const payload = {
       email: email.trim(),
@@ -61,8 +81,6 @@ const Login = () => {
     }
   };
 
-
-    
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -89,6 +107,7 @@ const Login = () => {
                 className="bg-white-300 text-red border-b-2 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
                 disabled={isLoading}
               />
+              {emailError && <p className="text-red-500 text-xs">{emailError}</p>}
             </div>
 
             {/* Password Input */}
@@ -105,6 +124,7 @@ const Login = () => {
                 className="bg-white-300 text-red border-b-2 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
                 disabled={isLoading}
               />
+              {passwordError && <p className="text-red-500 text-xs">{passwordError}</p>}
             </div>
 
             {/* General Error Message */}

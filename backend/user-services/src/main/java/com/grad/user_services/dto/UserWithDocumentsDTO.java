@@ -2,7 +2,10 @@ package com.grad.user_services.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.web.multipart.MultipartFile;
 
 public class UserWithDocumentsDTO {
@@ -10,20 +13,24 @@ public class UserWithDocumentsDTO {
     // User fields
     @NotBlank(message = "First name is required")
     @Size(max = 50, message = "First name must be less than 50 characters")
+    @Pattern(regexp = "^[a-zA-Z]+$", message = "First name must contain only letters")
     private String firstname;
 
     @NotBlank(message = "Last name is required")
     @Size(max = 50, message = "Last name must be less than 50 characters")
+    @Pattern(regexp = "^[a-zA-Z]+$", message = "Last name must contain only letters")
     private String lastname;
 
     @NotBlank(message = "Phone number is required")
-    @Size(max = 15, message = "Phone number must be less than 15 characters")
+    @Size(min = 11, max = 11, message = "Phone number must be exactly 11 characters")
+    @Pattern(regexp = "^[0-9]{11}$", message = "Phone number must be 11 digits and numbers only")
     private String phonenumber;
 
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     private String email;
     @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
     private boolean approved=false;
  

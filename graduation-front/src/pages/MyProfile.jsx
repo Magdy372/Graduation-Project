@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import { motion } from "framer-motion";
@@ -29,6 +30,7 @@ export const FadeUp = (delay) => {
 };
 
 const MyProfile = () => {
+  const navigate = useNavigate();
   const [userData, setUserData] = useState(null);  // State to store user data
   const [isLoading, setIsLoading] = useState(true); // State for loading spinner or UI state
   const [error, setError] = useState(""); // State for handling errors
@@ -41,7 +43,7 @@ const MyProfile = () => {
         const token = localStorage.getItem('access_token');  // Ensure this matches your actual token key
 
         if (!token) {
-          setError("No token found. Please log in.");
+          navigate("/login"); // Redirect to login if no token
           return;
         }
 

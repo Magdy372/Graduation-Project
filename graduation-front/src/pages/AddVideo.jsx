@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { FaPlus, FaTrash } from "react-icons/fa";
 import Navbar from "../components/Navbar";
@@ -6,6 +7,7 @@ import Footer from "../components/Footer";
 
 const AddVideo = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { course } = location.state || {};
   const [chapters, setChapters] = useState([]);
   const [selectedChapter, setSelectedChapter] = useState("");
@@ -13,9 +15,22 @@ const AddVideo = () => {
   const [newChapterTitle, setNewChapterTitle] = useState("");
   const [newVideoTitle, setNewVideoTitle] = useState("");
   const [isUploading, setIsUploading] = useState(false); // Loading state
+  const [errors, setErrors] = useState({
+    chapterTitle: "",
+    videoTitle: "",
+    videoFile: "",
+    chapterSelection: "",
+  });
 
   // Fetch chapters when the page loads
   useEffect(() => {
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+      navigate("/login"); // Redirect to login if no token
+      return;
+    }
+
     fetchChapters();
   }, [course.id]);
 
@@ -32,7 +47,13 @@ const AddVideo = () => {
 
   // Add a new chapter
   const handleAddChapter = async () => {
-    if (!newChapterTitle) return alert("Chapter title is required");
+    if (!newChapterTitle) {
+      setErrors((prev) => ({
+        ...prev,
+        chapterTitle: "عنوان الفصل مطلوب",
+      }));
+      return;
+    }
 
     try {
       const response = await fetch(`http://localhost:8084/api/chapters/courses/${course.id}`, {
@@ -46,6 +67,10 @@ const AddVideo = () => {
 
       setChapters([...chapters, data]);
       setNewChapterTitle("");
+      setErrors((prev) => ({
+        ...prev,
+        chapterTitle: "",
+      }));
     } catch (error) {
       console.error("Error adding chapter:", error);
     }
@@ -65,9 +90,33 @@ const AddVideo = () => {
 
   // Upload a video
   const handleVideoUpload = async () => {
-    if (!videoFile || !selectedChapter || !newVideoTitle) {
-      return alert("Please select a chapter, video file, and enter a title");
+    let isValid = true;
+
+    if (!newVideoTitle) {
+      setErrors((prev) => ({
+        ...prev,
+        videoTitle: "عنوان الفيديو مطلوب",
+      }));
+      isValid = false;
     }
+
+    if (!selectedChapter) {
+      setErrors((prev) => ({
+        ...prev,
+        chapterSelection: "يجب اختيار الفصل",
+      }));
+      isValid = false;
+    }
+
+    if (!videoFile) {
+      setErrors((prev) => ({
+        ...prev,
+        videoFile: "ملف الفيديو مطلوب",
+      }));
+      isValid = false;
+    }
+
+    if (!isValid) return;
 
     setIsUploading(true); // Show loading indicator
 
@@ -90,14 +139,20 @@ const AddVideo = () => {
       // Reset fields
       setVideoFile(null);
       setNewVideoTitle("");
+      setErrors((prev) => ({
+        ...prev,
+        videoTitle: "",
+        videoFile: "",
+        chapterSelection: "",
+      }));
 
       // Fetch updated chapters after a successful video upload
       await fetchChapters();
 
-      alert("Video uploaded successfully!");
+      alert("تم رفع الفيديو بنجاح!");
     } catch (error) {
       console.error("Error uploading video:", error);
-      alert("Video upload failed. Please try again.");
+      alert("فشل رفع الفيديو. حاول مرة أخرى.");
     } finally {
       setIsUploading(false); // Hide loading indicator
     }
@@ -137,6 +192,9 @@ const AddVideo = () => {
             value={newChapterTitle}
             onChange={(e) => setNewChapterTitle(e.target.value)}
           />
+          {errors.chapterTitle && (
+            <p className="text-red-500 text-sm mt-1">{errors.chapterTitle}</p>
+          )}
           <button
             className="p-3 bg-green-500 text-white rounded-md flex items-center gap-2"
             onClick={handleAddChapter}
@@ -160,6 +218,9 @@ const AddVideo = () => {
               </option>
             ))}
           </select>
+          {errors.chapterSelection && (
+            <p className="text-red-500 text-sm mt-1">{errors.chapterSelection}</p>
+          )}
         </div>
 
         {/* Video Upload Section */}
@@ -173,7 +234,13 @@ const AddVideo = () => {
               value={newVideoTitle}
               onChange={(e) => setNewVideoTitle(e.target.value)}
             />
+            {errors.videoTitle && (
+              <p className="text-red-500 text-sm mt-1">{errors.videoTitle}</p>
+            )}
             <input type="file" className="p-2 border rounded-md" onChange={(e) => setVideoFile(e.target.files[0])} />
+            {errors.videoFile && (
+              <p className="text-red-500 text-sm mt-1">{errors.videoFile}</p>
+            )}
             <button
               className={`p-3 rounded-md flex items-center gap-2 ${
                 isUploading ? "bg-gray-400 cursor-not-allowed" : "p-3 bg-green-500 text-white rounded-md flex items-center gap-2"

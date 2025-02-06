@@ -8,6 +8,7 @@ const UploadCourse = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [chapters, setChapters] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [errors, setErrors] = useState({});
   const [courseData, setCourseData] = useState({
     name: "",
     description: "",
@@ -27,13 +28,26 @@ const UploadCourse = () => {
         }
       } catch (error) {
         console.error("Error fetching categories:", error);
-      }
+        }
+     
     };
 
     fetchCategories();
   }, []);
 
+  const validateInputs = () => {
+    let newErrors = {};
+    if (!courseData.name.trim()) newErrors.name = "عنوان الدورة مطلوب";
+    if (!courseData.description.trim()) newErrors.description = "وصف الدورة مطلوب";
+    if (!courseData.categoryName) newErrors.categoryName = "يجب اختيار فئة";
+    if (!courseData.imageFile) newErrors.imageFile = "يرجى تحميل صورة للدورة";
+    if (chapters.length === 0) newErrors.chapters = "يجب إضافة فصل واحد على الأقل";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleUploadClick = async () => {
+    if (!validateInputs()) return;
     const formData = new FormData();
     formData.append(
       "requestDTO",
@@ -130,6 +144,7 @@ const UploadCourse = () => {
               className="border border-gray-300 p-2 rounded-md text-right w-full"
               placeholder="أدخل عنوان الدورة"
             />
+            {errors.name && <ErrorText text={errors.name} />}
           </Box>
           <Box>
             <SectionTitle title="وصف الدورة التدريبية" />
@@ -140,10 +155,12 @@ const UploadCourse = () => {
               className="border border-gray-300 p-2 rounded-md text-right w-full"
               placeholder="أدخل وصف الدورة"
             />
+            {errors.description && <ErrorText text={errors.description} />}
           </Box>
           <Box>
             <SectionTitle title="صورة الدورة التدريبية" />
             <ImageUploader onChange={handleImageChange} />
+            {errors.imageFile && <ErrorText text={errors.imageFile} />}
           </Box>
           <Box>
             <SectionTitle title="فئة الدورة التدريبية" />
@@ -160,6 +177,7 @@ const UploadCourse = () => {
                 </option>
               ))}
             </select>
+            {errors.categoryName && <ErrorText text={errors.categoryName} />}
           </Box>
         </div>
 
@@ -169,6 +187,7 @@ const UploadCourse = () => {
           <Box>
             <SectionTitle title="فصول الدورة التدريبية" />
             <ChapterList chapters={chapters} onAddChapter={handleAddChapter} onDeleteChapter={handleDeleteChapter} />
+            {errors.chapters && <ErrorText text={errors.chapters} />}
           </Box>
           <div className="flex justify-end">
             <button
@@ -251,6 +270,10 @@ const ModalUploadCourse = ({ onClose }) => (
       </button>
     </div>
   </div>
+);
+
+const ErrorText = ({ text }) => (
+  <p className="text-red-500 text-sm mt-1">{text}</p>
 );
 
 export default UploadCourse;

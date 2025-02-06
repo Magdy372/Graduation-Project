@@ -104,22 +104,31 @@ const ViewCourses = () => {
   };
 
   // Handle adding new category
-  const addCategory = () => {
-    if (newCategory.trim() === "") return;
-    const newCatObj = { name: newCategory };
+  
+    const [errorMessage, setErrorMessage] = useState("");
 
-    fetch("http://localhost:8084/api/categories", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newCatObj),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setCategories([...categories, data]);
-        setNewCategory("");
+    const addCategory = () => {
+      if (newCategory.trim() === "") {
+        setErrorMessage("Category name is required.");
+        return;
+      }
+      setErrorMessage(""); // Clear error if valid
+    
+      const newCatObj = { name: newCategory };
+    
+      fetch("http://localhost:8084/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCatObj),
       })
-      .catch((error) => console.error("Error adding category:", error));
-  };
+        .then((response) => response.json())
+        .then((data) => {
+          setCategories([...categories, data]);
+          setNewCategory("");
+        })
+        .catch((error) => console.error("Error adding category:", error));
+    };
+    
 
   return (
     <>
@@ -201,7 +210,11 @@ const ViewCourses = () => {
                 />
                 <button className="mb-3 p-3 bg-blue text-white border w-full hover:bg-red rounded-md" onClick={addCategory}>
                   Add Category
+                  
+                  
+
                 </button>
+                <span>{errorMessage && <p className="text-red-500">{errorMessage}</p>}</span>
               </motion.div>
             </Suspense>
           </div>
