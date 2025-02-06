@@ -60,6 +60,8 @@ public class UserService {
         // Create and save User
         User user = new User();
         user.setFirstname(userWithDocumentsDTO.getFirstname());
+        user.setTitle(userWithDocumentsDTO.getTitle());
+        user.setGovernorate(userWithDocumentsDTO.getGovernorate());
         user.setLastname(userWithDocumentsDTO.getLastname());
         user.setPhonenumber(userWithDocumentsDTO.getPhonenumber());
         user.setEmail(userWithDocumentsDTO.getEmail());

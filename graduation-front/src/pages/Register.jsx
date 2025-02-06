@@ -83,6 +83,8 @@ const Register = () => {
     formData.append("phonenumber", e.target.phone.value);
     formData.append("email", e.target.email.value);
     formData.append("password", password);
+    formData.append("title", e.target.title.value); 
+    formData.append("governorate", e.target.governate.value); 
 
     // Append the file fields
     formData.append("licenseFile", e.target.license.files[0]);
@@ -260,6 +262,76 @@ const Register = () => {
                 />
               </div>
             </div>
+
+
+                  {/* title and governate */}
+                  <div className="flex space-x-4 mb-4">
+  <div className="flex-1">
+    <label htmlFor="title" className="text-m font-medium text-blue mb-2 block">
+      Title
+    </label>
+    <select
+      id="title"
+      name="title"
+      type="text"
+      className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
+    >
+      <option value="">Select a title</option>
+      {/* Add your options here */}
+      <option value="DR">DR</option>
+      <option value="PHARMA">PHARMACIST</option>
+    </select>
+    {formErrors.title && (
+      <span className="text-red-500 text-sm">{formErrors.title}</span>
+    )}
+  </div>
+
+  <div className="flex-1">
+    <label htmlFor="governorate" className="text-m font-medium text-blue mb-2 block">
+      Governate
+    </label>
+    <select
+      id="governorate"
+      name="governate"
+      className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
+    >
+      <option value="">Select a governate</option>
+      {/* Add your options here */}
+      <option value="alexandria">Alexandria</option>
+<option value="aswan">Aswan</option>
+<option value="asuit">Asuit</option>
+<option value="beheira">Beheira</option>
+<option value="beni_suef">Beni Suef</option>
+<option value="cairo">Cairo</option>
+<option value="dakahlia">Dakahlia</option>
+<option value="damietta">Damietta</option>
+<option value="faiyum">Faiyum</option>
+<option value="giza">Giza</option>
+<option value="ismailia">Ismailia</option>
+<option value="kafr_el_sheikh">Kafr El Sheikh</option>
+<option value="luxor">Luxor</option>
+<option value="matruh">Matruh</option>
+<option value="minya">Minya</option>
+<option value="monufia">Monufia</option>
+<option value="new_valley">New Valley</option>
+<option value="nort_sinai">North Sinai</option>
+<option value="port_said">Port Said</option>
+<option value="qalubiya">Qalubiya</option>
+<option value="qena">Qena</option>
+<option value="red_sea">Red Sea</option>
+<option value="sharkia">Sharkia</option>
+<option value="sohag">Sohag</option>
+<option value="south_sinai">South Sinai</option>
+<option value="suez">Suez</option>
+
+    </select>
+    {formErrors.governorate && (
+      <span className="text-red-500 text-sm">{formErrors.governorate}</span>
+    )}
+  </div>
+</div>
+
+
 
             {/* File Uploads */}
             <div className="flex space-x-4 mb-4">

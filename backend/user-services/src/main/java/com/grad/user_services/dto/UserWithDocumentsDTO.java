@@ -2,10 +2,9 @@ package com.grad.user_services.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.web.multipart.MultipartFile;
 
 public class UserWithDocumentsDTO {
@@ -29,28 +28,18 @@ public class UserWithDocumentsDTO {
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     private String email;
+
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
-    private boolean approved=false;
- 
 
-    public boolean isApproved() {
-        return approved;
-    }
+    @NotBlank(message = "Title is required")
+    private String title;
 
-    public void setApproved(boolean approved) {
-        this.approved = approved;
-    }
+    @NotBlank(message = "Governorate is required")
+    private String governorate;
 
-    // Getters and Setters
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    private boolean approved = false;
 
     // UserDocument fields (files)
     private MultipartFile licenseFile;
@@ -92,6 +81,38 @@ public class UserWithDocumentsDTO {
         this.email = email;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getGovernorate() {
+        return governorate;
+    }
+
+    public void setGovernorate(String governorate) {
+        this.governorate = governorate;
+    }
+
+    public boolean isApproved() {
+        return approved;
+    }
+
+    public void setApproved(boolean approved) {
+        this.approved = approved;
+    }
+
     public MultipartFile getLicenseFile() {
         return licenseFile;
     }
@@ -131,4 +152,5 @@ public class UserWithDocumentsDTO {
     public void setTaxCardFile(MultipartFile taxCardFile) {
         this.taxCardFile = taxCardFile;
     }
+
 }
