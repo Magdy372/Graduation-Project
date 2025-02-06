@@ -29,9 +29,17 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    setToken(false); // Simulate logout
-    setIsDropdownOpen(false); // Close dropdown
-    setIsSidebarOpen(false); // Close sidebar
+    // Simulate logout by clearing token
+    setToken(false);
+    localStorage.removeItem("access_token");  // Remove from localStorage if stored
+    localStorage.removeItem("refresh_token");
+
+    // Close the dropdown and sidebar
+    setIsDropdownOpen(false);
+    setIsSidebarOpen(false);
+
+    // Redirect to the homepage or login page
+    navigate("/login");
   };
 
   const UserMenu = () => (
@@ -203,10 +211,7 @@ const Navbar = () => {
               </button>
             ) : (
               <button
-                onClick={() => {
-                  handleLogout(); // Call the logout function
-                  navigate("/");  // Navigate to the home page
-                }}
+                onClick={handleLogout} // Call the logout function
                 className="py-2 px-4 w-full text-white bg-red hover:bg-blue rounded-md transition-all"
               >
                 Logout

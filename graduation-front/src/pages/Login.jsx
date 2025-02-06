@@ -2,89 +2,56 @@ import { useState } from "react";
 import Footer from "../components/Footer";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
-
-export const FadeUp = (delay) => {
-  return {
-    initial: {
-      opacity: 0,
-      y: 50,
-    },
-    animate: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        duration: 0.5,
-        delay: delay,
-        ease: "easeInOut",
-      },
-    },
-  };
-};
+import { jwtDecode } from "jwt-decode";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  const validateForm = () => {
-    let isValid = true;
-    setEmailError("");
-    setPasswordError("");
-
-    if (!email.trim()) {
-      setEmailError("Email is required.");
-      isValid = false;
-    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
-      setEmailError("Invalid email format.");
-      isValid = false;
-    }
-
-    if (!password.trim()) {
-      setPasswordError("Password is required.");
-      isValid = false;
-    }
-
-    return isValid;
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-
-    if (!validateForm()) return;
-
+    setError(""); // Reset previous error
     setIsLoading(true);
+
     const payload = {
       email: email.trim(),
       password: password.trim(),
     };
 
     try {
-      const response = await fetch("http://localhost:8084/login", {
+      const response = await fetch("http://localhost:8089/api/v1/auth/authenticate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify(payload),
-        credentials: "include",
       });
 
-      const data = await response.json();
+      const data = await response.json(); // Parse the JSON response
 
       if (response.ok) {
-        if (data.token) {
-          localStorage.setItem("jwt_token", data.token);
-        }
+        // Store tokens if successful
+        localStorage.setItem("access_token", data.accessToken);
+        localStorage.setItem("refresh_token", data.refreshToken);
         localStorage.setItem("isAuthenticated", "true");
-        window.location.replace(data.redirect);
+
+        // Redirect based on role
+        const decodedToken = jwtDecode(data.accessToken);
+        if (decodedToken.roles.includes("Admin")) {
+          window.location.replace("/layout");
+        } else {
+          window.location.replace("/");
+        }
       } else {
-        setError(data.message || "Invalid email or password. Please try again.");
+        // Handle specific error messages from the server
+        if (data.message) {
+          setError(data.message);
+        } else {
+          setError("Your account is under review. Please wait for approval.");
+        }
       }
     } catch (err) {
       console.error("Login error:", err);
@@ -94,6 +61,8 @@ const Login = () => {
     }
   };
 
+
+    
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -117,12 +86,9 @@ const Login = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`bg-white-300 text-red border-b-2 rounded-none p-2 w-full 
-                  ${emailError ? "border-red-500" : "border-gray-300"} focus:bg-gray-100 focus:outline-none`}
-               // required
+                className="bg-white-300 text-red border-b-2 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
                 disabled={isLoading}
               />
-              {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
             </div>
 
             {/* Password Input */}
@@ -136,12 +102,9 @@ const Login = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={`bg-white-300 text-red border-b-2 rounded-none p-2 w-full 
-                  ${passwordError ? "border-red-500" : "border-gray-300"} focus:bg-gray-100 focus:outline-none`}
-               // required
+                className="bg-white-300 text-red border-b-2 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
                 disabled={isLoading}
               />
-              {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
             </div>
 
             {/* General Error Message */}

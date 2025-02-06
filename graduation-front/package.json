@@ -16,6 +16,7 @@
     "axios": "^1.7.9",
     "axois": "^0.0.1-security",
     "framer-motion": "^11.18.0",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.474.0",
     "membership-program-for-private-family-planning-providers": "file:",
     "query-string": "^9.1.1",

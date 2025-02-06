@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Generation Time: Feb 04, 2025 at 07:41 PM
+-- Host: 127.0.0.1:3307
+-- Generation Time: Feb 06, 2025 at 08:34 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -41,7 +41,7 @@ CREATE TABLE `admins` (
 --
 
 INSERT INTO `admins` (`id`, `first_name`, `last_name`, `email`, `password`, `role`) VALUES
-(1, 'John', 'Doe', 'admin@g', '$2a$12$SETYmSWaOvB8bhtTMQrGGe4swf2NVHT2sLz9559h3YuFrW.p2MHP.', 'Admin');
+(1, 'John', 'Doe', 'admin@gmail.com', '$2a$12$SETYmSWaOvB8bhtTMQrGGe4swf2NVHT2sLz9559h3YuFrW.p2MHP.', 'Admin');
 
 -- --------------------------------------------------------
 
@@ -80,7 +80,8 @@ CREATE TABLE `chapter` (
 INSERT INTO `chapter` (`id`, `title`, `course_id`) VALUES
 (19, 'aaaaaa', 13),
 (20, 'aaaaaa', 14),
-(21, 'ss', 15);
+(21, 'ss', 15),
+(23, 'chapter 1', 19);
 
 -- --------------------------------------------------------
 
@@ -104,7 +105,8 @@ INSERT INTO `course` (`id`, `name`, `description`, `category_id`, `image_url`) V
 (13, 'aaaa', 'sss', 1, '/uploads/coursesimages/a86282a6-596d-478a-a9cf-dae1ebabc3f0_backiee-98927.jpg'),
 (14, 'aaaa', 'sss', 1, '/uploads/coursesimages/9f185503-81dc-4cef-86b5-86767a31a20e_backiee-98927.jpg'),
 (15, 'ss', 'ss', 1, '/uploads/coursesimages/f3e5944f-820c-48f1-bf7d-835c15875a7e_backiee-96330.jpg'),
-(16, 'new', 'new', 1, '/uploads/coursesimages/7dfff71d-4340-40f2-bb60-8bfa089a4b37_WhatsApp Image 2024-09-05 at 15.18.01_94aa6faa.jpg');
+(16, 'new', 'new', 1, '/uploads/coursesimages/7dfff71d-4340-40f2-bb60-8bfa089a4b37_WhatsApp Image 2024-09-05 at 15.18.01_94aa6faa.jpg'),
+(19, 'hhhh', 'hh', 1, '/uploads/coursesimages/293dbf62-5226-43d8-aed2-a618db54faca_ggg.png');
 
 -- --------------------------------------------------------
 
@@ -165,6 +167,76 @@ INSERT INTO `product` (`id`, `name`, `description`, `price`, `quantity`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `question`
+--
+
+CREATE TABLE `question` (
+  `id` bigint(20) NOT NULL,
+  `question_type` varchar(31) NOT NULL,
+  `text` varchar(255) NOT NULL,
+  `grade` double NOT NULL,
+  `quiz_id` bigint(20) NOT NULL,
+  `correct_answer` varchar(255) DEFAULT NULL,
+  `options` varchar(255) DEFAULT NULL,
+  `sample_answer` varchar(255) DEFAULT NULL,
+  `order_num` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `question`
+--
+
+INSERT INTO `question` (`id`, `question_type`, `text`, `grade`, `quiz_id`, `correct_answer`, `options`, `sample_answer`, `order_num`) VALUES
+(30, 'ESSAY', 'What is the capital of France?', 5, 3, NULL, NULL, 'Paris', 3);
+
+--
+-- Triggers `question`
+--
+DELIMITER $$
+CREATE TRIGGER `delete_quiz_total_grade` AFTER DELETE ON `question` FOR EACH ROW BEGIN
+    UPDATE quiz
+    SET total_grade = (
+        SELECT COALESCE(SUM(grade), 0) FROM question WHERE quiz_id = OLD.quiz_id
+    )
+    WHERE id = OLD.quiz_id;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `update_quiz_total_grade` AFTER INSERT ON `question` FOR EACH ROW BEGIN
+    UPDATE quiz
+    SET total_grade = (
+        SELECT COALESCE(SUM(grade), 0) FROM question WHERE quiz_id = NEW.quiz_id
+    )
+    WHERE id = NEW.quiz_id;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `quiz`
+--
+
+CREATE TABLE `quiz` (
+  `id` bigint(20) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `total_grade` double NOT NULL DEFAULT 0,
+  `chapter_id` bigint(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `quiz`
+--
+
+INSERT INTO `quiz` (`id`, `title`, `total_grade`, `chapter_id`) VALUES
+(3, 'Science Quiz 1', 5, 23),
+(4, 'History Quiz 1', 0, 23);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -177,7 +249,6 @@ CREATE TABLE `users` (
   `user_document_id` bigint(20) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
   `role` varchar(255) NOT NULL,
-  `accepted` bit(1) NOT NULL,
   `approved` bit(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -185,8 +256,10 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `first_name`, `last_name`, `phone_number`, `email`, `user_document_id`, `password`, `role`, `accepted`, `approved`) VALUES
-(57, 'mahmoud', 'hossam', '01001762250', 'mahmoud584@gmail.com', 106, '$2a$10$Hv3sFT1hrmBSSvDGeLp0yudQdDairHMqbVxyxH7CqvH7JP3ZhKk/a', 'USER', b'0', b'1');
+INSERT INTO `users` (`id`, `first_name`, `last_name`, `phone_number`, `email`, `user_document_id`, `password`, `role`, `approved`) VALUES
+(1, 'omar', 'abd', '010030054908480', 'o@gmail.com', 97, '$2a$12$fsMAbyttPGOoGlUpI.MCOukXyqA1Q52z6zaU9b5a4E8X9n0YayYsW', 'USER', b'1'),
+(57, 'mahmoud', 'hossam', '01001762250', 'mahmoud584@gmail.com', 106, '$2a$10$Hv3sFT1hrmBSSvDGeLp0yudQdDairHMqbVxyxH7CqvH7JP3ZhKk/a', 'USER', b'1'),
+(58, 'Omar', 'Salah', '010003138219', 'oo@gmail.com', 107, '$2a$10$QSu.0nn.O8r9DtZjEv6kS.izw79h63OKXGAPysCHJP2Ka4bVT.Y26', 'USER', b'0');
 
 -- --------------------------------------------------------
 
@@ -218,7 +291,8 @@ INSERT INTO `user_documents` (`id`, `license_file`, `profession_license_file`, `
 (98, 'a9ee509f-ea6f-4318-8858-bbffca2fcc14_2025.pdf', '9b564202-1e01-4b6b-9fe8-64a51099cf09_2025.pdf', 'd934d63b-44d3-4387-85f3-8dcf69005a40_2025.pdf', '1c73ec4f-4b91-4b77-bfc4-7d5b1cc587e0_2025.pdf', '562ae43f-249c-478c-8e78-f53166c56e65_2025.pdf'),
 (102, 'c1434846-711d-41af-8f14-22004e6197eb_2025.pdf', 'be2880a4-fc10-4e96-8468-144c420ee52c_2025.pdf', 'ac96a92e-e74b-45e7-91b8-cd0bc6d102d8_2025.pdf', 'c7c9fef4-d87b-4a00-84e7-f2aa691a0238_2025.pdf', '90924475-a0b2-4932-98c6-a697ec4e3fe0_2025.pdf'),
 (103, '8e1ec5c3-014b-43c4-97d2-f9e35890451c_2025.pdf', '521fb9c5-1230-4e31-9b46-92b1b7e41ae8_2025.pdf', '90632a6b-5447-4c77-ab97-900a3bdeb4e5_2025.pdf', '8a2f0b73-3321-425b-85e4-3b0f2a184a63_2025.pdf', '91b7a405-a765-4f29-9b2c-d6cffb0e24a7_2025.pdf'),
-(106, '92e0e52a-377d-4ace-a3fe-a57fca51854c_2025.pdf', '4a1c98e8-5237-46ad-9ed1-48fd8fb47dc5_2025.pdf', 'e1f79e7a-e5ec-4c26-8a37-50d952e7bebe_2025.pdf', '7c08f477-bfc2-46f6-a65e-72d13d3717d5_2025.pdf', 'cd2d5001-68ca-4770-b45e-515c81d1b861_2025.pdf');
+(106, '92e0e52a-377d-4ace-a3fe-a57fca51854c_2025.pdf', '4a1c98e8-5237-46ad-9ed1-48fd8fb47dc5_2025.pdf', 'e1f79e7a-e5ec-4c26-8a37-50d952e7bebe_2025.pdf', '7c08f477-bfc2-46f6-a65e-72d13d3717d5_2025.pdf', 'cd2d5001-68ca-4770-b45e-515c81d1b861_2025.pdf'),
+(107, 'bd244db0-cfbd-41de-8b23-68bb193fd859_Lecture 1_ Mobile Programming_F24.pdf', '1ba2f78e-4a91-4f10-b65a-e0420e63311a_Lecture 1_ Mobile Programming_F24.pdf', '21a20226-883a-4b40-a337-ff36a0a29589_Lecture 1_ Mobile Programming_F24.pdf', '6e5b911d-a383-4b74-b523-4ed86b23a91d_Lecture 1_ Mobile Programming_F24.pdf', '5f14b50d-f056-454c-b5d7-3f4d96d082fa_Lecture 1_ Mobile Programming_F24.pdf');
 
 -- --------------------------------------------------------
 
@@ -230,8 +304,17 @@ CREATE TABLE `video` (
   `id` bigint(20) NOT NULL,
   `title` varchar(255) NOT NULL,
   `video_path` varchar(255) NOT NULL,
-  `chapter_id` bigint(20) NOT NULL
+  `chapter_id` bigint(20) NOT NULL,
+  `video_summary` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `video`
+--
+
+INSERT INTO `video` (`id`, `title`, `video_path`, `chapter_id`, `video_summary`) VALUES
+(12, 'mmmm', '/uploads/videos/fc2aa97f-ab0c-452a-9691-8e3ee44fe857_How to Screen Record with Audio in Windows 11 and 5 more pages - Work - Microsoft​ Edge 2024-07-09 22-12-02.mp4', 23, NULL),
+(13, 'ddddd', '/uploads/videos/ba36dca7-343b-4ad9-b65d-6c26f1f0b716_How to Screen Record with Audio in Windows 11 and 5 more pages - Work - Microsoft​ Edge 2024-07-09 22-12-02.mp4', 23, NULL);
 
 --
 -- Indexes for dumped tables
@@ -285,6 +368,20 @@ ALTER TABLE `product`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `question`
+--
+ALTER TABLE `question`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `quiz_id` (`quiz_id`);
+
+--
+-- Indexes for table `quiz`
+--
+ALTER TABLE `quiz`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `chapter_id` (`chapter_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -325,13 +422,13 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT for table `chapter`
 --
 ALTER TABLE `chapter`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `course`
 --
 ALTER TABLE `course`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `enrollment`
@@ -352,22 +449,34 @@ ALTER TABLE `product`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT for table `question`
+--
+ALTER TABLE `question`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+
+--
+-- AUTO_INCREMENT for table `quiz`
+--
+ALTER TABLE `quiz`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- AUTO_INCREMENT for table `user_documents`
 --
 ALTER TABLE `user_documents`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=108;
 
 --
 -- AUTO_INCREMENT for table `video`
 --
 ALTER TABLE `video`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- Constraints for dumped tables
@@ -391,6 +500,18 @@ ALTER TABLE `course`
 ALTER TABLE `enrollments`
   ADD CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `enrollments_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `question`
+--
+ALTER TABLE `question`
+  ADD CONSTRAINT `question_ibfk_1` FOREIGN KEY (`quiz_id`) REFERENCES `quiz` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `quiz`
+--
+ALTER TABLE `quiz`
+  ADD CONSTRAINT `quiz_ibfk_1` FOREIGN KEY (`chapter_id`) REFERENCES `chapter` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `users`

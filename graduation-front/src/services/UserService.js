@@ -1,44 +1,55 @@
-// Define the base URL for the API
-const BASE_URL = "http://localhost:8089";
+// apiUtils.js
+import { refreshAccessToken, isTokenExpired } from '../utils/tokenutills.js';
 
-// Register User Service
-export const registerUser = async (formData) => {
-  try {
-    const response = await fetch(`${BASE_URL}/users/with-documents`, {
-      method: "POST",
-      body: formData,
-    });
+export const fetchWithAuth = async (url, options = {}) => {
+  let accessToken = localStorage.getItem('access_token');
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      return { success: false, errors: errorData };
+  // Check if the access token is expired
+  if (accessToken && isTokenExpired(accessToken)) {
+    // If the access token is expired, refresh the token
+    accessToken = await refreshAccessToken();
+    if (!accessToken) {
+      throw new Error('Failed to refresh access token');
     }
-
-    const responseData = await response.json();
-    return { success: true, data: responseData };
-  } catch (error) {
-    console.error("Error in registration:", error);
-    return { success: false, errors: error };
   }
-};
 
-// File Upload Service
-export const uploadFiles = async (formData) => {
+  // Add the access token to the request headers
+  const headers = {
+    ...options.headers,
+    Authorization: `Bearer ${accessToken}`,
+  };
+
+  // Proceed with the fetch request
   try {
-    const response = await fetch(`${BASE_URL}/upload-pdfs`, {
-      method: "POST",
-      body: formData,
+    const response = await fetch(url, {
+      ...options,
+      headers,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      return { success: false, errors: errorData };
+    if (response.ok) {
+      return response.json(); // Return the response as JSON
     }
 
-    const responseData = await response.json();
-    return { success: true, data: responseData };
+    // Handle 401 Unauthorized error: Try to refresh token and retry
+    if (response.status === 401) {
+      const newAccessToken = await refreshAccessToken();
+      if (newAccessToken) {
+        return fetchWithAuth(url, {
+          ...options,
+          headers: {
+            ...headers,
+            Authorization: `Bearer ${newAccessToken}`,
+          },
+        });
+      }
+    }
+
+    // Handle other non-200 status codes
+    const errorMessage = await response.text(); // Get the error message from the response body
+    throw new Error(`Request failed with status ${response.status}: ${errorMessage}`);
   } catch (error) {
-    console.error("Error in file upload:", error);
-    return { success: false, errors: error };
+    // Catch any other errors (e.g., network issues)
+    console.error('Error in fetchWithAuth:', error);
+    throw new Error(error.message || 'An unknown error occurred');
   }
 };
