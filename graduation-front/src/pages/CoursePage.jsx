@@ -43,6 +43,9 @@ const CoursePage = () => {
   const [showModal, setShowModal] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+  const [quizzes, setQuizzes] = useState([]);
+  const [examQuestions, setExamQuestions] = useState([]);
+  const [questionsLoading, setQuestionsLoading] = useState(true);
 
   // Fetch course data
   useEffect(() => {
@@ -140,34 +143,56 @@ const CoursePage = () => {
     navigate('/');
   };
 
-  const examQuestions = [
-    {
-      question: "What is the capital of France?",
-      options: ["Paris", "London", "Berlin", "Madrid"],
-      answer: "Paris"
-    },
-    {
-      question: "What is 2 + 2?",
-      options: ["3", "4", "5", "6"],
-      answer: "4"
-    },
-    {
-      question: "Who wrote 'To Kill a Mockingbird'?",
-      options: ["Harper Lee", "Mark Twain", "J.K. Rowling", "Ernest Hemingway"],
-      answer: "Harper Lee"
-    },
-    {
-      question: "Who wrote 'To Kill a Mockingbird'?",
-      options: ["Harper Lee", "Mark Twain", "J.K. Rowling", "Ernest Hemingway"],
-      answer: "Harper Lee"
-    },
-    {
-      question: "Who wrote 'To Kill a Mockingbird'?",
-      options: ["Harper Lee", "Mark Twain", "J.K. Rowling", "Ernest Hemingway"],
-      answer: "Harper Lee"
-    }    
-    // Add more questions as needed
-  ];
+  // Add this useEffect for fetching quizzes and questions
+  useEffect(() => {
+    const fetchQuizzesAndQuestions = async () => {
+      try {
+        // Fetch all quizzes for the course's chapters
+        const quizzesPromises = chapters.map(chapter => 
+          fetch(`http://localhost:8084/api/quizzes/chapter/${chapter.id}`).then(res => res.json())
+        );
+        const quizzesResults = await Promise.all(quizzesPromises);
+        const allQuizzes = quizzesResults.flat();
+        setQuizzes(allQuizzes);
+
+        // Fetch questions for all quizzes
+        const questionsPromises = allQuizzes.map(quiz => 
+          fetch(`http://localhost:8084/api/quizzes/${quiz.id}/questions`).then(res => res.json())
+        );
+        const questionsResults = await Promise.all(questionsPromises);
+        const allQuestions = questionsResults.flat();
+
+        // Transform questions to exam format
+        const transformedQuestions = allQuestions.map(q => {
+          if (q.questionType === 'MCQ') {
+            return {
+              question: q.text,
+              options: q.options,
+              answer: q.correctAnswer
+            };
+          } else if (q.questionType === 'TRUE_FALSE') {
+            return {
+              question: q.text,
+              options: ['True', 'False'],
+              answer: q.correctAnswer === 'true' ? 'True' : 'False'
+            };
+          }
+          return null;
+        }).filter(q => q !== null);
+
+        setExamQuestions(transformedQuestions);
+        setQuestionsLoading(false);
+      } catch (error) {
+        console.error('Error fetching questions:', error);
+        setQuestionsLoading(false);
+      }
+    };
+
+    if (chapters.length > 0) {
+      fetchQuizzesAndQuestions();
+    }
+  }, [chapters]);
+
 
   if (!course || !chapters.length) return <div>Loading...</div>;
 
@@ -175,9 +200,9 @@ const CoursePage = () => {
     <div className="flex flex-col min-h-screen">
       {examSubmitted && <Confetti width={windowWidth} height={windowHeight} />}
       {showModal && <ModalCongrat onClose={handleCloseModal} />}
-
+  
       <Navbar />
-
+  
       <div className="flex-grow flex flex-col bg-white m-6">
         <div className="flex items-center justify-between p-4 bg-white">
           <button
@@ -196,7 +221,7 @@ const CoursePage = () => {
             {course.name}
           </motion.h1>
         </div>
-
+  
         <div className="flex gap-10 mt-5 px-5 flex-grow">
           {/* Video List Sidebar */}
           <div className="border border-gray p-5 rounded-lg w-[250px]">
@@ -244,7 +269,7 @@ const CoursePage = () => {
               </motion.button>
             )}
           </div>
-
+  
           {/* Main Content Area */}
           <div className="flex-1 flex justify-center items-start mt-3 ml-3">
             <motion.div
@@ -259,14 +284,17 @@ const CoursePage = () => {
                   {selectedVideo && (
                     <>
                       <video 
-                        key={selectedVideo.id} // Add this line to force re-render
+                        key={selectedVideo.id}
                         controls 
                         className="w-full h-[500px]"
                         onEnded={handleVideoEnded}
-                        crossOrigin="anonymous"  // Add this line
+                        crossOrigin="anonymous"
                       >
-                        <source src={`http://localhost:8084${selectedVideo.videoPath}`} type="video/mp4"                 crossOrigin="anonymous"  // Add this line
-                          />
+                        <source 
+                          src={`http://localhost:8084${selectedVideo.videoPath}`} 
+                          type="video/mp4" 
+                          crossOrigin="anonymous"
+                        />
                       </video>
                       <div className="bg-white mt-3">
                         <div className="flex justify-between items-center">
@@ -282,35 +310,41 @@ const CoursePage = () => {
                   )}
                 </>
               ) : (
-                // Exam Section
+                // Updated Exam Section
                 <div className="w-full h-full p-6 bg-white rounded-lg shadow">
                   <h2 className="text-2xl font-semibold mb-6">Course Examination</h2>
-                  {examQuestions.map((question, index) => (
-                    <div key={index} className="mb-6">
-                      <h3 className="text-xl font-semibold mb-2">
-                        Question {index + 1}: {question.question}
-                      </h3>
-                      <div className="flex flex-col gap-2">
-                        {question.options.map((option, i) => (
-                          <label 
-                            key={i} 
-                            className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded cursor-pointer"
-                          >
-                            <input
-                              type="radio"
-                              name={`question-${index}`}
-                              value={option}
-                              checked={userAnswers[index] === option}
-                              onChange={() => handleAnswerSelect(index, option)}
-                              disabled={examSubmitted}
-                              className="form-radio"
-                            />
-                            {option}
-                          </label>
-                        ))}
+                  {questionsLoading ? (
+                    <p>Loading questions...</p>
+                  ) : examQuestions.length === 0 ? (
+                    <p>No questions available for this exam.</p>
+                  ) : (
+                    examQuestions.map((question, index) => (
+                      <div key={index} className="mb-6">
+                        <h3 className="text-xl font-semibold mb-2">
+                          Question {index + 1}: {question.question}
+                        </h3>
+                        <div className="flex flex-col gap-2">
+                          {question.options.map((option, i) => (
+                            <label 
+                              key={i} 
+                              className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded cursor-pointer"
+                            >
+                              <input
+                                type="radio"
+                                name={`question-${index}`}
+                                value={option}
+                                checked={userAnswers[index] === option}
+                                onChange={() => handleAnswerSelect(index, option)}
+                                disabled={examSubmitted}
+                                className="form-radio"
+                              />
+                              {option}
+                            </label>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                   {!examSubmitted && (
                     <button
                       onClick={handleExamSubmit}
@@ -325,7 +359,7 @@ const CoursePage = () => {
             </motion.div>
           </div>
         </div>
-
+  
         {/* Course Summary Section */}
         <div className="mt-8 px-5">
           <Card className="bg-white shadow-lg rounded-xl border border-gray w-full">
@@ -350,7 +384,7 @@ const CoursePage = () => {
           </Card>
         </div>
       </div>
-
+  
       <Footer />
     </div>
   );

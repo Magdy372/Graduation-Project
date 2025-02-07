@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { FaFileAlt } from "react-icons/fa";
+
 
 const ViewCourses = () => {
   const navigate = useNavigate();
@@ -261,6 +263,13 @@ const ViewCourses = () => {
                     onClick={(e) => {
                       e.stopPropagation();
                       handleAddVideo(course);
+                    }}
+                  />
+                  <FaFileAlt
+                    className="text-purple-500 cursor-pointer hover:text-purple-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate("/add-quiz", { state: { course } });
                     }}
                   />
                 </div>

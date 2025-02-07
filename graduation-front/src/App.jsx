@@ -24,6 +24,10 @@ import Login from "./pages/Login";
 import Layout from "./pages/layout";
 import CoursePage from "./pages/CoursePage";
 import AddVideo from "./pages/AddVideo";
+import EditCourse from "./pages/EditCourse";
+import AddQuiz from './pages/AddQuiz';
+import AddQuestions from './pages/AddQuestion';
+
 
 
 
@@ -55,6 +59,10 @@ const App = () => {
           <Route path="/myProfile" element={<MyProfile />} />
           <Route path="/coursePage" element={<CoursePage />} />
           <Route path="/addvideo" element={<AddVideo />} />
+          <Route path="/editCourse" element={<EditCourse />} />
+          <Route path="/add-quiz" element={<AddQuiz />} />
+          <Route path="/quizzes/:quizId/add-questions" element={<AddQuestions />} />
+
 
 
           {/* Protected Routes */}
