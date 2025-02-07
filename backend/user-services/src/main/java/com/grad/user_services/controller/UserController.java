@@ -6,7 +6,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,6 +22,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.grad.user_services.dao.UserRepository;
 import com.grad.user_services.dto.UserDTO;
 import com.grad.user_services.dto.UserResponseDTO;
 import com.grad.user_services.dto.UserWithDocumentsDTO;
@@ -131,6 +135,18 @@ public ResponseEntity<?> approveUser(@PathVariable Long id) {
     }
     
     return ResponseEntity.ok("User has been approved successfully.");
+}
+
+private final UserRepository userRepository;
+
+public UserController(UserRepository userRepository) {
+    this.userRepository = userRepository;
+}
+
+@GetMapping("/check-email")  // Ensure it's a GET request with a query parameter
+public ResponseEntity<Map<String, Boolean>> checkEmailExists(@RequestParam("email") String email) {
+    boolean exists = userRepository.existsByEmail(email);
+    return ResponseEntity.ok(Collections.singletonMap("exists", exists));
 }
 
 }

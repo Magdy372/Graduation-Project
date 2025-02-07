@@ -36,57 +36,68 @@ const Register = () => {
     commercial: "No file chosen",
     tax: "No file chosen",
   });
-  // State for holding friendly error messages
-  const [formErrors, setFormErrors] = useState({});
 
-  // A helper function to convert raw backend errors into friendlier messages
+  const [formErrors, setFormErrors] = useState({});
+  const [emailError, setEmailError] = useState(""); // State for email validation
+
   const getFriendlyErrorMessage = (field, defaultMessage) => {
     if (defaultMessage.includes("Failed to convert property value")) {
-      // Customize messages for file fields
-      if (field === "licenseFile") {
-        return "Place license file is required.";
-      }
-      if (field === "professionLicenseFile") {
-        return "Profession license file is required.";
-      }
-      if (field === "syndicateCardFile") {
-        return "Syndicate card file is required.";
-      }
-      if (field === "commercialRegisterFile") {
-        return "Commercial register file is required.";
-      }
-      if (field === "taxCardFile") {
-        return "Tax card file is required.";
-      }
+      const fieldMap = {
+        licenseFile: "Place license file is required.",
+        professionLicenseFile: "Profession license file is required.",
+        syndicateCardFile: "Syndicate card file is required.",
+        commercialRegisterFile: "Commercial register file is required.",
+        taxCardFile: "Tax card file is required.",
+      };
+      return fieldMap[field] || defaultMessage;
     }
-    // For other errors, return the original message
     return defaultMessage;
   };
 
+  const checkEmailExists = async (email) => {
+    try {
+      const response = await fetch(`http://localhost:8084/users/check-email?email=${email}`);
+      if (!response.ok) {
+        throw new Error("Failed to check email availability");
+      }
+      
+      const data = await response.json();
+      console.log("Email check response:", data); // Debug response
+  
+      if (data.exists) {
+        alert("This email is already registered. Please use a different email.");
+      }
+    } catch (error) {
+      console.error("Error checking email:", error);
+    }
+  };
+  
+  // Attach to the email input field
+ 
+  
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormErrors({}); // Clear previous errors
+    setFormErrors({});
+    if (emailError) return; // Prevent submission if email is invalid
 
     const password = e.target.pass.value;
     const confirmPassword = e.target.confirmPass.value;
 
-    // Check if password and confirm password match
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
 
     const formData = new FormData();
-    // Note: Ensure the keys match your DTO on the backend.
     formData.append("firstname", e.target.firstName.value);
     formData.append("lastname", e.target.lastName.value);
     formData.append("phonenumber", e.target.phone.value);
     formData.append("email", e.target.email.value);
     formData.append("password", password);
-    formData.append("title", e.target.title.value); 
-    formData.append("governorate", e.target.governate.value); 
-
-    // Append the file fields
+    formData.append("title", e.target.title.value);
+    formData.append("governorate", e.target.governate.value);
     formData.append("licenseFile", e.target.license.files[0]);
     formData.append("professionLicenseFile", e.target.practice.files[0]);
     formData.append("syndicateCardFile", e.target.syndicate.files[0]);
@@ -98,43 +109,19 @@ const Register = () => {
         method: "POST",
         body: formData,
       });
+
       if (!response.ok) {
         const errorResponse = await response.json();
         const errors = {};
-      
         errorResponse.forEach((error) => {
-          const friendlyMessage = getFriendlyErrorMessage(error.field, error.defaultMessage);
-          errors[error.field] = friendlyMessage;
+          errors[error.field] = getFriendlyErrorMessage(error.field, error.defaultMessage);
         });
-      
+
         setFormErrors(errors);
-      
-        // Log errors to debug
-        console.error("Form submission errors:", errors);
-      
         return;
       }
-      
-      // If registration is successful, show modal
+
       setShowModal(true);
-
-      // Now, upload the files if needed (you can remove or modify this part if it’s redundant)
-      const fileFormData = new FormData();
-      fileFormData.append("licenseFile", e.target.license.files[0]);
-      fileFormData.append("professionLicenseFile", e.target.practice.files[0]);
-      fileFormData.append("syndicateCardFile", e.target.syndicate.files[0]);
-      fileFormData.append("commercialRegisterFile", e.target.commercial.files[0]);
-      fileFormData.append("taxCardFile", e.target.tax.files[0]);
-
-      const fileResponse = await fetch("http://localhost:8084/upload-pdfs", {
-        method: "POST",
-        body: fileFormData,
-      });
-
-      if (!fileResponse.ok) {
-        console.error("Error uploading files:", await fileResponse.json());
-        alert("File upload failed!");
-      }
     } catch (error) {
       console.error("Error submitting form:", error);
     }
@@ -147,10 +134,9 @@ const Register = () => {
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    const file = files[0];
-    setFileNames((prevFileNames) => ({
-      ...prevFileNames,
-      [name]: file ? file.name : "No file chosen",
+    setFileNames((prev) => ({
+      ...prev,
+      [name]: files[0] ? files[0].name : "No file chosen",
     }));
   };
 
@@ -211,11 +197,14 @@ const Register = () => {
                   id="email"
                   name="email"
                   type="email"
+                 onBlur={(e) => checkEmailExists(e.target.value)}
                   className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
                 />
                 {formErrors.email && (
                   <span className="text-red-500 text-sm">{formErrors.email}</span>
+                
                 )}
+                  {emailError && <p style={{ color: "red" }}>{emailError}</p>}
               </div>
 
               <div className="flex-1">
@@ -296,32 +285,33 @@ const Register = () => {
       className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
     >
       <option value="">اختر محافظة</option>
-<option value="alexandria">الإسكندرية</option>
-<option value="aswan">أسوان</option>
-<option value="asuit">أسيوط</option>
-<option value="beheira">البحيرة</option>
-<option value="beni_suef">بني سويف</option>
-<option value="cairo">القاهرة</option>
-<option value="dakahlia">الدقهلية</option>
-<option value="damietta">دمياط</option>
-<option value="faiyum">الفيوم</option>
-<option value="giza">الجيزة</option>
-<option value="ismailia">الإسماعيلية</option>
-<option value="kafr_el_sheikh">كفر الشيخ</option>
-<option value="luxor">الأقصر</option>
-<option value="matruh">مطروح</option>
-<option value="minya">المنيا</option>
-<option value="monufia">المنوفية</option>
-<option value="new_valley">الوادي الجديد</option>
-<option value="nort_sinai">شمال سيناء</option>
-<option value="port_said">بورسعيد</option>
-<option value="qalubiya">القليوبية</option>
-<option value="qena">قنا</option>
-<option value="red_sea">البحر الأحمر</option>
-<option value="sharkia">الشرقية</option>
-<option value="sohag">سوهاج</option>
-<option value="south_sinai">جنوب سيناء</option>
-<option value="suez">السويس</option>
+      <option value="الإسكندرية">الإسكندرية</option>
+<option value="أسوان">أسوان</option>
+<option value="أسيوط">أسيوط</option>
+<option value="البحيرة">البحيرة</option>
+<option value="بني سويف">بني سويف</option>
+<option value="القاهرة">القاهرة</option>
+<option value="الدقهلية">الدقهلية</option>
+<option value="دمياط">دمياط</option>
+<option value="الفيوم">الفيوم</option>
+<option value="الجيزة">الجيزة</option>
+<option value="الإسماعيلية">الإسماعيلية</option>
+<option value="كفر الشيخ">كفر الشيخ</option>
+<option value="الأقصر">الأقصر</option>
+<option value="مطروح">مطروح</option>
+<option value="المنيا">المنيا</option>
+<option value="المنوفية">المنوفية</option>
+<option value="الوادي الجديد">الوادي الجديد</option>
+<option value="شمال سيناء">شمال سيناء</option>
+<option value="بورسعيد">بورسعيد</option>
+<option value="القليوبية">القليوبية</option>
+<option value="قنا">قنا</option>
+<option value="البحر الأحمر">البحر الأحمر</option>
+<option value="الشرقية">الشرقية</option>
+<option value="سوهاج">سوهاج</option>
+<option value="جنوب سيناء">جنوب سيناء</option>
+<option value="السويس">السويس</option>
+
 
 
     </select>
