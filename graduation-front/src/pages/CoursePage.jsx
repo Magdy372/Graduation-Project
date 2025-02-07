@@ -46,6 +46,7 @@ const CoursePage = () => {
   const [quizzes, setQuizzes] = useState([]);
   const [examQuestions, setExamQuestions] = useState([]);
   const [questionsLoading, setQuestionsLoading] = useState(true);
+  const [score, setScore] = useState(0);
 
   // Fetch course data
   useEffect(() => {
@@ -121,26 +122,30 @@ const CoursePage = () => {
     }));
   };
 
+  // Modified score calculation
   const calculateScore = () => {
     let correct = 0;
     examQuestions.forEach((question, index) => {
-      if (userAnswers[index] === question.answer) {
+      const userAnswerText = userAnswers[index];
+      const userAnswerIndex = question.options.indexOf(userAnswerText);
+      
+      if (userAnswerIndex === --question.answer) {
         correct++;
       }
     });
-    return (correct / examQuestions.length) * 100;
+    return Math.round((correct / examQuestions.length) * 100);
   };
 
   const handleExamSubmit = () => {
-    const score = calculateScore();
+    const calculatedScore = calculateScore();
+    setScore(calculatedScore);
     setExamSubmitted(true);
     setShowModal(true);
-    // You can add API call here to save the exam results
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    navigate('/');
+    //navigate('/');
   };
 
   // Add this useEffect for fetching quizzes and questions
@@ -168,13 +173,13 @@ const CoursePage = () => {
             return {
               question: q.text,
               options: q.options,
-              answer: q.correctAnswer
+              answer: parseInt(q.correctAnswer) // Convert to number
             };
           } else if (q.questionType === 'TRUE_FALSE') {
             return {
               question: q.text,
               options: ['True', 'False'],
-              answer: q.correctAnswer === 'true' ? 'True' : 'False'
+              answer: q.correctAnswer === 'true' ? 0 : 1 // Assuming 'true' is index 0
             };
           }
           return null;
@@ -182,27 +187,39 @@ const CoursePage = () => {
 
         setExamQuestions(transformedQuestions);
         setQuestionsLoading(false);
-      } catch (error) {
+        } catch (error) {
         console.error('Error fetching questions:', error);
         setQuestionsLoading(false);
-      }
-    };
+        }
+        };
 
-    if (chapters.length > 0) {
-      fetchQuizzesAndQuestions();
-    }
-  }, [chapters]);
+        if (chapters.length > 0) {
+        fetchQuizzesAndQuestions();
+        }
+        }, [chapters]);
 
 
   if (!course || !chapters.length) return <div>Loading...</div>;
 
+
   return (
     <div className="flex flex-col min-h-screen">
-      {examSubmitted && <Confetti width={windowWidth} height={windowHeight} />}
-      {showModal && <ModalCongrat onClose={handleCloseModal} />}
-  
+      {examSubmitted && score >= 50 && <Confetti width={windowWidth} height={windowHeight} />}
+      {showModal && (
+        <ModalCongrat 
+          score={score} 
+          onClose={handleCloseModal}
+          onTryAgain={() => {
+            setExamStarted(true);
+            setExamSubmitted(false);
+            setUserAnswers({});
+            setShowModal(false);
+          }}
+        />
+      )}
+
       <Navbar />
-  
+
       <div className="flex-grow flex flex-col bg-white m-6">
         <div className="flex items-center justify-between p-4 bg-white">
           <button
@@ -221,9 +238,8 @@ const CoursePage = () => {
             {course.name}
           </motion.h1>
         </div>
-  
+
         <div className="flex gap-10 mt-5 px-5 flex-grow">
-          {/* Video List Sidebar */}
           <div className="border border-gray p-5 rounded-lg w-[250px]">
             {chapters.map((chapter, chapterIndex) => (
               <div key={chapter.id} className="mb-4">
@@ -250,9 +266,7 @@ const CoursePage = () => {
                   >
                     <FaPlayCircle />
                     <span>{video.title}</span>
-                    {watchedVideos.has(video.id) && (
-                      <span className="ml-auto text-sm">✓</span>
-                    )}
+                    {watchedVideos.has(video.id) && <span className="ml-auto text-sm">✓</span>}
                   </motion.button>
                 ))}
               </div>
@@ -269,8 +283,7 @@ const CoursePage = () => {
               </motion.button>
             )}
           </div>
-  
-          {/* Main Content Area */}
+
           <div className="flex-1 flex justify-center items-start mt-3 ml-3">
             <motion.div
               className="w-full max-w-[1200px]"
@@ -279,40 +292,48 @@ const CoursePage = () => {
               animate="animate"
             >
               {!examStarted ? (
-                // Video Player Section
-                <>
-                  {selectedVideo && (
-                    <>
-                      <video 
-                        key={selectedVideo.id}
-                        controls 
-                        className="w-full h-[500px]"
-                        onEnded={handleVideoEnded}
-                        crossOrigin="anonymous"
-                      >
-                        <source 
-                          src={`http://localhost:8084${selectedVideo.videoPath}`} 
-                          type="video/mp4" 
-                          crossOrigin="anonymous"
-                        />
-                      </video>
-                      <div className="bg-white mt-3">
-                        <div className="flex justify-between items-center">
-                          <h2 className="text-2xl font-semibold mb-2">
-                            {selectedVideo.title}
-                          </h2>
-                        </div>
-                        <p className="text-gray-600">
-                          {course.description}
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </>
+                selectedVideo && (
+                  <>
+                    <video 
+                      key={selectedVideo.id}
+                      controls 
+                      className="w-full h-[500px]"
+                      onEnded={handleVideoEnded}
+                      crossOrigin="anonymous"
+                    >
+                      <source 
+                        src={`http://localhost:8084${selectedVideo.videoPath}`} 
+                        type="video/mp4" 
+                      />
+                      Your browser does not support the video tag.
+                    </video>
+                    <div className="bg-white mt-3">
+                      <h2 className="text-2xl font-semibold mb-2">{selectedVideo.title}</h2>
+                      <p className="text-gray-600">{course.description}</p>
+                    </div>
+                  </>
+                )
               ) : (
-                // Updated Exam Section
                 <div className="w-full h-full p-6 bg-white rounded-lg shadow">
-                  <h2 className="text-2xl font-semibold mb-6">Course Examination</h2>
+                  <h2 className="text-2xl font-semibold mb-6">
+                    {examSubmitted ? 'Exam Results' : 'Course Examination'}
+                  </h2>
+
+                  {examSubmitted && (
+                    <div className={`p-6 rounded-lg mb-6 ${
+                      score >= 50 ? 'bg-green-100' : 'bg-red-100'
+                    }`}>
+                      <h3 className="text-2xl font-semibold text-gray-800">
+                        Your Grade: {score}%
+                      </h3>
+                      <p className="mt-2 text-gray-700">
+                        {score >= 50 
+                          ? 'Congratulations! You passed!' 
+                          : 'Please review the material and try again.'}
+                      </p>
+                    </div>
+                  )}
+
                   {questionsLoading ? (
                     <p>Loading questions...</p>
                   ) : examQuestions.length === 0 ? (
@@ -324,28 +345,53 @@ const CoursePage = () => {
                           Question {index + 1}: {question.question}
                         </h3>
                         <div className="flex flex-col gap-2">
-                          {question.options.map((option, i) => (
-                            <label 
-                              key={i} 
-                              className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded cursor-pointer"
-                            >
-                              <input
-                                type="radio"
-                                name={`question-${index}`}
-                                value={option}
-                                checked={userAnswers[index] === option}
-                                onChange={() => handleAnswerSelect(index, option)}
-                                disabled={examSubmitted}
-                                className="form-radio"
-                              />
-                              {option}
-                            </label>
-                          ))}
+                          {question.options.map((option, i) => {
+                            const isCorrect = i === question.answer;
+                            const isUserAnswer = userAnswers[index] === option;
+                            const isWrongAnswer = isUserAnswer && !isCorrect;
+
+                            return (
+                              <label 
+                                key={i} 
+                                className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
+                                  examSubmitted
+                                    ? isCorrect
+                                      ? 'bg-green-100'
+                                      : isWrongAnswer
+                                      ? 'bg-red-100'
+                                      : 'bg-red-50'
+                                    : 'hover:bg-red-100'
+                                }`}
+                              >
+                                <input
+                                  type="radio"
+                                  name={`question-${index}`}
+                                  value={option}
+                                  checked={isUserAnswer}
+                                  onChange={() => handleAnswerSelect(index, option)}
+                                  disabled={examSubmitted}
+                                  className="form-radio"
+                                />
+                                {option}
+                                {examSubmitted && isCorrect && (
+                                  <span className="ml-auto text-green-600">
+                                    ✓ Correct Answer
+                                  </span>
+                                )}
+                                {examSubmitted && isWrongAnswer && (
+                                  <span className="ml-auto text-red-600">
+                                    ✗ Your Answer
+                                  </span>
+                                )}
+                              </label>
+                            );
+                          })}
                         </div>
                       </div>
                     ))
                   )}
-                  {!examSubmitted && (
+
+                  {!examSubmitted ? (
                     <button
                       onClick={handleExamSubmit}
                       className="mt-4 p-3 bg-blue text-white border hover:bg-red rounded-md"
@@ -353,14 +399,20 @@ const CoursePage = () => {
                     >
                       Submit Exam
                     </button>
+                  ) : (
+                    <button
+                      onClick={handleCloseModal}
+                      className="mt-4 p-3 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                    >
+                      {score >= 50 ? 'Return to Dashboard' : 'Return to Course'}
+                    </button>
                   )}
                 </div>
               )}
             </motion.div>
           </div>
         </div>
-  
-        {/* Course Summary Section */}
+
         <div className="mt-8 px-5">
           <Card className="bg-white shadow-lg rounded-xl border border-gray w-full">
             <CardHeader
@@ -369,7 +421,7 @@ const CoursePage = () => {
                   <Typography variant="h6" className="text-red font-semibold text-lg">
                     Course Summary
                   </Typography>
-                  <button className="text-lg mb-3 p-3 bg-blue text-white border w-[140px] hover:bg-red rounded-md flex items-center gap-2 text-left w-[150px] text-center">
+                  <button className="text-lg mb-3 p-3 bg-blue text-white border hover:bg-red rounded-md flex items-center gap-2 text-left w-[150px] text-center">
                     <FaDownload />
                     Download
                   </button>
@@ -384,7 +436,7 @@ const CoursePage = () => {
           </Card>
         </div>
       </div>
-  
+
       <Footer />
     </div>
   );
