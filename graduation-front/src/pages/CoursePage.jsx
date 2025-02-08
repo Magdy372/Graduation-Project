@@ -141,6 +141,15 @@ const CoursePage = () => {
     setScore(calculatedScore);
     setExamSubmitted(true);
     setShowModal(true);
+    
+    if (calculatedScore >= 50) {
+      // Update badges count in localStorage
+      const currentBadges = parseInt(localStorage.getItem('badgesCount') || '0', 10);
+      localStorage.setItem('badgesCount', currentBadges + 1);
+    } else {
+      setExamStarted(false);
+      setUserAnswers({});
+    }
   };
 
   const handleCloseModal = () => {
