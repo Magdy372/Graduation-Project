@@ -30,11 +30,11 @@ const Register = () => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [fileNames, setFileNames] = useState({
-    license: "No file chosen",
-    practice: "No file chosen",
-    syndicate: "No file chosen",
-    commercial: "No file chosen",
-    tax: "No file chosen",
+    license: " No file chosen",
+    practice: " No file chosen",
+    syndicate: " No file chosen",
+    commercial: " No file chosen",
+    tax: " No file chosen",
   });
 
   const [formErrors, setFormErrors] = useState({});
@@ -144,7 +144,7 @@ const Register = () => {
     <div>
       <Navbar />
       <br />
-      <div className="flex flex-col items-center justify-center h-screen">
+      <div className="flex flex-col items-center justify-center h-auto">
         <motion.div
           initial={{ x: 50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -166,7 +166,7 @@ const Register = () => {
                   className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
                 />
                 {formErrors.firstname && (
-                  <span className="text-red-500 text-sm">{formErrors.firstname}</span>
+                  <span className="text-red text-sm">{formErrors.firstname}</span>
                 )}
               </div>
 
@@ -182,7 +182,7 @@ const Register = () => {
                   className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
                 />
                 {formErrors.lastname && (
-                  <span className="text-red-500 text-sm">{formErrors.lastname}</span>
+                  <span className="text-red text-sm">{formErrors.lastname}</span>
                 )}
               </div>
             </div>
@@ -201,7 +201,7 @@ const Register = () => {
                   className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
                 />
                 {formErrors.email && (
-                  <span className="text-red-500 text-sm">{formErrors.email}</span>
+                  <span className="text-red text-sm">{formErrors.email}</span>
                 
                 )}
                   {emailError && <p style={{ color: "red" }}>{emailError}</p>}
@@ -218,7 +218,7 @@ const Register = () => {
                   className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
                 />
                 {formErrors.phonenumber && (
-                  <span className="text-red-500 text-sm">{formErrors.phonenumber}</span>
+                  <span className="text-red text-sm">{formErrors.phonenumber}</span>
                 )}
               </div>
             </div>
@@ -236,7 +236,7 @@ const Register = () => {
                   className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
                 />
                 {formErrors.password && (
-                  <span className="text-red-500 text-sm">{formErrors.password}</span>
+                  <span className="text-red text-sm">{formErrors.password}</span>
                 )}
               </div>
               <div className="flex-1">
@@ -263,60 +263,60 @@ const Register = () => {
       id="title"
       name="title"
       type="text"
-      className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
+      className="bg-white-300 text-gray-400 border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
     >
-      <option value="">المسمي الوظيفي</option>
+      <option className="text-gray-400" value="">Your title</option>
       {/* Add your options here */}
-      <option value="دكتور">دكتور</option>
-      <option value="صيدلي">صيدلي</option>
+      <option className="text-gray-400" value="دكتور">Doctor</option>
+      <option className="text-gray-400" value="صيدلي">Pharmacist</option>
     </select>
     {formErrors.title && (
-      <span className="text-red-500 text-sm">{formErrors.title}</span>
+      <span className="text-red text-sm">{formErrors.title}</span>
     )}
   </div>
 
   <div className="flex-1">
     <label htmlFor="governorate" className="text-m font-medium text-blue mb-2 block">
-      Governate
+      Governorate
     </label>
     <select
       id="governorate"
       name="governate"
-      className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
+      className="bg-white-300 text-gray-400 border-b-2 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
     >
-      <option value="">اختر محافظة</option>
-      <option value="الإسكندرية">الإسكندرية</option>
-<option value="أسوان">أسوان</option>
-<option value="أسيوط">أسيوط</option>
-<option value="البحيرة">البحيرة</option>
-<option value="بني سويف">بني سويف</option>
-<option value="القاهرة">القاهرة</option>
-<option value="الدقهلية">الدقهلية</option>
-<option value="دمياط">دمياط</option>
-<option value="الفيوم">الفيوم</option>
-<option value="الجيزة">الجيزة</option>
-<option value="الإسماعيلية">الإسماعيلية</option>
-<option value="كفر الشيخ">كفر الشيخ</option>
-<option value="الأقصر">الأقصر</option>
-<option value="مطروح">مطروح</option>
-<option value="المنيا">المنيا</option>
-<option value="المنوفية">المنوفية</option>
-<option value="الوادي الجديد">الوادي الجديد</option>
-<option value="شمال سيناء">شمال سيناء</option>
-<option value="بورسعيد">بورسعيد</option>
-<option value="القليوبية">القليوبية</option>
-<option value="قنا">قنا</option>
-<option value="البحر الأحمر">البحر الأحمر</option>
-<option value="الشرقية">الشرقية</option>
-<option value="سوهاج">سوهاج</option>
-<option value="جنوب سيناء">جنوب سيناء</option>
-<option value="السويس">السويس</option>
+      <option value="">Choose Governorate</option>
+      <option value="الإسكندرية">Alexandria</option>
+<option value="أسوان">Aswan</option>
+<option value="أسيوط">Asyot</option>
+<option value="البحيرة">Al-Behera</option>
+<option value="بني سويف">Bani-Suef</option>
+<option value="القاهرة">Cairo</option>
+<option value="الدقهلية">Al-Dakahlia</option>
+<option value="دمياط">Demietta</option>
+<option value="الفيوم">Al-Fayoum</option>
+<option value="الجيزة">Al-Giza</option>
+<option value="الإسماعيلية">Al-Ismalia</option>
+<option value="كفر الشيخ">Kafr-Al-Sheikh</option>
+<option value="الأقصر">Luxor</option>
+<option value="مطروح">Matrouh</option>
+<option value="المنيا">AlMenia</option>
+<option value="المنوفية">AlMonofya</option>
+<option value="الوادي الجديد">New Village</option>
+<option value="شمال سيناء">North Sinai</option>
+<option value="بورسعيد">Port Saied</option>
+<option value="القليوبية">AlQalyoubia</option>
+<option value="قنا">Qena</option>
+<option value="البحر الأحمر">Red Sea</option>
+<option value="الشرقية">AlSharkia</option>
+<option value="سوهاج">Sohag</option>
+<option value="جنوب سيناء">South Sinai</option>
+<option value="السويس">AlSuez</option>
 
 
 
     </select>
     {formErrors.governorate && (
-      <span className="text-red-500 text-sm">{formErrors.governorate}</span>
+      <span className="text-red text-sm">{formErrors.governorate}</span>
     )}
   </div>
 </div>
@@ -338,13 +338,15 @@ const Register = () => {
                 />
                 <label
                   htmlFor="license"
-                  className="text-sm bg-red text-white text-center py-2 px-5 rounded-md cursor-pointer hover:bg-blue transition duration-300 w-full"
+                  className="text-sm bg-blue text-white text-center py-2 px-5 rounded-md cursor-pointer hover:bg-red transition duration-300 w-full"
                 >
                   Upload File
                 </label>
                 <span className="text-sm text-gray-500 mt-2">{fileNames.license}</span>
+                <br/>
+
                 {formErrors.licenseFile && (
-                  <span className="text-red-500 text-sm">{formErrors.licenseFile}</span>
+                  <span className="text-red text-sm">{formErrors.licenseFile}</span>
                 )}
               </div>
 
@@ -361,13 +363,15 @@ const Register = () => {
                 />
                 <label
                   htmlFor="practice"
-                  className="text-sm bg-red text-white text-center py-2 px-5 rounded-md cursor-pointer hover:bg-blue transition duration-300 w-full"
+                  className="text-sm bg-blue text-white text-center py-2 px-5 rounded-md cursor-pointer hover:bg-red transition duration-300 w-full"
                 >
                   Upload File
                 </label>
                 <span className="text-gray-500 mt-2">{fileNames.practice}</span>
+                <br/>
+
                 {formErrors.professionLicenseFile && (
-                  <span className="text-red-500 text-sm">{formErrors.professionLicenseFile}</span>
+                  <span className="text-red text-sm">{formErrors.professionLicenseFile}</span>
                 )}
               </div>
             </div>
@@ -386,13 +390,15 @@ const Register = () => {
                 />
                 <label
                   htmlFor="syndicate"
-                  className="text-sm bg-red text-white text-center py-2 px-5 rounded-md cursor-pointer hover:bg-blue transition duration-300 w-full"
+                  className="text-sm bg-blue text-white text-center py-2 px-5 rounded-md cursor-pointer hover:bg-red transition duration-300 w-full"
                 >
                   Upload File
                 </label>
                 <span className="text-gray-500 mt-2">{fileNames.syndicate}</span>
+                <br/>
+
                 {formErrors.syndicateCardFile && (
-                  <span className="text-red-500 text-sm">{formErrors.syndicateCardFile}</span>
+                  <span className="text-red text-sm">{formErrors.syndicateCardFile}</span>
                 )}
               </div>
 
@@ -409,13 +415,15 @@ const Register = () => {
                 />
                 <label
                   htmlFor="commercial"
-                  className="text-sm bg-red text-white text-center py-2 px-5 rounded-md cursor-pointer hover:bg-blue transition duration-300 w-full"
+                  className="text-sm bg-blue text-white text-center py-2 px-5 rounded-md cursor-pointer hover:bg-red transition duration-300 w-full"
                 >
                   Upload File
                 </label>
                 <span className="text-gray-500 mt-2">{fileNames.commercial}</span>
+                <br/>
+
                 {formErrors.commercialRegisterFile && (
-                  <span className="text-red-500 text-sm">{formErrors.commercialRegisterFile}</span>
+                  <span className="text-red text-sm">{formErrors.commercialRegisterFile}</span>
                 )}
               </div>
             </div>
@@ -434,13 +442,14 @@ const Register = () => {
                 />
                 <label
                   htmlFor="tax"
-                  className="text-sm bg-red text-white text-center py-2 px-5 rounded-md cursor-pointer hover:bg-blue transition duration-300 w-full"
+                  className="text-sm bg-blue text-white text-center py-2 px-5  rounded-md cursor-pointer hover:bg-red transition duration-300 w-full"
                 >
                   Upload File
                 </label>
                 <span className="text-gray-500 mt-2">{fileNames.tax}</span>
+                <br/>
                 {formErrors.taxCardFile && (
-                  <span className="text-red-500 text-sm">{formErrors.taxCardFile}</span>
+                  <span className="text-red text-sm mt-2">{formErrors.taxCardFile}</span>
                 )}
               </div>
             </div>

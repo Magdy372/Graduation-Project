@@ -3,8 +3,6 @@ import { FaSearch, FaEdit, FaTrash, FaPlus,FaCapsules, FaMicroscope, FaHandshake
 import { TbHeartRateMonitor } from "react-icons/tb";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import { FaFileAlt } from "react-icons/fa";
 
 
@@ -71,10 +69,10 @@ const ViewCourses = () => {
 
     // Handle edit course button click (Navigate to EditCourse)
     const handleEditCourse = (course) => {
-      navigate("/editCourse", { state: { course } });
+      navigate("/layout/editCourse", { state: { course } });
     };
     const handleAddVideo = (course) => {
-      navigate("/addvideo", { state: { course } });
+      navigate("/layout/addvideo", { state: { course } });
     };
   // Handle category edit
   const saveEdit = (index) => {
@@ -134,20 +132,18 @@ const ViewCourses = () => {
 
   return (
     <>
-      <Navbar />
-      <div className="container mx-auto px-6 py-10">
-        <h1 className="text-3xl font-bold text-center mb-8"> الدورات التدريبية</h1>
+      <div className="container mx-auto px-6 ">
+        <h1 className="text-3xl font-bold text-center mb-8 text-red text-right"> الدورات التدريبية</h1>
 
         {/* Search & Category Filter */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6 text-right">
           <input
             type="text"
-            placeholder="Search courses..."
+            placeholder="... بحث الدورات "
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="p-3 border rounded-md w-1/2 shadow-sm focus:outline-none"
           />
-          <FaSearch className="text-gray-500 ml-3 mt-3" />
 
           {/* Category Dropdown */}
           <select
@@ -155,7 +151,7 @@ const ViewCourses = () => {
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
-            <option value="">All Categories</option>
+            <option value="All Categories">كل الفئات</option>
             {categories.map((category) => (
               <option key={category.id} value={category.name}>
                 {category.name}
@@ -207,11 +203,11 @@ const ViewCourses = () => {
                   type="text"
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
-                  placeholder="New Category Name"
-                  className="mb-3 p-2 border border-gray rounded-md w-full"
+                  placeholder="اسم الفئة"
+                  className="mb-3 p-2 border border-gray rounded-md w-full text-right "
                 />
                 <button className="mb-3 p-3 bg-blue text-white border w-full hover:bg-red rounded-md" onClick={addCategory}>
-                  Add Category
+                  اضافة فئة
                   
                   
 
@@ -269,7 +265,7 @@ const ViewCourses = () => {
                     className="text-purple-500 cursor-pointer hover:text-purple-700"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate("/add-quiz", { state: { course } });
+                      navigate("/layout/add-quiz", { state: { course } });
                     }}
                   />
                 </div>
@@ -281,7 +277,6 @@ const ViewCourses = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 };

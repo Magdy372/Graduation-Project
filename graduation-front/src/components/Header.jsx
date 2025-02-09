@@ -26,19 +26,7 @@ const Header = ({ collapsed, setCollapsed }) => {
                 </button>
             </div>
             <div className="flex items-center gap-x-3">
-                <div className="input">
-                    <Search
-                        size={20}
-                        className="text-slate-300"
-                    />
-                    <input
-                        type="text"
-                        name="search"
-                        id="search"
-                        placeholder="Search..."
-                        className="w-full bg-transparent text-slate-900 outline-0 placeholder:text-slate-300 dark:text-slate-50"
-                    />
-                </div>
+             
                 <button 
                     className="btn-ghost size-10"
                     onClick={() => setCollapsed(!collapsed)}

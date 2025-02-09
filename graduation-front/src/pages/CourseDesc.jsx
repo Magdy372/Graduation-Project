@@ -35,39 +35,41 @@ const CourseDesc = () => {
   const [chapters, setChapters] = useState([]); // State to store course chapters
   const navigate = useNavigate();
   const location = useLocation(); // Access navigation state
-  const [recommendations, setRecommendations] = useState([]); // State for recommendations
-  
+  const [recommendations, setRecommendations] = useState([]);
+
   useEffect(() => {
     const fetchRecommendations = async () => {
-      if (!course || !course.name.trim()) {
-        setRecommendations([]); // Clear recommendations if course name is empty
+      if (!course || !course.description?.trim()) {
+        setRecommendations([]); // Clear recommendations if description is empty
         return;
       }
-
+  
       try {
         const response = await fetch("http://localhost:5000/recommend", {
-          method: "POST",  // Ensure this is POST
+          method: "POST",
           headers: {
-            "Content-Type": "application/json",  // Make sure this is set to application/json
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            course: course.name,  // Send course name to backend
+            course: course.description,  // Send the course description
           }),
         });
-
-        if (response.ok) {
-          const data = await response.json();
-          setRecommendations(data.recommendations || []);
-        } else {
-          console.error("Failed to fetch recommendations");
+  
+        if (!response.ok) {
+          console.error("Failed to fetch recommendations, Status:", response.status);
+          return;
         }
+  
+        const data = await response.json();
+        setRecommendations(data.recommendations || []);
       } catch (error) {
         console.error("Error fetching recommendations:", error);
       }
     };
-
+  
     fetchRecommendations();
-  }, [course]); // Fetch recommendations whenever course data changes
+  }, [course]);
+   // Fetch recommendations whenever course data changes
 
   // Fetch course details based on the course ID from navigation state
   useEffect(() => {
@@ -280,15 +282,16 @@ const CourseDesc = () => {
         <div  className="flex flex-col items-center">
           {/* Course Image */}
           <motion.img
+            key={rec.id}
             className="w-full h-[150px] object-cover"
-            src={`http://localhost:8084${rec.imageUrl || '/default-course-image.jpg'}`} // Use the image URL from backend or default
+            src={`http://localhost:8084${rec.imageUrl}`} // Use the image URL from backend or default
             alt={rec.title}
             whileHover={{ scale: 1.1 }}
             transition={{ type: "spring", stiffness: 300 }}
           />
           {/* Course Title */}
           <div className="p-4">
-            <h4 className="text-lg font-semibold text-blue">{rec.title}</h4>
+            <h4 className="text-lg font-semibold text-blue">{rec.name}</h4>
             <p hidden className="text-sm text-gray-600">Score: {rec.score.toFixed(2)}</p>
           </div>
         </div>

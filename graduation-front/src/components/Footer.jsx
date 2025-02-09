@@ -9,7 +9,7 @@ import miuLogo from '../assets/logos/miu.png'
 
 const Footer = () => {
   return (
-    <footer className="py-28 bg-[#f7f7f7] mt-10">
+    <footer className="py-20 bg-[#f7f7f7] mt-10">
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -31,38 +31,19 @@ const Footer = () => {
           {/* Second section */}
           <div className="grid grid-cols-2 gap-10">
             <div className="space-y-4">
-              <h1 className="text-2xl font-bold">Courses</h1>
+              <h1 className="text-xl font-bold">Links</h1>
               <div className="text-dark2">
-                <ul className="space-y-2 text-lg">
-                  <li className="cursor-pointer hover:text-secondary duration-200">
-                    Clinical Practice
-                  </li>
-                  <li className="cursor-pointer hover:text-secondary duration-200">
-                    Pharmacology and Therapeutics
-                  </li>
-                  <li className="cursor-pointer hover:text-secondary duration-200">
-                    Research and Evidence-Based Medicine
-                  </li>
-                  <li className="cursor-pointer hover:text-secondary duration-200">
-                    Public Health and Preventive Medicine
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <h1 className="text-2xl font-bold">Links</h1>
-              <div className="text-dark2">
-                <ul className="space-y-2 text-lg">
-                  <li className="cursor-pointer hover:text-secondary duration-200">
+                <ul className="space-y-2 text-m">
+                  <li className="cursor-pointer hover:text-red duration-200">
                     Home
                   </li>
-                  <li className="cursor-pointer hover:text-secondary duration-200">
+                  <li className="cursor-pointer hover:text-red duration-200">
                     Services
                   </li>
-                  <li className="cursor-pointer hover:text-secondary duration-200">
+                  <li className="cursor-pointer hover:text-red duration-200">
                     About
                   </li>
-                  <li className="cursor-pointer hover:text-secondary duration-200">
+                  <li className="cursor-pointer hover:text-red duration-200">
                     Contact
                   </li>
                 </ul>
@@ -72,7 +53,7 @@ const Footer = () => {
 
           {/* Third section - Our Sponsors */}
           <div className="space-y-4 max-w-[300px]">
-            <h1 className="text-2xl font-bold">Our Sponsors</h1>
+            <h1 className="text-xl font-bold">Our Sponsors</h1>
             <div className="flex space-x-6 py-3">
               <img
                 src={AC4HLogo}

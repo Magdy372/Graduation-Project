@@ -119,35 +119,35 @@ const UploadCourse = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen p-0" dir="rtl">
+    <div className="bg-white min-h-screen p-0" dir="rtl">
       <div className="mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
         {/* Header */}
         <div className="col-span-2 text-right py-4 flex items-center justify-between">
           <div className="flex items-center">
-            <div className="flex items-center justify-center w-10 h-10 bg-blue rounded-full mr-1">
+            <div className="flex items-center justify-center w-10 h-10 bg-red rounded-full mr-1">
               <FaTh className="text-white text-2xl" />
             </div>
-            <h1 className="text-3xl font-bold text-blue m-2">إضافة دورة تدريبية</h1>
+            <h1 className="text-3xl font-bold text-red m-2">إضافة دورة تدريبية</h1>
           </div>
         </div>
 
         {/* Left Column: Form Section */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-semibold text-gray-800">إعداد الدورة التدريبية</h2>
+          <h2 className="text-2xl font-semibold text-blue">إعداد الدورة التدريبية</h2>
           <Box>
-            <SectionTitle title="عنوان الدورة التدريبية" />
-            <input
+          <div className="text-red text-lg" >عنوان الدورة التدريبية</div>
+          <input
               type="text"
               name="name"
               value={courseData.name}
               onChange={handleInputChange}
-              className="border border-gray-300 p-2 rounded-md text-right w-full"
+              className="border border-gray p-2 rounded-md text-right w-full"
               placeholder="أدخل عنوان الدورة"
             />
-            {errors.name && <ErrorText text={errors.name} />}
+            <p className="text-red">{errors.name && <ErrorText text={errors.name} />}</p>
           </Box>
           <Box>
-            <SectionTitle title="وصف الدورة التدريبية" />
+            <div className="text-red text-lg"> وصف الدورة التدريبية </div>
             <textarea
               name="description"
               value={courseData.description}
@@ -155,15 +155,16 @@ const UploadCourse = () => {
               className="border border-gray-300 p-2 rounded-md text-right w-full"
               placeholder="أدخل وصف الدورة"
             />
-            {errors.description && <ErrorText text={errors.description} />}
+            <p className="text-red">{errors.description && <ErrorText text={errors.description} />}</p>
           </Box>
           <Box>
-            <SectionTitle title="صورة الدورة التدريبية" />
+            <div className="text-red text-lg">صورة الدورة التدريبية</div>
             <ImageUploader onChange={handleImageChange} />
-            {errors.imageFile && <ErrorText text={errors.imageFile} />}
+            <p className="text-red">{errors.imageFile && <ErrorText text={errors.imageFile} />}</p>
           </Box>
           <Box>
-            <SectionTitle title="فئة الدورة التدريبية" />
+            <div className="text-red text-lg">فئة الدورة التدريبية</div>
+
             <select
               name="categoryName"
               value={courseData.categoryName}
@@ -177,21 +178,21 @@ const UploadCourse = () => {
                 </option>
               ))}
             </select>
-            {errors.categoryName && <ErrorText text={errors.categoryName} />}
+            <p className="text-red">{errors.categoryName && <ErrorText text={errors.categoryName} />}</p>
           </Box>
         </div>
 
         {/* Right Column: Additional Settings */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-semibold text-gray-800">فصول الدورة</h2>
+          <h2 className="text-2xl font-semibold text-blue">فصول الدورة</h2>
           <Box>
-            <SectionTitle title="فصول الدورة التدريبية" />
+            <div className="text-red text-lg">فصول الدورة التدريبية</div>
             <ChapterList chapters={chapters} onAddChapter={handleAddChapter} onDeleteChapter={handleDeleteChapter} />
-            {errors.chapters && <ErrorText text={errors.chapters} />}
+            <p className="text-red">{errors.chapters && <ErrorText text={errors.chapters} />}</p>
           </Box>
           <div className="flex justify-end">
             <button
-              className="bg-blue text-white py-2 px-4 rounded-lg font-medium mt-4 shadow-md hover:bg-red transition-colors duration-300"
+              className="bg-blue text-white py-2 px-4 rounded-lg font-medium mt-4 shadow-md hover:bg-red transition-colors duration-300 w-full"
               onClick={handleUploadClick}
             >
               حفظ
@@ -232,7 +233,7 @@ const ChapterList = ({ chapters, onAddChapter, onDeleteChapter }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 ">
       {chapters.map((chapter, index) => (
         <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-md">
           <span>{chapter.title}</span>
@@ -241,7 +242,7 @@ const ChapterList = ({ chapters, onAddChapter, onDeleteChapter }) => {
           </button>
         </div>
       ))}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center justify-between ">
         <input
           type="text"
           value={newChapter}
@@ -249,9 +250,10 @@ const ChapterList = ({ chapters, onAddChapter, onDeleteChapter }) => {
           placeholder="أدخل اسم الفصل"
           className="border border-gray-300 p-2 rounded-md"
         />
-        <button onClick={handleAddChapter} className="text-blue-500">
+        <button onClick={handleAddChapter} className="bg-blue text-white rounded-lg py-2 px-3">
           إضافة فصل
         </button>
+
       </div>
     </div>
   );

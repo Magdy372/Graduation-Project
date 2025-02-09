@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";  // Make sure this is imported
 
@@ -58,10 +57,9 @@ const App = () => {
           <Route path="/myCourses" element={<MyCourses />} />
           <Route path="/myProfile" element={<MyProfile />} />
           <Route path="/coursePage" element={<CoursePage />} />
-          <Route path="/addvideo" element={<AddVideo />} />
-          <Route path="/editCourse" element={<EditCourse />} />
-          <Route path="/add-quiz" element={<AddQuiz />} />
-          <Route path="/quizzes/:quizId/add-questions" element={<AddQuestions />} />
+          {/* <Route path="/addvideo" element={<AddVideo />} /> */}
+          {/* <Route path="/editCourse" element={<EditCourse />} /> */}
+          {/* <Route path="/quizzes/:quizId/add-questions" element={<AddQuestions />} /> */}
 
 
 
@@ -143,6 +141,46 @@ const App = () => {
               element={
                 <ProtectedRoute
                   element={<AdminProfile />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="editCourse"
+              element={
+                <ProtectedRoute
+                  element={<EditCourse />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="addvideo"
+              element={
+                <ProtectedRoute
+                  element={<AddVideo />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="quizzes/:quizId/add-questions"
+              element={
+                <ProtectedRoute
+                  element={<AddQuestions />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="add-quiz"
+              element={
+                <ProtectedRoute
+                  element={<AddQuiz />}
                   requiredRole="Admin"
                   redirectTo="/login"
                 />

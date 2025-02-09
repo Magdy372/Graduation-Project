@@ -34,6 +34,10 @@ const AddVideo = () => {
     fetchChapters();
   }, [course.id]);
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setVideoFile(file ? file.name : null);
+  };
   const fetchChapters = async () => {
     try {
       const response = await fetch(`http://localhost:8084/api/courses/${course.id}/chapters`);
@@ -180,39 +184,38 @@ const AddVideo = () => {
 
   return (
     <>
-      <Navbar />
       <div className="container mx-auto px-6 py-10">
-        <h1 className="text-3xl font-bold text-center mb-8">Manage Videos for {course.name}</h1>
-
+      <h1 className="text-2xl font-bold text-right flex-1 mb-5 text-red">رفع فيديو للدورة</h1>
+      <p className="text-right text-xl font-semibold mb-5">{course.name} : اسم الدورة </p>
         {/* Add Chapter */}
-        <div className="mb-6 flex gap-3">
+        <div className="mb-6 flex gap-3 text-right">
+        <button
+            className="p-3 bg-blue hover:bg-red py-2 px-20 text-white rounded-md  "
+            onClick={handleAddChapter}
+          >
+           اضف
+          </button>
           <input
             type="text"
-            className="p-3 border rounded-md w-full shadow-sm"
-            placeholder="Enter new chapter title"
+            className="p-3 border rounded-md w-full shadow-sm text-right"
+            placeholder="ادخل عنوان الفصل الجديد"
             value={newChapterTitle}
             onChange={(e) => setNewChapterTitle(e.target.value)}
           />
           {errors.chapterTitle && (
-            <p className="text-red-500 text-sm mt-1">{errors.chapterTitle}</p>
+            <p className="text-red text-sm mt-1">{errors.chapterTitle}</p>
           )}
-          <button
-            className="p-3 bg-green-500 text-white rounded-md flex items-center gap-2"
-            onClick={handleAddChapter}
-          >
-            <FaPlus /> Add Chapter
-          </button>
+
         </div>
 
         {/* Select Chapter */}
-        <div className="mb-6">
-          <label className="block text-lg font-semibold">Select Chapter:</label>
+        <div className="mb-6 text-right">
           <select
-            className="p-3 border rounded-md w-full shadow-sm"
+            className="p-3 border rounded-md w-full shadow-sm text-right"
             value={selectedChapter}
             onChange={(e) => setSelectedChapter(e.target.value)}
           >
-            <option value="">Select a Chapter</option>
+            <option value="">اختر الفصل</option>
             {chapters.map((chapter) => (
               <option key={chapter.id} value={chapter.id}>
                 {chapter.title}
@@ -220,68 +223,79 @@ const AddVideo = () => {
             ))}
           </select>
           {errors.chapterSelection && (
-            <p className="text-red-500 text-sm mt-1">{errors.chapterSelection}</p>
+            <p className="text-red text-sm mt-1">{errors.chapterSelection}</p>
           )}
         </div>
 
         {/* Video Upload Section */}
-        <div className="mb-6 p-4 border rounded-md shadow-md bg-gray-50">
-          <h2 className="text-xl font-semibold mb-2">Upload Video</h2>
-          <div className="flex flex-col gap-3">
+        <div className="mb-6 p-4 border rounded-md shadow-md bg-gray text-right">
+          <div className="flex flex-col gap-3 text-right">
             <input
               type="text"
-              className="p-3 border rounded-md w-full shadow-sm"
-              placeholder="Enter video title"
+              className="p-3 border rounded-md w-full shadow-sm text-right"
+              placeholder="ادخل عنوان الفيديو"
               value={newVideoTitle}
               onChange={(e) => setNewVideoTitle(e.target.value)}
             />
             {errors.videoTitle && (
-              <p className="text-red-500 text-sm mt-1">{errors.videoTitle}</p>
+              <p className="text-red text-sm mt-1">{errors.videoTitle}</p>
             )}
-            <input type="file" className="p-2 border rounded-md" onChange={(e) => setVideoFile(e.target.files[0])} />
+ <div className="flex items-center justify-end space-x-4">
+      {/* Display Chosen File Name */}
+      {videoFile && <span className="text-gray-700">{videoFile}</span>}
+
+      {/* Custom File Input Button */}
+      <label className="cursor-pointer bg-blue text-white px-4 py-2 rounded-md shadow-md hover:bg-red-500 transition text-center w-[200px] hover:bg-red">
+        اختر الفيديو
+        <input type="file" hidden onChange={handleFileChange} />
+      </label>
+    </div>
+
+
             {errors.videoFile && (
               <p className="text-red-500 text-sm mt-1">{errors.videoFile}</p>
             )}
             <button
-              className={`p-3 rounded-md flex items-center gap-2 ${
-                isUploading ? "bg-gray-400 cursor-not-allowed" : "p-3 bg-green-500 text-white rounded-md flex items-center gap-2"
-              }`}
-              onClick={handleVideoUpload}
-              disabled={isUploading}
-            >
-              {isUploading ? "Uploading..." : <><FaPlus /> Submit Video</>}
-            </button>
+                className={`p-3 rounded-md flex items-center justify-center gap-2 ${
+                  isUploading ? "bg-gray cursor-not-allowed" : "bg-red hover:bg-blue text-white"
+                }`}
+                onClick={handleVideoUpload}
+                disabled={isUploading}
+              >
+                {isUploading ? "Uploading..." : <>إضافة الفيديو</>}
+              </button>
+
           </div>
         </div>
 
         {/* Existing Chapters & Videos */}
-        <h2 className="text-2xl font-semibold mb-4">Existing Chapters & Videos</h2>
+        <h2 className="text-xl font-semibold mb-4 text-right text-blue">الفصول و الفيدوهات الحالية</h2>
         {chapters.map((chapter) => (
           <div key={chapter.id} className="mb-6 p-4 border rounded-md shadow-md bg-white">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">{chapter.title}</h3>
-              <button className="text-red-500 flex items-center gap-2" onClick={() => handleDeleteChapter(chapter.id)}>
-                <FaTrash /> Delete Chapter
+              <button className="text-red flex items-center gap-2" onClick={() => handleDeleteChapter(chapter.id)}>
+                <FaTrash /> ازالة الفصل
               </button>
+              <h3 className="text-lg font-semibold">{chapter.title}</h3>
             </div>
             <div className="mt-2">
               {chapter.videos && chapter.videos.length > 0 ? (
                 chapter.videos.map((video) => (
                   <div key={video.id} className="flex items-center justify-between p-2 border rounded-md mt-2 bg-gray-100">
-                    <span>{video.title}</span>
-                    <button className="text-red-500 flex items-center gap-2" onClick={() => handleDeleteVideo(video.id)}>
-                      <FaTrash /> Delete Video
+                    <button className="text-red flex items-center gap-2" onClick={() => handleDeleteVideo(video.id)}>
+                      <FaTrash /> ازالو الفيديو
                     </button>
+                    <span>{video.title}</span>
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500">No videos available</p>
+                <p className="text-red text-right text-sm">لا يوجد فيديوهات</p>
               )}
             </div>
           </div>
         ))}
+
       </div>
-      <Footer />
     </>
   );
 };

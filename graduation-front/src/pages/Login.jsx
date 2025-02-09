@@ -22,11 +22,11 @@ const Login = () => {
     // Validate email and password
     let hasError = false;
     if (!email.trim()) {
-      setEmailError("البريد الإلكتروني مطلوب");
+      setEmailError("Email is required");
       hasError = true;
     }
     if (!password.trim()) {
-      setPasswordError("كلمة المرور مطلوبة");
+      setPasswordError("Password is required");
       hasError = true;
     }
 
@@ -107,7 +107,7 @@ const Login = () => {
                 className="bg-white-300 text-red border-b-2 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
                 disabled={isLoading}
               />
-              {emailError && <p className="text-red-500 text-xs">{emailError}</p>}
+              {emailError && <p className="text-red text-xs">{emailError}</p>}
             </div>
 
             {/* Password Input */}
@@ -121,17 +121,15 @@ const Login = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-white-300 text-red border-b-2 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
+                className="bg-white text-red border-b-2 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
                 disabled={isLoading}
               />
-              {passwordError && <p className="text-red-500 text-xs">{passwordError}</p>}
+              {passwordError && <p className="text-red text-xs">{passwordError}</p>}
             </div>
 
             {/* General Error Message */}
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4">
-                <p className="text-red-700 text-sm">{error}</p>
-              </div>
+                <p className="text-red text-sm">{error}</p>
             )}
 
             {/* Submit Button */}
