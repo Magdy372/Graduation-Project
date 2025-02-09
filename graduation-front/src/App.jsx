@@ -26,6 +26,9 @@ import AddVideo from "./pages/AddVideo";
 import EditCourse from "./pages/EditCourse";
 import AddQuiz from './pages/AddQuiz';
 import AddQuestions from './pages/AddQuestion';
+import Feedback from './pages/Feedback';
+import Report from './pages/Report';
+
 
 
 
@@ -57,6 +60,7 @@ const App = () => {
           <Route path="/myCourses" element={<MyCourses />} />
           <Route path="/myProfile" element={<MyProfile />} />
           <Route path="/coursePage" element={<CoursePage />} />
+          <Route path="/feedback" element={<Feedback />} />
           {/* <Route path="/addvideo" element={<AddVideo />} /> */}
           {/* <Route path="/editCourse" element={<EditCourse />} /> */}
           {/* <Route path="/quizzes/:quizId/add-questions" element={<AddQuestions />} /> */}
@@ -87,10 +91,10 @@ const App = () => {
               }
             />
             <Route
-              path="reports"
+              path="Report"
               element={
                 <ProtectedRoute
-                  element={<h1 className="title">التقارير</h1>}
+                  element={<Report />}
                   requiredRole="Admin"
                   redirectTo="/login"
                 />

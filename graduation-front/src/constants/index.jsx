@@ -32,7 +32,7 @@ export const navbarLinks = [
             {
                 label: "التقارير",
                 icon: NotepadText,
-                path: "/layout/reports",
+                path: "/layout/Report",
             },
         ],
     },
