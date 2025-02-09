@@ -430,10 +430,10 @@ const CoursePage = () => {
                   <Typography variant="h6" className="text-red font-semibold text-lg">
                     Course Summary
                   </Typography>
-                  <button className="text-lg mb-3 p-3 bg-blue text-white border hover:bg-red rounded-md flex items-center gap-2 text-left w-[150px] text-center">
+                  {/* <button className="text-lg mb-3 p-3 bg-blue text-white border hover:bg-red rounded-md flex items-center gap-2 text-left w-[150px] text-center">
                     <FaDownload />
-                    Download
-                  </button>
+                  //  Download
+                  </button> */}
                 </div>
               }
             />

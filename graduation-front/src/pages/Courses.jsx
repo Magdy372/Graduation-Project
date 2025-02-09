@@ -42,8 +42,19 @@ const Courses = () => {
   const [currentPage, setCurrentPage] = useState(1); // Current pagination page
   const coursesPerPage = 9; // Number of courses per page
 
+
+
   // Fetch courses from the backend
   useEffect(() => {
+
+    const token = localStorage.getItem('access_token');  // Ensure this matches your actual token key
+
+        if (!token) {
+          navigate("/login"); // Redirect to login if no token
+          return;
+        }
+
+        
     fetch("http://localhost:8084/api/courses")
       .then((response) => response.json())
       .then((data) => {

@@ -11,18 +11,18 @@ public class UserWithDocumentsDTO {
 
     // User fields
     @NotBlank(message = "First name is required")
-    @Size(max = 50, message = "First name must be less than 50 characters")
+    @Size(max = 20, message = "First name must be less than 20 characters")
     @Pattern(regexp = "^[a-zA-Z]+$", message = "First name must contain only letters")
     private String firstname;
 
     @NotBlank(message = "Last name is required")
-    @Size(max = 50, message = "Last name must be less than 50 characters")
+    @Size(max = 20, message = "Last name must be less than 20 characters")
     @Pattern(regexp = "^[a-zA-Z]+$", message = "Last name must contain only letters")
     private String lastname;
 
     @NotBlank(message = "Phone number is required")
-    @Size(min = 11, max = 11, message = "Phone number must be exactly 11 characters")
-    @Pattern(regexp = "^[0-9]{11}$", message = "Phone number must be 11 digits and numbers only")
+    //@Size(min = 11, max = 11, message = "Phone number must be exactly 11 characters")
+    @Pattern(regexp = "^[0-9]{11}$", message = "Phone number must be exactly 11 digits")
     private String phonenumber;
 
     @NotBlank(message = "Email is required")

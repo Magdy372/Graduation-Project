@@ -109,7 +109,7 @@ const ViewCourses = () => {
 
     const addCategory = () => {
       if (newCategory.trim() === "") {
-        setErrorMessage("Category name is required.");
+        setErrorMessage("يجب ادخال اسم الفئة");
         return;
       }
       setErrorMessage(""); // Clear error if valid
@@ -212,7 +212,7 @@ const ViewCourses = () => {
                   
 
                 </button>
-                <span>{errorMessage && <p className="text-red-500">{errorMessage}</p>}</span>
+                <span>{errorMessage && <p className="text-red">{errorMessage}</p>}</span>
               </motion.div>
             </Suspense>
           </div>
