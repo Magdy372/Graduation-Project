@@ -152,7 +152,7 @@ const CourseDesc = () => {
       <div className="container mx-auto p-4">
         {/* Title Section */}
         <motion.div
-          className="bg-red text-white p-8 rounded-t-lg"
+          className="bg-red text-white p-8 rounded-t-lg "
           variants={FadeUp(0.1)}
           initial="initial"
           animate="animate"
@@ -188,89 +188,73 @@ const CourseDesc = () => {
           </div>
         </motion.div>
 
-        {/* Main Content */}
-        <div className="flex flex-col md:flex-row gap-8 mt-8">
-          <motion.main
-            className="flex-group"
-            variants={FadeUp(0.8)}
-            initial="initial"
-            animate="animate"
-          >
-            {/* What You Will Learn Card */}
-            <Card className="mb-8">
-              <CardHeader
-                title={<Typography variant="h6" className="text-red text-lg">What you will learn</Typography>}
-              />
-              <CardContent>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <li className="flex items-start text-blue">
-                    <IoMdCheckmarkCircleOutline className="mr-2 h-5 w-5 text-green-500 flex-shrink-0" />
-                    <span>Lorem Ipsum is simply dummy text of the printing and typesetting</span>
-                  </li>
-                  {/* More list items */}
-                </ul>
-              </CardContent>
-            </Card>
+        <div className="flex flex-col md:flex-row gap-8">
+  {/* Left Section: Course Description & Chapters (70% width) */}
+  <motion.main
+    className="w-full md:w-[70%] mt-10  "
+    variants={FadeUp(0.8)}
+    initial="initial"
+    animate="animate"
+  >
+    {/* Course Description Card */}
+    <Card className="mb-8 w-full ">
+      <CardHeader
+        title={<Typography variant="h6" className="text-red text-lg">Course Description</Typography>}
+      />
+      <CardContent>
+        <p className="text-blue">{course.description}</p>
+      </CardContent>
+    </Card>
 
-            {/* Course description card */}
-            <Card className="mb-8">
-              <CardHeader
-                title={<Typography variant="h6" className="text-red text-lg">Course Description</Typography>}
-              />
-              <CardContent>
-                <p className="text-blue">{course.description}</p>
-              </CardContent>
-            </Card>
+    {/* Course Chapters Card */}
+    <Card className="mb-8 w-full">
+      <CardHeader
+        title={<Typography variant="h6" className="text-red text-lg">Course Chapters</Typography>}
+      />
+      <CardContent>
+        <ul>
+          {chapters.map((chapter, index) => (
+            <li key={index} className="flex items-center">
+              <BiPlayCircle className="mr-2 h-4 w-4" />
+              <span className="text-blue">{chapter.title}</span>
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
+  </motion.main>
 
-            {/* Course Chapters Card */}
-            <Card className="mb-8">
-              <CardHeader
-                title={<Typography variant="h6" className="text-red text-lg">Course Chapters</Typography>}
-              />
-              <CardContent>
-                <ul>
-                  {chapters.map((chapter, index) => (
-                    <li key={index} className="flex items-center">
-                      <BiPlayCircle className="mr-2 h-4 w-4" />
-                      <span className="text-blue">{chapter.title}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </motion.main>
-
-          {/* Sidebar */}
-          <motion.aside
-            className="w-full md:w-[500px]"
-            variants={FadeUp(1.0)}
-            initial="initial"
-            animate="animate"
-          >
-            <Card className="sticky top-4">
-              <CardContent className="p-6">
-                <div className="aspect-video mb-4 rounded-lg flex items-center justify-center">
-                  <motion.img
-                    className="w-[550px] h-[300px] rounded"
-                    src={`http://localhost:8084${course.imageUrl}`}
-                    alt="Course Thumbnail"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  />
-                </div>
-                <motion.button
-                  className="h-[50px] text-white font-semibold text-lg w-full bg-blue hover:bg-red py-2 rounded transition-all delay-250"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  type="button"
-                  onClick={handleEnrollClick} // Trigger redirect to CoursePage
-                >
-                  Enroll Now
-                </motion.button>
-              </CardContent>
-            </Card>
-          </motion.aside>
+  {/* Right Section: Course Image Card (30% width) */}
+  <motion.aside
+    className="w-full md:w-[30%] flex justify-center"
+    variants={FadeUp(1.0)}
+    initial="initial"
+    animate="animate"
+  >
+    <Card className="sticky top-4 w-full md:w-[400px] mt-10">
+      <CardContent className="p-6">
+        <div className="aspect-video mb-4 rounded-lg flex items-center justify-center">
+          <motion.img
+            className="w-full h-auto rounded"
+            src={`http://localhost:8084${course.imageUrl}`}
+            alt="Course Thumbnail"
+            whileHover={{ scale: 1.1 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          />
         </div>
+        <motion.button
+          className="h-[50px] text-white font-semibold text-lg w-full bg-blue hover:bg-red py-2 rounded transition-all delay-250"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          type="button"
+          onClick={handleEnrollClick} // Trigger redirect to CoursePage
+        >
+          Enroll Now
+        </motion.button>
+      </CardContent>
+    </Card>
+  </motion.aside>
+</div>
 
         
 <h3 className="text-2xl  text-red mt-5 mb-5 text-center">Recommended Courses</h3>

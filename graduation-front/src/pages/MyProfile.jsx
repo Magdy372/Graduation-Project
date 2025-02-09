@@ -184,7 +184,7 @@ const MyProfile = () => {
                 {userData.firstname} {userData.lastname}
               </h1>
               <p className="text-red text-lg">
-                {userData.email} - <span className="text-blue-500">{userData.profession || "Profession not set"}</span>
+                {userData.email} - <span className="text-red">{userData.profession || "Profession not set"}</span>
               </p>
             </div>
           </div>
@@ -193,7 +193,7 @@ const MyProfile = () => {
           <form>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-blue">
+                <label htmlFor="username" className="text-2xl font-bold text-blue mb-6">
                   Phone Number 
                 </label>
                 <input
@@ -201,12 +201,12 @@ const MyProfile = () => {
                   id="phone"
                   name="phone"
                   value={userData.phonenumber || ""}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md bg-white text-lg text-red"
                   disabled
                 />
               </div>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-blue">
+                <label htmlFor="email" className="text-2xl font-bold text-blue mb-6">
                   Email
                 </label>
                 <input
@@ -214,103 +214,96 @@ const MyProfile = () => {
                   id="email"
                   name="email"
                   value={userData.email || ""}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md bg-white text-lg text-red"
                   disabled
                 />
               </div>
               
               <div>
-                <label htmlFor="title" className="block text-sm font-medium text-blue">
+                <label htmlFor="title" className="text-2xl font-bold text-blue mb-6">
                   Title
                 </label>
                 <input
                   type="text"
                   id="title"
                   name="title"
-                 // value={"Sbak"|| ""}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  value={userData.title}
+                  className="mt-1 block w-full rounded-md bg-white text-lg text-red"
                   disabled
                 />
               </div>
             </div>
           </form>
-
+<br/>
+<hr/>
           {/* Display uploaded file paths */}
         {/* Display uploaded file paths as downloadable links */}
-<div className="mt-6">
-  <h3 className="text-lg font-medium text-blue">Uploaded Documents</h3>
+        <div className="mt-6">
+  <h3 className="text-2xl font-bold text-red mb-6">Uploaded Documents</h3>
   <ul>
     {userData.licenseFilePath && (
-      <li>
-        <strong>License File:</strong> 
-        <a 
-          href={`http://localhost:8089/uploads/${userData.licenseFilePath}`} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="text-red-500 underline"
+      <li className="flex justify-between items-center mb-4">
+        <strong className="text-xl text-blue">License File</strong>
+        <button
+          onClick={() => window.open(`http://localhost:8089/uploads/${userData.licenseFilePath}`, "_blank", "noopener,noreferrer")}
+          className="w-1/5 px-4 py-2 bg-red text-white font-semibold rounded-md hover:bg-blue transition"
         >
           Open
-        </a>
+        </button>
       </li>
     )}
     {userData.professionLicenseFilePath && (
-      <li>
-        <strong>Profession License:</strong> 
-        <a 
-          href={`http://localhost:8089/uploads/${userData.professionLicenseFilePath}`} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="text-red-500 underline"
+      <li className="flex justify-between items-center mb-4">
+        <strong className="text-xl text-blue">Profession License</strong>
+        <button
+          onClick={() => window.open(`http://localhost:8089/uploads/${userData.professionLicenseFilePath}`, "_blank", "noopener,noreferrer")}
+          className="w-1/5 px-4 py-2 bg-red text-white font-semibold rounded-md hover:bg-blue transition"
         >
           Open
-        </a>
+        </button>
       </li>
     )}
     {userData.syndicateCardFilePath && (
-      <li>
-        <strong>Syndicate Card:</strong> 
-        <a 
-          href={`http://localhost:8089/uploads/${userData.syndicateCardFilePath}`} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="text-red-500 underline"
+      <li className="flex justify-between items-center mb-4">
+        <strong className="text-xl text-blue">Syndicate Card</strong>
+        <button
+          onClick={() => window.open(`http://localhost:8089/uploads/${userData.syndicateCardFilePath}`, "_blank", "noopener,noreferrer")}
+          className="w-1/5 px-4 py-2 bg-red text-white font-semibold rounded-md hover:bg-blue transition"
         >
           Open
-        </a>
+        </button>
       </li>
     )}
     {userData.commercialRegisterFilePath && (
-      <li>
-        <strong>Commercial Register:</strong> 
-        <a 
-          href={`http://localhost:8089/uploads/${userData.commercialRegisterFilePath}`} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="text-red-500 underline"
+      <li className="flex justify-between items-center mb-4">
+        <strong className="text-xl text-blue">Commercial Register</strong>
+        <button
+          onClick={() => window.open(`http://localhost:8089/uploads/${userData.commercialRegisterFilePath}`, "_blank", "noopener,noreferrer")}
+          className="w-1/5 px-4 py-2 bg-red text-white font-semibold rounded-md hover:bg-blue transition"
         >
           Open
-        </a>
+        </button>
       </li>
     )}
     {userData.taxCardFilePath && (
-      <li>
-        <strong>Tax Card:</strong> 
-        <a 
-          href={`http://localhost:8089/uploads/${userData.taxCardFilePath}`} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="text-red-500 underline"
+      <li className="flex justify-between items-center mb-4">
+        <strong className="text-xl text-blue">Tax Card</strong>
+        <button
+          onClick={() => window.open(`http://localhost:8089/uploads/${userData.taxCardFilePath}`, "_blank", "noopener,noreferrer")}
+          className="w-1/5 px-4 py-2 bg-red text-white font-semibold rounded-md hover:bg-blue transition"
         >
           Open
-        </a>
+        </button>
       </li>
     )}
   </ul>
 </div>
+<br/>
+<hr/>
 {/* Enhanced Badges Section */}
 
 <div className="mt-8">
-  <h3 className="text-2xl font-bold text-blue mb-6">Learning Achievements</h3>
+  <h3 className="text-2xl font-bold text-red mb-6">Learning Achievements</h3>
   
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
     {/* Main Badge Card */}
@@ -343,7 +336,7 @@ const MyProfile = () => {
 
     {/* Progress Visualization */}
     <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-      <h5 className="text-lg font-semibold text-blue mb-4">Tier Progress</h5>
+      <h5 className="text-xl font-bold text-blue mb-4">Tier Progress</h5>
       <div className="flex items-center gap-4">
         <div className="relative w-20 h-20">
           <svg className="w-full h-full" viewBox="0 0 100 100">
@@ -399,7 +392,7 @@ const MyProfile = () => {
 
   {/* Milestones */}
   <div className="mt-6">
-    <h5 className="text-lg font-semibold text-blue mb-4">Tier Milestones</h5>
+    <h5 className="text-xl font-bold text-blue mb-4">Tier Milestones</h5>
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {[
         { count: 1, tier: 'Bronze', color: 'amber-700' },

@@ -38,15 +38,16 @@ const Report = () => {
   };
 
   const chartData = [
-    { name: "Overall", rating: averageRatings.overall },
-    { name: "Ease of Use", rating: averageRatings.easeOfUse },
-    { name: "Content Quality", rating: averageRatings.contentQuality },
-    { name: "Support", rating: averageRatings.support },
+    { name: "التقييم العام", rating: averageRatings.overall },
+    { name: "سهولة الاستخدام", rating: averageRatings.easeOfUse },
+    { name: "جودة المحتوى", rating: averageRatings.contentQuality },
+    { name: "رضا الدعم الفني", rating: averageRatings.support },
   ];
+  
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">User Feedback Report</h1>
+    <div className="p-6 space-y-6" dir="rtl">
+      <h1 className="text-2xl font-bold text-red">تقرير ملاحظات المستخدمين</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {Object.keys(averageRatings).map((key) => (
@@ -70,30 +71,30 @@ const Report = () => {
 
       <div className="card">
         <div className="card-header flex justify-between">
-          <p className="card-title">Average Ratings Chart</p>
+          <p className="  text-blue font-semibold text-xl">مخطط التقييمات المتوسطة</p>
         </div>
         <div className="card-body p-0">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData}>
-              <XAxis dataKey="name" />
-              <YAxis domain={[0, 5]} />
-              <Tooltip />
-              <Bar dataKey="rating" fill="#4F46E5" barSize={40} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={chartData}>
+            <XAxis dataKey="name"/>
+            <YAxis domain={[0, 5]} orientation="right" />
+            <Tooltip />
+            <Bar dataKey="rating" fill="#4F46E5" barSize={40} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
       </div>
 
       <div className="card">
         <div className="card-header flex justify-between">
-          <p className="card-title">User Comments</p>
+          <p className="text-blue font-semibold text-xl">تعليقات المستخدمين</p>
         </div>
         <div className="card-body h-[300px] overflow-auto p-0">
           {feedbacks.map((feedback, index) => (
             <div key={index} className="flex items-center justify-between gap-x-4 py-2 pl-2">
-              <p className="font-medium text-slate-900 dark:text-slate-50">{feedback.userName}</p>
-              <p className="text-gray-600 dark:text-gray-300">{feedback.comments}</p>
-              <FaCommentDots size={20} className="text-blue-500" />
+              <p className="font-medium text-red dark:text-slate-50">{feedback.userName}</p>
+              <p className="text-blue dark:text-gray-300">{feedback.comments}</p>
+              <FaCommentDots size={20} className="text-blue" />
             </div>
           ))}
         </div>

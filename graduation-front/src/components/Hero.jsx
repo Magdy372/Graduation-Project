@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 // Import images directly
 import Navbar from './Navbar';
 import OSRA from '../assets/images/OSRA.jpg';
+import { useNavigate } from "react-router-dom";
 
 // Define motion variants
 export const FadeUp = (delay) => {
@@ -27,6 +28,10 @@ export const FadeUp = (delay) => {
 };
 
 const Hero = () => {
+
+  const navigate = useNavigate();
+
+
   return (
     <section className="bg-light overflow-hidden relative">
       <Navbar />
@@ -56,7 +61,9 @@ const Hero = () => {
               initial="initial"
               animate="animate"
               className="flex justify-center md:justify-start">
-              <button className="primary-btn flex items-center gap-2 group hover:shadow-lg transition-transform duration-300">
+              <button 
+              onClick={() => navigate("/register")}
+              className="primary-btn flex items-center gap-2 group hover:shadow-lg transition-transform duration-300">
                 Get Started
                 <IoIosArrowForward className="text-xl group-hover:translate-x-2 group-hover:-rotate-45 duration-300" />
               </button>
