@@ -28,7 +28,7 @@ import AddQuiz from './pages/AddQuiz';
 import AddQuestions from './pages/AddQuestion';
 import Feedback from './pages/Feedback';
 import Report from './pages/Report';
-
+import Chatbot from "./pages/chatbot";
 
 
 
@@ -49,6 +49,7 @@ const App = () => {
                 <Banner />
                 <Sponsers />
                 <Footer />
+                <Chatbot/>
               </>
             }
           />
