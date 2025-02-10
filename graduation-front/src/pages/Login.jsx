@@ -61,7 +61,7 @@ const Login = () => {
         // Redirect based on role
         const decodedToken = jwtDecode(data.accessToken);
         if (decodedToken.roles.includes("Admin")) {
-          window.location.replace("/layout/Doctors");
+          window.location.replace("/layout/ViewCourses");
         } else {
           window.location.replace("/");
         }
