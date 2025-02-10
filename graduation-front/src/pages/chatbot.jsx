@@ -56,23 +56,19 @@ const Chatbot = () => {
 
       {isOpen && (
         <div className="fixed bottom-32 right-4 w-96 h-[450px] bg-white rounded-lg shadow-lg border border-gray-200 p-6 flex flex-col space-y-4">
-          <div
-            className="flex-1 overflow-y-auto space-y-4"
-            ref={chatContainerRef}
-          >
+          <div className="flex-1 overflow-y-auto space-y-4" ref={chatContainerRef}>
             {messages.map((msg, index) => (
               <div
-              key={index}
-              className={`relative p-3 max-w-xs w-fit text-black text-lg ${
-                msg.sender === "user"
-                  ? "bg-blue rounded-2xl text-left ml-auto shadow-lg"
-                  : "bg-gray-200 text-gray-900 rounded-2xl text-left mr-auto shadow-md"
-              }`}
-              style={{ borderRadius: "20px 20px 20px 5px", padding: "12px 18px" }} // Adjusting for rounded effect
-            >
-              {msg.text}
-            </div>
-            
+                key={index}
+                className={`relative p-3 max-w-xs w-fit text-lg shadow-lg ${
+                  msg.sender === "user"
+                    ? "bg-blue text-white rounded-2xl text-left ml-auto"
+                    : "bg-gray-200 text-gray-900 rounded-2xl text-left mr-auto"
+                }`}
+                style={{ borderRadius: "20px 20px 20px 5px", padding: "12px 18px" }}
+              >
+                {msg.text}
+              </div>
             ))}
 
             {isTyping && (
@@ -88,7 +84,7 @@ const Chatbot = () => {
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               placeholder="Type a message..."
-              className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue transition-all duration-200"
+              className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue transition-all duration-200 text-black"
             />
             <button
               onClick={sendMessage}

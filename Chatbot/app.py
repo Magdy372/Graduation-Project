@@ -99,14 +99,19 @@ def get_response_nn(return_list, intents_json, user_input):
     
     if len(return_list) == 0:
         return googleSearch(user_input)  # Ensure this is correctly called!
-    
+
     tag = return_list[0]['intent']
     
+    # If the highest intent is a greeting, but the input is a full question, search online
+    if tag in ["greeting", "hello", "hi"] and len(user_input.split()) > 2:
+        return googleSearch(user_input)
+
     for i in intents_json['intents']:
         if tag == i['tag']:
             return random.choice(i['responses'])
     
     return googleSearch(user_input)  # Fallback if no intent matches
+
 
 
 def jaccard_similarity(set1, set2):
