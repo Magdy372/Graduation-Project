@@ -44,11 +44,11 @@ export const navbarLinks = [
                 icon: FaUserDoctor,
                 path: "/layout/Doctors",
             },
-            {
-                label: "الصيادلة",
-                icon: MdLocalPharmacy,
-                path: "/layout/Pharmacists",
-            },
+            // {
+            //     label: "الصيادلة",
+            //     icon: MdLocalPharmacy,
+            //     path: "/layout/Pharmacists",
+            // },
             
         ],
     },
@@ -74,7 +74,7 @@ export const navbarLinks = [
             {
                 label: "تسجيل الخروج",
                 icon: LogOut,
-                path: "/layout/settings",
+                path: "/login",
             },
         ],
     },

@@ -240,30 +240,21 @@ const AddVideo = () => {
             {errors.videoTitle && (
               <p className="text-red text-sm mt-1">{errors.videoTitle}</p>
             )}
- <div className="flex items-center justify-end space-x-4">
-      {/* Display Chosen File Name */}
-      {videoFile && <span className="text-gray-700">{videoFile}</span>}
-
-      {/* Custom File Input Button */}
-      <label className="cursor-pointer bg-blue text-white px-4 py-2 rounded-md shadow-md hover:bg-red-500 transition text-center w-[200px] hover:bg-red">
-        اختر الفيديو
-        <input type="file" hidden onChange={handleFileChange} />
-      </label>
-    </div>
+  <input type="file" className="p-2 border rounded-md" onChange={(e) => setVideoFile(e.target.files[0])} />
 
 
             {errors.videoFile && (
               <p className="text-red-500 text-sm mt-1">{errors.videoFile}</p>
             )}
-            <button
-                className={`p-3 rounded-md flex items-center justify-center gap-2 ${
-                  isUploading ? "bg-gray cursor-not-allowed" : "bg-red hover:bg-blue text-white"
-                }`}
-                onClick={handleVideoUpload}
-                disabled={isUploading}
-              >
-                {isUploading ? "Uploading..." : <>إضافة الفيديو</>}
-              </button>
+               <button
+              className={`p-3 rounded-md flex items-center gap-2 ${
+                isUploading ? "bg-gray-400 cursor-not-allowed" : "p-3 bg-green-500 text-white rounded-md flex items-center gap-2"
+              }`}
+              onClick={handleVideoUpload}
+              disabled={isUploading}
+            >
+              {isUploading ? "Uploading..." : <><FaPlus /> Submit Video</>}
+            </button>
 
           </div>
         </div>
@@ -283,7 +274,7 @@ const AddVideo = () => {
                 chapter.videos.map((video) => (
                   <div key={video.id} className="flex items-center justify-between p-2 border rounded-md mt-2 bg-gray-100">
                     <button className="text-red flex items-center gap-2" onClick={() => handleDeleteVideo(video.id)}>
-                      <FaTrash /> ازالو الفيديو
+                      <FaTrash /> ازالة الفيديو
                     </button>
                     <span>{video.title}</span>
                   </div>
