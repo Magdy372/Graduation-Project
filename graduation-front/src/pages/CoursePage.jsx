@@ -155,6 +155,8 @@ const CoursePage = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     //navigate('/');
+    if(score >= 50 )
+      navigate('/feedback');
   };
 
   // Add this useEffect for fetching quizzes and questions

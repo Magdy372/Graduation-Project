@@ -129,7 +129,7 @@ const Register = () => {
 
   const handleCloseModal = () => {
     setShowModal(false);
-    navigate("/");
+    navigate("/login");
   };
 
   const handleFileChange = (e) => {
