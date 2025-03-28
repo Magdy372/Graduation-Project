@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { FaPlus, FaTrash } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { validateVideoForm, validateChapterForm } from "../utils/courseValidationUtils";
 
 const AddVideo = () => {
   const location = useLocation();
@@ -51,11 +52,9 @@ const AddVideo = () => {
 
   // Add a new chapter
   const handleAddChapter = async () => {
-    if (!newChapterTitle) {
-      setErrors((prev) => ({
-        ...prev,
-        chapterTitle: "عنوان الفصل مطلوب",
-      }));
+    const chapterErrors = validateChapterForm(newChapterTitle);
+    if (Object.keys(chapterErrors).length > 0) {
+      setErrors(prev => ({ ...prev, ...chapterErrors }));
       return;
     }
 
@@ -71,10 +70,7 @@ const AddVideo = () => {
 
       setChapters([...chapters, data]);
       setNewChapterTitle("");
-      setErrors((prev) => ({
-        ...prev,
-        chapterTitle: "",
-      }));
+      setErrors(prev => ({ ...prev, chapterTitle: "" }));
     } catch (error) {
       console.error("Error adding chapter:", error);
     }
@@ -94,35 +90,19 @@ const AddVideo = () => {
 
   // Upload a video
   const handleVideoUpload = async () => {
-    let isValid = true;
+    const videoData = {
+      title: newVideoTitle,
+      chapterId: selectedChapter,
+      file: videoFile
+    };
 
-    if (!newVideoTitle) {
-      setErrors((prev) => ({
-        ...prev,
-        videoTitle: "عنوان الفيديو مطلوب",
-      }));
-      isValid = false;
+    const validationErrors = validateVideoForm(videoData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
 
-    if (!selectedChapter) {
-      setErrors((prev) => ({
-        ...prev,
-        chapterSelection: "يجب اختيار الفصل",
-      }));
-      isValid = false;
-    }
-
-    if (!videoFile) {
-      setErrors((prev) => ({
-        ...prev,
-        videoFile: "ملف الفيديو مطلوب",
-      }));
-      isValid = false;
-    }
-
-    if (!isValid) return;
-
-    setIsUploading(true); // Show loading indicator
+    setIsUploading(true);
 
     const formData = new FormData();
     formData.append("file", videoFile);
@@ -143,12 +123,12 @@ const AddVideo = () => {
       // Reset fields
       setVideoFile(null);
       setNewVideoTitle("");
-      setErrors((prev) => ({
-        ...prev,
+      setErrors({
+        chapterTitle: "",
         videoTitle: "",
         videoFile: "",
         chapterSelection: "",
-      }));
+      });
 
       // Fetch updated chapters after a successful video upload
       await fetchChapters();
@@ -159,7 +139,7 @@ const AddVideo = () => {
       console.error("Error uploading video:", error);
       alert("فشل رفع الفيديو. حاول مرة أخرى.");
     } finally {
-      setIsUploading(false); // Hide loading indicator
+      setIsUploading(false);
     }
   };
 

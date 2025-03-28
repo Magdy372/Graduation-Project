@@ -3,6 +3,7 @@ import Footer from "../components/Footer";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { jwtDecode } from "jwt-decode";
+import { validateLoginForm } from "../utils/validationUtils";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -14,32 +15,26 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Reset previous error
-    setEmailError(""); // Reset email error
-    setPasswordError(""); // Reset password error
+    setError("");
+    setEmailError("");
+    setPasswordError("");
     setIsLoading(true);
 
-    // Validate email and password
-    let hasError = false;
-    if (!email.trim()) {
-      setEmailError("Email is required");
-      hasError = true;
-    }
-    if (!password.trim()) {
-      setPasswordError("Password is required");
-      hasError = true;
-    }
-
-    if (hasError) {
+    // Validate form before making API call
+    const validationErrors = validateLoginForm(email, password);
+    
+    if (validationErrors.email || validationErrors.password) {
+      setEmailError(validationErrors.email);
+      setPasswordError(validationErrors.password);
       setIsLoading(false);
-      return; // Prevent submission if there are validation errors
+      return;
     }
-
+  
     const payload = {
       email: email.trim(),
       password: password.trim(),
     };
-
+  
     try {
       const response = await fetch("http://localhost:8089/api/v1/auth/authenticate", {
         method: "POST",
@@ -49,16 +44,15 @@ const Login = () => {
         },
         body: JSON.stringify(payload),
       });
-
-      const data = await response.json(); // Parse the JSON response
-
+  
+      const data = await response.json();
+  
       if (response.ok) {
-        // Store tokens if successful
+        // Handle successful login
         localStorage.setItem("access_token", data.accessToken);
         localStorage.setItem("refresh_token", data.refreshToken);
         localStorage.setItem("isAuthenticated", "true");
-
-        // Redirect based on role
+  
         const decodedToken = jwtDecode(data.accessToken);
         if (decodedToken.roles.includes("Admin")) {
           window.location.replace("/layout/ViewCourses");
@@ -66,12 +60,9 @@ const Login = () => {
           window.location.replace("/");
         }
       } else {
-        // Handle specific error messages from the server
-        if (data.message) {
-          setError(data.message);
-        } else {
-          setError("Your account is under review. Please wait for approval.");
-        }
+        if (data.email) setEmailError(data.email);
+        if (data.password) setPasswordError(data.password);
+        if (data.message) setError(data.message);
       }
     } catch (err) {
       console.error("Login error:", err);
@@ -92,7 +83,7 @@ const Login = () => {
           className="w-full max-w-md bg-light rounded-xl shadow-md p-8"
         >
           <h2 className="text-3xl font-bold text-red mb-6 text-center">Login</h2>
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit}>  
             {/* Email Input */}
             <div>
               <label htmlFor="email" className="text-m font-medium text-blue block mb-2">

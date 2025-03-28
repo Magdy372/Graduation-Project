@@ -4,6 +4,7 @@ import { TbHeartRateMonitor } from "react-icons/tb";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { FaFileAlt } from "react-icons/fa";
+import { validateCategoryForm } from "../utils/courseValidationUtils";
 
 
 const ViewCourses = () => {
@@ -108,8 +109,9 @@ const ViewCourses = () => {
     const [errorMessage, setErrorMessage] = useState("");
 
     const addCategory = () => {
-      if (newCategory.trim() === "") {
-        setErrorMessage("يجب ادخال اسم الفئة");
+      const validationErrors = validateCategoryForm(newCategory);
+      if (Object.keys(validationErrors).length > 0) {
+        setErrorMessage(validationErrors.categoryName);
         return;
       }
       setErrorMessage(""); // Clear error if valid

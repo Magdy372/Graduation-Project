@@ -3,11 +3,17 @@ import MOH from "../assets/logos/MOH Logo.png";
 import { cn } from "../utils/cn";
 import PropTypes from "prop-types";
 import { navbarLinks } from "../constants";
-import { NavLink } from "react-router-dom";
-
-
+import { NavLink, useNavigate } from "react-router-dom";
+import { logout } from "../utils/tokenutills";
 
 export const Sidebar = forwardRef(({ collapsed }, ref) => {
+    const navigate = useNavigate();
+
+    const handleLogout = (e) => {
+        e.preventDefault();
+        logout();
+    };
+
     return (
         <aside
             ref={ref}
@@ -45,10 +51,14 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
                             <NavLink
                                 key={link.label}
                                 to={link.path}
-                                className={cn(
-                                    "sidebar-item flex flex-row-reverse items-center justify-end gap-x-2",
-                                    collapsed && "md:w-[45px]"
-                                )}
+                                onClick={link.path === "/logout" ? handleLogout : undefined}
+                                className={({ isActive }) =>
+                                    cn(
+                                        "sidebar-item flex flex-row-reverse items-center justify-end gap-x-2",
+                                        isActive ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50" : "",
+                                        collapsed && "md:w-[45px]"
+                                    )
+                                }
                             >
                                 {/* Move the label to the left of the icon in RTL */}
                                 {!collapsed && (

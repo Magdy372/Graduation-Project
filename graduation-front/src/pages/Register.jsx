@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Footer from "../components/Footer";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
 import Navbar from "../components/Navbar";
+import { validateRegisterEmail } from "../utils/validationUtils";
+import debounce from 'lodash/debounce';
 
 // Define motion variants
 export const FadeUp = (delay) => {
@@ -38,7 +40,29 @@ const Register = () => {
   });
 
   const [formErrors, setFormErrors] = useState({});
-  const [emailError, setEmailError] = useState(""); // State for email validation
+  const [emailError, setEmailError] = useState("");
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+
+  // Debounced email validation function
+  const debouncedEmailCheck = useCallback(
+    debounce(async (email) => {
+      if (!email) {
+        setEmailError("Email is required");
+        return;
+      }
+
+      setIsCheckingEmail(true);
+      const result = await validateRegisterEmail(email);
+      setEmailError(result.message);
+      setIsCheckingEmail(false);
+    }, 500),
+    []
+  );
+
+  const handleEmailChange = (e) => {
+    const email = e.target.value;
+    debouncedEmailCheck(email);
+  };
 
   const getFriendlyErrorMessage = (field, defaultMessage) => {
     if (defaultMessage.includes("Failed to convert property value")) {
@@ -53,29 +77,6 @@ const Register = () => {
     }
     return defaultMessage;
   };
-
-  const checkEmailExists = async (email) => {
-    try {
-      const response = await fetch(`http://localhost:8084/users/check-email?email=${email}`);
-      if (!response.ok) {
-        throw new Error("Failed to check email availability");
-      }
-      
-      const data = await response.json();
-      console.log("Email check response:", data); // Debug response
-  
-      if (data.exists) {
-        alert("This email is already registered. Please use a different email.");
-      }
-    } catch (error) {
-      console.error("Error checking email:", error);
-    }
-  };
-  
-  // Attach to the email input field
- 
-  
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -197,14 +198,21 @@ const Register = () => {
                   id="email"
                   name="email"
                   type="email"
-                 onBlur={(e) => checkEmailExists(e.target.value)}
-                  className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
+                  onChange={handleEmailChange}
+                  className={`bg-white-300 text-red border-b-2 ${
+                    emailError ? 'border-red-500' : 'border-gray-300'
+                  } rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none`}
+                  disabled={isCheckingEmail}
                 />
-                {formErrors.email && (
-                  <span className="text-red text-sm">{formErrors.email}</span>
-                
+                {isCheckingEmail && (
+                  <span className="text-sm text-gray-500">Checking email availability...</span>
                 )}
-                  {emailError && <p style={{ color: "red" }}>{emailError}</p>}
+                {emailError && (
+                  <span className="text-sm text-red">{emailError}</span>
+                )}
+                {formErrors.email && (
+                  <span className="text-sm text-red">{formErrors.email}</span>
+                )}
               </div>
 
               <div className="flex-1">
@@ -252,76 +260,70 @@ const Register = () => {
               </div>
             </div>
 
+            {/* title and governate */}
+            <div className="flex space-x-4 mb-4">
+              <div className="flex-1">
+                <label htmlFor="title" className="text-m font-medium text-blue mb-2 block">
+                  Title
+                </label>
+                <select
+                  id="title"
+                  name="title"
+                  type="text"
+                  className="bg-white-300 text-gray-400 border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
+                >
+                  <option className="text-gray-400" value="">Your title</option>
+                  {/* Add your options here */}
+                  <option className="text-gray-400" value="دكتور">Doctor</option>
+                  <option className="text-gray-400" value="صيدلي">Pharmacist</option>
+                </select>
+                {formErrors.title && (
+                  <span className="text-red text-sm">{formErrors.title}</span>
+                )}
+              </div>
 
-                  {/* title and governate */}
-                  <div className="flex space-x-4 mb-4">
-  <div className="flex-1">
-    <label htmlFor="title" className="text-m font-medium text-blue mb-2 block">
-      Title
-    </label>
-    <select
-      id="title"
-      name="title"
-      type="text"
-      className="bg-white-300 text-gray-400 border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
-    >
-      <option className="text-gray-400" value="">Your title</option>
-      {/* Add your options here */}
-      <option className="text-gray-400" value="دكتور">Doctor</option>
-      <option className="text-gray-400" value="صيدلي">Pharmacist</option>
-    </select>
-    {formErrors.title && (
-      <span className="text-red text-sm">{formErrors.title}</span>
-    )}
-  </div>
-
-  <div className="flex-1">
-    <label htmlFor="governorate" className="text-m font-medium text-blue mb-2 block">
-      Governorate
-    </label>
-    <select
-      id="governorate"
-      name="governate"
-      className="bg-white-300 text-gray-400 border-b-2 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
-    >
-      <option value="">Choose Governorate</option>
-      <option value="الإسكندرية">Alexandria</option>
-<option value="أسوان">Aswan</option>
-<option value="أسيوط">Asyot</option>
-<option value="البحيرة">Al-Behera</option>
-<option value="بني سويف">Bani-Suef</option>
-<option value="القاهرة">Cairo</option>
-<option value="الدقهلية">Al-Dakahlia</option>
-<option value="دمياط">Demietta</option>
-<option value="الفيوم">Al-Fayoum</option>
-<option value="الجيزة">Al-Giza</option>
-<option value="الإسماعيلية">Al-Ismalia</option>
-<option value="كفر الشيخ">Kafr-Al-Sheikh</option>
-<option value="الأقصر">Luxor</option>
-<option value="مطروح">Matrouh</option>
-<option value="المنيا">AlMenia</option>
-<option value="المنوفية">AlMonofya</option>
-<option value="الوادي الجديد">New Village</option>
-<option value="شمال سيناء">North Sinai</option>
-<option value="بورسعيد">Port Saied</option>
-<option value="القليوبية">AlQalyoubia</option>
-<option value="قنا">Qena</option>
-<option value="البحر الأحمر">Red Sea</option>
-<option value="الشرقية">AlSharkia</option>
-<option value="سوهاج">Sohag</option>
-<option value="جنوب سيناء">South Sinai</option>
-<option value="السويس">AlSuez</option>
-
-
-
-    </select>
-    {formErrors.governorate && (
-      <span className="text-red text-sm">{formErrors.governorate}</span>
-    )}
-  </div>
-</div>
-
-
+              <div className="flex-1">
+                <label htmlFor="governorate" className="text-m font-medium text-blue mb-2 block">
+                  Governorate
+                </label>
+                <select
+                  id="governorate"
+                  name="governate"
+                  className="bg-white-300 text-gray-400 border-b-2 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
+                >
+                  <option value="">Choose Governorate</option>
+                  <option value="الإسكندرية">Alexandria</option>
+                  <option value="أسوان">Aswan</option>
+                  <option value="أسيوط">Asyot</option>
+                  <option value="البحيرة">Al-Behera</option>
+                  <option value="بني سويف">Bani-Suef</option>
+                  <option value="القاهرة">Cairo</option>
+                  <option value="الدقهلية">Al-Dakahlia</option>
+                  <option value="دمياط">Demietta</option>
+                  <option value="الفيوم">Al-Fayoum</option>
+                  <option value="الجيزة">Al-Giza</option>
+                  <option value="الإسماعيلية">Al-Ismalia</option>
+                  <option value="كفر الشيخ">Kafr-Al-Sheikh</option>
+                  <option value="الأقصر">Luxor</option>
+                  <option value="مطروح">Matrouh</option>
+                  <option value="المنيا">AlMenia</option>
+                  <option value="المنوفية">AlMonofya</option>
+                  <option value="الوادي الجديد">New Village</option>
+                  <option value="شمال سيناء">North Sinai</option>
+                  <option value="بورسعيد">Port Saied</option>
+                  <option value="القليوبية">AlQalyoubia</option>
+                  <option value="قنا">Qena</option>
+                  <option value="البحر الأحمر">Red Sea</option>
+                  <option value="الشرقية">AlSharkia</option>
+                  <option value="سوهاج">Sohag</option>
+                  <option value="جنوب سيناء">South Sinai</option>
+                  <option value="السويس">AlSuez</option>
+                </select>
+                {formErrors.governorate && (
+                  <span className="text-red text-sm">{formErrors.governorate}</span>
+                )}
+              </div>
+            </div>
 
             {/* File Uploads */}
             <div className="flex space-x-4 mb-4">

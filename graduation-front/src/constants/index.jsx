@@ -74,7 +74,7 @@ export const navbarLinks = [
             {
                 label: "تسجيل الخروج",
                 icon: LogOut,
-                path: "/login",
+                path: "/logout",
             },
         ],
     },

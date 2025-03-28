@@ -3,6 +3,7 @@ import { FaBook, FaPen, FaTrash } from "react-icons/fa";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { FaTh } from "react-icons/fa";
+import { validateCourseForm, validateChapterForm } from "../utils/courseValidationUtils";
 
 const UploadCourse = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,12 +37,7 @@ const UploadCourse = () => {
   }, []);
 
   const validateInputs = () => {
-    let newErrors = {};
-    if (!courseData.name.trim()) newErrors.name = "عنوان الدورة مطلوب";
-    if (!courseData.description.trim()) newErrors.description = "وصف الدورة مطلوب";
-    if (!courseData.categoryName) newErrors.categoryName = "يجب اختيار فئة";
-    if (!courseData.imageFile) newErrors.imageFile = "يرجى تحميل صورة للدورة";
-    if (chapters.length === 0) newErrors.chapters = "يجب إضافة فصل واحد على الأقل";
+    const newErrors = validateCourseForm(courseData, chapters);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -110,7 +106,12 @@ const UploadCourse = () => {
   };
 
   const handleAddChapter = (chapter) => {
-    setChapters([...chapters, chapter]);
+    const chapterErrors = validateChapterForm(chapter.title);
+    if (Object.keys(chapterErrors).length === 0) {
+      setChapters([...chapters, chapter]);
+    } else {
+      setErrors(prev => ({ ...prev, ...chapterErrors }));
+    }
   };
 
   const handleDeleteChapter = (index) => {

@@ -54,3 +54,13 @@ export const getRoleFromToken = (token) => {
     return decodedToken.roles; // Assuming the role is stored in the 'role' field of the JWT
   };
   
+export const logout = () => {
+  // Clear all authentication-related data from localStorage
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('isAuthenticated');
+  
+  // Redirect to login page
+  window.location.href = '/login';
+};
+  
