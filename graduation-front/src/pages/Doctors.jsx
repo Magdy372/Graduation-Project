@@ -30,17 +30,12 @@ const ViewUsers = () => {
 
   const fetchUsers = async (signal) => {
     try {
-      const response = await fetch("http://localhost:8089/users/view-all", { signal });
+      const response = await fetch("http://localhost:8089/users/unaccepted", { signal });
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
       const data = await response.json();
-      const updatedUsers = data.map((user) => {
-        const storedApproval = localStorage.getItem(`approved_${user.id}`);
-        return { ...user, approved: storedApproval === "true" };
-      });
-
-      setUsers(updatedUsers);
-      setFilteredUsers(updatedUsers);
+      setUsers(data);
+      setFilteredUsers(data);
     } catch (error) {
       if (error.name !== "AbortError") {
         console.error("Error fetching users:", error);
@@ -55,11 +50,10 @@ const ViewUsers = () => {
     setFilteredUsers(
       users.filter(
         (user) =>
-          user.firstname.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          !hiddenUsers[user.id] // Hide users marked as hidden
+          user.firstname.toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
-  }, [searchQuery, users, hiddenUsers]);
+  }, [searchQuery, users]);
 
   const handleAccept = async (userId) => {
     try {
@@ -70,9 +64,9 @@ const ViewUsers = () => {
 
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-      localStorage.setItem(`approved_${userId}`, "true");
-
-      setHiddenUsers((prev) => ({ ...prev, [userId]: true })); // Hide user instantly
+      // Remove the accepted user from the list
+      setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+      setFilteredUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
     } catch (error) {
       console.error("Error approving user:", error);
     }
@@ -108,13 +102,13 @@ const ViewUsers = () => {
 
   return (
     <div className="container mx-auto px-6 bg-white">
-      <h1 className="text-3xl text-red font-bold text-right mb-8">قائمة الدكاترة</h1>
+      <h1 className="text-3xl text-red font-bold text-right mb-8">قائمة  الاعتمادات</h1>
 
       <div className="flex justify-end">
         <div className="mb-8 w-[375px]">
           <input
             type="text"
-            placeholder="... بحث في الدكاترة"
+            placeholder="... بحث في الاعتمادات"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue text-right"
@@ -177,13 +171,15 @@ const ViewUsers = () => {
                   onClick={() => handleAccept(user.id)}
                   className="w-full px-4 py-2 text-white rounded-lg transition bg-blue hover:bg-red"
                 >
-                  قبول
+                  اعتماد
                 </button>
               </div>
             </motion.div>
           ))
         ) : (
-          <p className="text-xl text-center w-full">لا يوجد دكاترة</p>
+          <div className="col-span-full text-center py-8">
+            <p className="text-xl text-gray-600">لا يوجد دكاترة تحتاج إلى اعتماد</p>
+          </div>
         )}
       </div>
     </div>

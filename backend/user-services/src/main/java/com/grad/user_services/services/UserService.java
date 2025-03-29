@@ -90,6 +90,24 @@ public class UserService {
                 .map(this::mapToUserResponseDTO)
                 .collect(Collectors.toList());
     }
+
+    // Get Unaccepted Users
+    public List<UserResponseDTO> getUnacceptedUsers() {
+        return userRepository.findAll()
+                .stream()
+                .filter(user -> !user.isApproved())
+                .map(this::mapToUserResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Get Approved Users by Title
+    public List<UserResponseDTO> getApprovedUsersByTitle(String title) {
+        return userRepository.findAll()
+                .stream()
+                .filter(user -> user.isApproved() && user.getTitle().equals(title))
+                .map(this::mapToUserResponseDTO)
+                .collect(Collectors.toList());
+    }
     
     public List<Admin> getAllAdmins() {
         return adminRepository.findAll();

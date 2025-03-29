@@ -103,20 +103,17 @@ const CourseDesc = () => {
 
   const handleEnrollClick = async () => {
     try {
-      const token = localStorage.getItem('access_token');  // Ensure this matches your actual token key
+      const token = localStorage.getItem('access_token');
 
-        if (!token) {
-          navigate("/login"); // Redirect to login if no token
-          return;
-        }
+      if (!token) {
+        navigate("/login");
+        return;
+      }
 
-        // Decode the token to extract the userId
-        const decodedToken = jwtDecode(token);
-        const userId = decodedToken.userId;
+      const decodedToken = jwtDecode(token);
+      const userId = decodedToken.userId;
+      const courseId = course.id;
 
-      // Get course ID from your component's state or props
-      const courseId = course.id; // Replace with your actual course ID source
-  
       const response = await fetch('http://localhost:8084/enrollments/enroll', {
         method: 'POST',
         headers: {
@@ -124,17 +121,17 @@ const CourseDesc = () => {
         },
         body: `userId=${userId}&courseId=${courseId}`
       });
-  
+
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Enrollment failed');
+        throw new Error(data.error || 'Enrollment failed');
       }
-  
+
       // If enrollment successful, navigate to course page
       navigate("/MyCourses", { state: { courseId } });
     } catch (error) {
       console.error('Enrollment error:', error);
-      // Show error to user (you can use a toast or alert)
       alert(error.message);
     }
   };

@@ -183,9 +183,9 @@ const MyProfile = () => {
               <h1 className="text-4xl font-bold text-blue">
                 {userData.firstname} {userData.lastname}
               </h1>
-              <p className="text-red text-lg">
+              {/* <p className="text-red text-lg">
                 {userData.email} - <span className="text-red">{userData.profession || "Profession not set"}</span>
-              </p>
+              </p> */}
             </div>
           </div>
 

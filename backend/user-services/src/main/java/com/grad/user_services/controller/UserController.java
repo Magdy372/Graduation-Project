@@ -99,6 +99,19 @@ public ResponseEntity<User> addUser(@Valid @RequestBody User user, BindingResult
         return ResponseEntity.ok(users);
     }
 
+    // Get Unaccepted Users
+    @GetMapping("/unaccepted")
+    public ResponseEntity<List<UserResponseDTO>> getUnacceptedUsers() {
+        List<UserResponseDTO> users = userService.getUnacceptedUsers();
+        return ResponseEntity.ok(users);
+    }
+
+    // Get Approved Users by Title
+    @GetMapping("/approved/{title}")
+    public ResponseEntity<List<UserResponseDTO>> getApprovedUsersByTitle(@PathVariable String title) {
+        List<UserResponseDTO> users = userService.getApprovedUsersByTitle(title);
+        return ResponseEntity.ok(users);
+    }
    
     @PostMapping(value = "/with-documents", consumes = "multipart/form-data")
     public ResponseEntity<?> createUserWithDocuments(
