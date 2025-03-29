@@ -33,6 +33,8 @@ public class UserService {
     private FileStorageService fileStorageService;
     @Autowired
     private AdminRepository adminRepository;
+    @Autowired
+    private FileValidationService fileValidationService;
 
     public User saveUser(@Valid User user) {
         // Encrypt the password before saving
@@ -50,6 +52,9 @@ public class UserService {
     
     
     public User saveUserWithDocuments(@Valid @ModelAttribute UserWithDocumentsDTO userWithDocumentsDTO) {
+        // Validate all files
+        validateUserDocuments(userWithDocumentsDTO);
+
         // Save files and get their paths
         String licenseFilePath = fileStorageService.store(userWithDocumentsDTO.getLicenseFile());
         String professionLicenseFilePath = fileStorageService.store(userWithDocumentsDTO.getProfessionLicenseFile());
@@ -83,6 +88,15 @@ public class UserService {
         // Save User (UserDocument will be saved automatically due to CascadeType.ALL)
         return userRepository.save(user);
     }
+
+    private void validateUserDocuments(UserWithDocumentsDTO userWithDocumentsDTO) {
+        fileValidationService.validateFile(userWithDocumentsDTO.getLicenseFile(), "License");
+        fileValidationService.validateFile(userWithDocumentsDTO.getProfessionLicenseFile(), "Profession License");
+        fileValidationService.validateFile(userWithDocumentsDTO.getSyndicateCardFile(), "Syndicate Card");
+        fileValidationService.validateFile(userWithDocumentsDTO.getCommercialRegisterFile(), "Commercial Register");
+        fileValidationService.validateFile(userWithDocumentsDTO.getTaxCardFile(), "Tax Card");
+    }
+
     // Get All Users
     public List<UserResponseDTO> getAllUsers() {
         return userRepository.findAll()
@@ -90,7 +104,25 @@ public class UserService {
                 .map(this::mapToUserResponseDTO)
                 .collect(Collectors.toList());
     }
-    
+
+    // Get Unaccepted Users
+    public List<UserResponseDTO> getUnacceptedUsers() {
+        return userRepository.findAll()
+                .stream()
+                .filter(user -> !user.isApproved())
+                .map(this::mapToUserResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Get Approved Users by Title
+    public List<UserResponseDTO> getApprovedUsersByTitle(String title) {
+        return userRepository.findAll()
+                .stream()
+                .filter(user -> user.isApproved() && user.getTitle().equals(title))
+                .map(this::mapToUserResponseDTO)
+                .collect(Collectors.toList());
+    }
+    //Get All Admins
     public List<Admin> getAllAdmins() {
         return adminRepository.findAll();
     }
@@ -116,6 +148,7 @@ public class UserService {
         
             return userResponseDTO;
         }
+        // Update User
         
     public UserResponseDTO updateUser(Long id, UserDTO userDTO) {
         User user = userRepository.findById(id).orElse(null);
@@ -132,7 +165,7 @@ public class UserService {
         return null;
     }
 
-
+// Approve User
     public boolean approveUser(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
         
@@ -148,6 +181,7 @@ public class UserService {
         return false;
     }
 
+    // This method retrieves a user by their email address
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }

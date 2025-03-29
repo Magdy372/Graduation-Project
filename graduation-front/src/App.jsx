@@ -29,6 +29,8 @@ import AddQuestions from './pages/AddQuestion';
 import Feedback from './pages/Feedback';
 import Report from './pages/Report';
 import Chatbot from "./pages/chatbot";
+import ApprovedDoctors from "./pages/ApprovedDoctors";
+import ApprovedPharmacists from "./pages/ApprovedPharmacists";
 
 
 
@@ -106,6 +108,26 @@ const App = () => {
               element={
                 <ProtectedRoute
                   element={<Doctors />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="ApprovedDoctors"
+              element={
+                <ProtectedRoute
+                  element={<ApprovedDoctors />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="ApprovedPharmacists"
+              element={
+                <ProtectedRoute
+                  element={<ApprovedPharmacists />}
                   requiredRole="Admin"
                   redirectTo="/login"
                 />

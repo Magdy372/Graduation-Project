@@ -40,16 +40,20 @@ export const navbarLinks = [
         //title: "المستخدمين",
         links: [
             {
-                label: "الأطباء",
+                label: "الاعتمادات",
                 icon: FaUserDoctor,
                 path: "/layout/Doctors",
             },
-            // {
-            //     label: "الصيادلة",
-            //     icon: MdLocalPharmacy,
-            //     path: "/layout/Pharmacists",
-            // },
-            
+            {
+                label: "الأطباء المعتمدين",
+                icon: FaUserDoctor,
+                path: "/layout/ApprovedDoctors",
+            },
+            {
+                label: "الصيادلة المعتمدين",
+                icon: MdLocalPharmacy,
+                path: "/layout/ApprovedPharmacists",
+            },
         ],
     },
     {

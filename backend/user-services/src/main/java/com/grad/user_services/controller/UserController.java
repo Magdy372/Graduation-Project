@@ -30,27 +30,34 @@ import com.grad.user_services.model.BaseAccount;
 import com.grad.user_services.model.User;
 import com.grad.user_services.services.UserService;
 
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
+    private final UserRepository userRepository;
+
+    // Constructor injection for UserRepository
+public UserController(UserRepository userRepository) {
+    this.userRepository = userRepository;
+}
 
 
    // Get User by ID
-
+   // It returns a UserResponseDTO object if the user is found, otherwise it returns a 404 Not Found status
    @GetMapping("/{id}")
    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
    
        if (authentication == null) {
-           System.out.println("❌ Authentication is NULL! Check JWT Filter.");
+           System.out.println(" Authentication is NULL! Check JWT Filter.");
            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
        }
    
-       System.out.println("✅ User Authenticated: " + authentication.getName());
-       System.out.println("✅ User Authorities: " + authentication.getAuthorities()
+       System.out.println(" User Authenticated: " + authentication.getName());
+       System.out.println(" User Authorities: " + authentication.getAuthorities()
                .stream().map(GrantedAuthority::getAuthority).toList());
    
        UserResponseDTO userResponseDTO = userService.getUserById(id);
@@ -58,25 +65,30 @@ public class UserController {
            ? ResponseEntity.ok(userResponseDTO) 
            : ResponseEntity.notFound().build();
    }
+
+   //Register user
+   // It accepts a User object in the request body and returns the created user
    
-  @PostMapping("/add")
-public ResponseEntity<User> addUser(@Valid @RequestBody User user, BindingResult bindingResult) {
-    if (bindingResult.hasErrors()) {
-        // Print validation errors
-        bindingResult.getAllErrors().forEach(error -> System.out.println(error.getDefaultMessage()));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-    }
+//   @PostMapping("/add")
+// public ResponseEntity<User> addUser(@Valid @RequestBody User user, BindingResult bindingResult) {
+//     if (bindingResult.hasErrors()) {
+//         // Print validation errors
+//         bindingResult.getAllErrors().forEach(error -> System.out.println(error.getDefaultMessage()));
+//         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+//     }
 
-    try {
-        User savedUser = userService.saveUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
-    } catch (Exception ex) {
-        ex.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    }
+//     try {
+//         User savedUser = userService.saveUser(user);
+//         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+//     } catch (Exception ex) {
+//         ex.printStackTrace();
+//         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+//     }
     
-}
+// }
 
+    // Update User
+    // It accepts a user ID in the URL and a UserDTO object in the request body
    @PutMapping("/{userId}")
     public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long userId, @Valid @RequestBody UserDTO userDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -93,19 +105,39 @@ public ResponseEntity<User> addUser(@Valid @RequestBody User user, BindingResult
 
 
      // Get All Users
+    // It returns a list of UserResponseDTO objects
     @GetMapping("/view-all")
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         List<UserResponseDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
+    // Get Unaccepted Users
+    // It returns a list of UserResponseDTO objects
+    @GetMapping("/unaccepted")
+    public ResponseEntity<List<UserResponseDTO>> getUnacceptedUsers() {
+        List<UserResponseDTO> users = userService.getUnacceptedUsers();
+        return ResponseEntity.ok(users);
+    }
+
+    // Get Approved Users by Title
+    // It accepts a title as a path variable and returns a list of UserResponseDTO objects
+    @GetMapping("/approved/{title}")
+    public ResponseEntity<List<UserResponseDTO>> getApprovedUsersByTitle(@PathVariable String title) {
+        List<UserResponseDTO> users = userService.getApprovedUsersByTitle(title);
+        return ResponseEntity.ok(users);
+    }
    
+
+    // It accepts a UserWithDocumentsDTO object in the request body and returns the created user
+    // It handles file uploads for the documents
     @PostMapping(value = "/with-documents", consumes = "multipart/form-data")
     public ResponseEntity<?> createUserWithDocuments(
             @Valid @ModelAttribute UserWithDocumentsDTO userWithDocumentsDTO,
             BindingResult result) throws Exception {
 
         // Check for validation errors
+
      if (result.hasErrors()) {
     for (FieldError error : result.getFieldErrors()) {
         // Log or print each error's field and message
@@ -126,6 +158,9 @@ public ResponseEntity<User> addUser(@Valid @RequestBody User user, BindingResult
         }
     }
 
+    //Approve user
+    // It accepts a user ID in the URL and returns a success message if the user is approved
+
     @PutMapping("/{id}/approve")
 public ResponseEntity<?> approveUser(@PathVariable Long id) {
     boolean isApproved = userService.approveUser(id);
@@ -137,11 +172,9 @@ public ResponseEntity<?> approveUser(@PathVariable Long id) {
     return ResponseEntity.ok("User has been approved successfully.");
 }
 
-private final UserRepository userRepository;
 
-public UserController(UserRepository userRepository) {
-    this.userRepository = userRepository;
-}
+
+// Check if email exists in the database
 
 @GetMapping("/check-email")  // Ensure it's a GET request with a query parameter
 public ResponseEntity<Map<String, Boolean>> checkEmailExists(@RequestParam("email") String email) {
