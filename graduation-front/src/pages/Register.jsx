@@ -6,6 +6,7 @@ import Modal from "../components/Modal";
 import Navbar from "../components/Navbar";
 import { validateRegisterEmail } from "../utils/validationUtils";
 import debounce from 'lodash/debounce';
+import { validateFile } from '../utils/fileValidation';
 
 // Define motion variants
 export const FadeUp = (delay) => {
@@ -91,6 +92,32 @@ const Register = () => {
       return;
     }
 
+    // Validate all files before submission
+    const files = {
+      license: e.target.license.files[0],
+      practice: e.target.practice.files[0],
+      syndicate: e.target.syndicate.files[0],
+      commercial: e.target.commercial.files[0],
+      tax: e.target.tax.files[0]
+    };
+
+    let hasErrors = false;
+    const newErrors = {};
+
+    // Validate each file
+    Object.entries(files).forEach(([fieldName, file]) => {
+      const { isValid, error } = validateFile(file, fieldName);
+      if (!isValid) {
+        hasErrors = true;
+        newErrors[fieldName] = error;
+      }
+    });
+
+    if (hasErrors) {
+      setFormErrors(newErrors);
+      return;
+    }
+
     const formData = new FormData();
     formData.append("firstname", e.target.firstName.value);
     formData.append("lastname", e.target.lastName.value);
@@ -99,11 +126,11 @@ const Register = () => {
     formData.append("password", password);
     formData.append("title", e.target.title.value);
     formData.append("governorate", e.target.governate.value);
-    formData.append("licenseFile", e.target.license.files[0]);
-    formData.append("professionLicenseFile", e.target.practice.files[0]);
-    formData.append("syndicateCardFile", e.target.syndicate.files[0]);
-    formData.append("commercialRegisterFile", e.target.commercial.files[0]);
-    formData.append("taxCardFile", e.target.tax.files[0]);
+    formData.append("licenseFile", files.license);
+    formData.append("professionLicenseFile", files.practice);
+    formData.append("syndicateCardFile", files.syndicate);
+    formData.append("commercialRegisterFile", files.commercial);
+    formData.append("taxCardFile", files.tax);
 
     try {
       const response = await fetch("http://localhost:8084/users/with-documents", {
@@ -125,6 +152,7 @@ const Register = () => {
       setShowModal(true);
     } catch (error) {
       console.error("Error submitting form:", error);
+      setFormErrors({ submit: "An error occurred while submitting the form. Please try again." });
     }
   };
 
@@ -135,9 +163,35 @@ const Register = () => {
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    setFileNames((prev) => ({
+    const file = files[0];
+
+    // Validate file if one is selected
+    if (file) {
+      const { isValid, error } = validateFile(file, name);
+      if (!isValid) {
+        setFormErrors(prev => ({
+          ...prev,
+          [name]: error
+        }));
+        e.target.value = ''; // Clear the invalid file
+        setFileNames(prev => ({
+          ...prev,
+          [name]: "No file chosen"
+        }));
+        return;
+      } else {
+        // Clear any previous errors for this field
+        setFormErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors[name];
+          return newErrors;
+        });
+      }
+    }
+
+    setFileNames(prev => ({
       ...prev,
-      [name]: files[0] ? files[0].name : "No file chosen",
+      [name]: file ? file.name : "No file chosen"
     }));
   };
 
@@ -331,24 +385,24 @@ const Register = () => {
                 <label htmlFor="license" className="text-m font-medium text-blue mb-2 block">
                   Place License
                 </label>
-                <input
-                  id="license"
-                  name="license"
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-                <label
-                  htmlFor="license"
-                  className="text-sm bg-blue text-white text-center py-2 px-5 rounded-md cursor-pointer hover:bg-red transition duration-300 w-full"
-                >
-                  Upload File
-                </label>
-                <span className="text-sm text-gray-500 mt-2">{fileNames.license}</span>
-                <br/>
-
-                {formErrors.licenseFile && (
-                  <span className="text-red text-sm">{formErrors.licenseFile}</span>
+                <div className="flex items-center">
+                  <input
+                    type="file"
+                    id="license"
+                    name="license"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="license"
+                    className="bg-red text-white px-4 py-2 rounded cursor-pointer hover:bg-red-600"
+                  >
+                    Choose File
+                  </label>
+                  <span className="ml-3">{fileNames.license}</span>
+                </div>
+                {formErrors.license && (
+                  <span className="text-red text-sm mt-1 block">{formErrors.license}</span>
                 )}
               </div>
 
@@ -356,24 +410,24 @@ const Register = () => {
                 <label htmlFor="practice" className="text-m font-medium text-blue mb-2 block">
                   Profession practice license
                 </label>
-                <input
-                  id="practice"
-                  name="practice"
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-                <label
-                  htmlFor="practice"
-                  className="text-sm bg-blue text-white text-center py-2 px-5 rounded-md cursor-pointer hover:bg-red transition duration-300 w-full"
-                >
-                  Upload File
-                </label>
-                <span className="text-gray-500 mt-2">{fileNames.practice}</span>
-                <br/>
-
-                {formErrors.professionLicenseFile && (
-                  <span className="text-red text-sm">{formErrors.professionLicenseFile}</span>
+                <div className="flex items-center">
+                  <input
+                    type="file"
+                    id="practice"
+                    name="practice"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="practice"
+                    className="bg-red text-white px-4 py-2 rounded cursor-pointer hover:bg-red-600"
+                  >
+                    Choose File
+                  </label>
+                  <span className="ml-3">{fileNames.practice}</span>
+                </div>
+                {formErrors.practice && (
+                  <span className="text-red text-sm mt-1 block">{formErrors.practice}</span>
                 )}
               </div>
             </div>
@@ -383,24 +437,24 @@ const Register = () => {
                 <label htmlFor="syndicate" className="text-m font-medium text-blue mb-2 block">
                   Syndicate card
                 </label>
-                <input
-                  id="syndicate"
-                  name="syndicate"
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-                <label
-                  htmlFor="syndicate"
-                  className="text-sm bg-blue text-white text-center py-2 px-5 rounded-md cursor-pointer hover:bg-red transition duration-300 w-full"
-                >
-                  Upload File
-                </label>
-                <span className="text-gray-500 mt-2">{fileNames.syndicate}</span>
-                <br/>
-
+                <div className="flex items-center">
+                  <input
+                    type="file"
+                    id="syndicate"
+                    name="syndicate"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="syndicate"
+                    className="bg-red text-white px-4 py-2 rounded cursor-pointer hover:bg-red-600"
+                  >
+                    Choose File
+                  </label>
+                  <span className="ml-3">{fileNames.syndicate}</span>
+                </div>
                 {formErrors.syndicateCardFile && (
-                  <span className="text-red text-sm">{formErrors.syndicateCardFile}</span>
+                  <span className="text-red text-sm mt-1 block">{formErrors.syndicateCardFile}</span>
                 )}
               </div>
 
@@ -408,24 +462,24 @@ const Register = () => {
                 <label htmlFor="commercial" className="text-m font-medium text-blue mb-2 block">
                   Commercial register
                 </label>
-                <input
-                  id="commercial"
-                  name="commercial"
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-                <label
-                  htmlFor="commercial"
-                  className="text-sm bg-blue text-white text-center py-2 px-5 rounded-md cursor-pointer hover:bg-red transition duration-300 w-full"
-                >
-                  Upload File
-                </label>
-                <span className="text-gray-500 mt-2">{fileNames.commercial}</span>
-                <br/>
-
+                <div className="flex items-center">
+                  <input
+                    type="file"
+                    id="commercial"
+                    name="commercial"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="commercial"
+                    className="bg-red text-white px-4 py-2 rounded cursor-pointer hover:bg-red-600"
+                  >
+                    Choose File
+                  </label>
+                  <span className="ml-3">{fileNames.commercial}</span>
+                </div>
                 {formErrors.commercialRegisterFile && (
-                  <span className="text-red text-sm">{formErrors.commercialRegisterFile}</span>
+                  <span className="text-red text-sm mt-1 block">{formErrors.commercialRegisterFile}</span>
                 )}
               </div>
             </div>
@@ -435,23 +489,24 @@ const Register = () => {
                 <label htmlFor="tax" className="text-m font-medium text-blue mb-2 block">
                   Tax card
                 </label>
-                <input
-                  id="tax"
-                  name="tax"
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-                <label
-                  htmlFor="tax"
-                  className="text-sm bg-blue text-white text-center py-2 px-5  rounded-md cursor-pointer hover:bg-red transition duration-300 w-full"
-                >
-                  Upload File
-                </label>
-                <span className="text-gray-500 mt-2">{fileNames.tax}</span>
-                <br/>
+                <div className="flex items-center">
+                  <input
+                    type="file"
+                    id="tax"
+                    name="tax"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="tax"
+                    className="bg-red text-white px-4 py-2 rounded cursor-pointer hover:bg-red-600"
+                  >
+                    Choose File
+                  </label>
+                  <span className="ml-3">{fileNames.tax}</span>
+                </div>
                 {formErrors.taxCardFile && (
-                  <span className="text-red text-sm mt-2">{formErrors.taxCardFile}</span>
+                  <span className="text-red text-sm mt-1 block">{formErrors.taxCardFile}</span>
                 )}
               </div>
             </div>

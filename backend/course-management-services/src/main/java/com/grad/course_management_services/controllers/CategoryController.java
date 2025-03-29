@@ -30,6 +30,7 @@ public class CategoryController {
         return category.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
+   // Update category
     @PutMapping("categories/{id}")
     public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody Category updatedCategory) {
         Optional<Category> existingCategory = categoryService.getCategoryById(id);
@@ -43,10 +44,9 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    // Create or update category
-    
-  @PostMapping("categories")
-    public ResponseEntity<Category> createOrUpdateCategory(@RequestBody Category category) {
+    // Create category
+    @PostMapping("categories")
+    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
         Category savedCategory = categoryService.saveCategory(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
     }
