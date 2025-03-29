@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
 import { motion } from "framer-motion";
+import backgroundPic from './../assets/images/map1.jpg'
 
 // Dynamically import icons
 const FaStethoscope = React.lazy(() => import("react-icons/fa6").then((mod) => ({ default: mod.FaStethoscope })));
@@ -74,9 +75,10 @@ const SlideLeft = (delay) => {
 
 const Services = () => {
   return (
-    <section className="bg-white">
+    <section className="bg-white overflow-hidden relative">
+
       <div className="container pb-14 pt-16">
-        <h1 className="text-4xl font-bold text-left pb-10">Services we provide</h1>
+        <h1 className="text-4xl font-bold text-left pb-10 text-red text-center mb-10">Services we provide</h1>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-8">
           {ServicesData.map((service) => (
             <motion.div
@@ -84,9 +86,10 @@ const Services = () => {
               variants={SlideLeft(service.delay)}
               initial="initial"
               whileInView="animate"
+              whileHover={{ scale: 1.3 }} // Increased scale to 2x for a bigger zoom effect
               viewport={{ once: true }}
-              className="bg-[#f4f4f4] rounded-2xl flex flex-col gap-4 items-center justify-center p-4 py-7 hover:bg-white hover:scale-110 duration-300 hover:shadow-2xl"
-            >
+              className="bg-white rounded-2xl flex flex-col gap-4 items-center justify-center p-4 py-7 shadow-xl hover:bg-white hover:shadow-2xl"
+              >
               <Suspense fallback={<div className="text-4xl mb-4">Loading...</div>}>
                 <div className="text-4xl mb-4">{service.icon}</div>
               </Suspense>

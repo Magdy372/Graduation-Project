@@ -3,9 +3,10 @@ import { motion } from "framer-motion";
 
 // Import images directly
 import Navbar from './Navbar';
+import backgroundPic from './../assets/images/map.jpg'
 import OSRA from '../assets/images/OSRA.jpg';
 import { useNavigate } from "react-router-dom";
-
+import africa from "../assets/images/africa-removebg-preview.png";
 // Define motion variants
 export const FadeUp = (delay) => {
   return {
@@ -34,13 +35,19 @@ const Hero = () => {
 
   return (
     <section className="bg-light overflow-hidden relative">
+      <img 
+      className="absolute top-0 left-0 w-full h-full object-cover " 
+      src={backgroundPic} 
+      alt="background" 
+      />
+
       <Navbar />
  
       {/* Main Hero Section */}
       <div className="container grid grid-cols-1 md:grid-cols-2 min-h-[650px] items-center">
         
         {/* Left Content */}
-        <div className="flex flex-col justify-center py-14 md:py-0 relative z-20">
+        <div className="flex flex-col justify-center py-14 md:py-0 relative">
           <div className="text-center md:text-left space-y-8 lg:max-w-[450px]">
             {/* Title */}
             <motion.h1 
@@ -71,19 +78,28 @@ const Hero = () => {
           </div>
         </div>
         
-        {/* Right Content */}
         <div className="flex justify-center items-center relative">
-            {/* Image of OSRA */}
-            <motion.img
-            initial={{ x: 50, opacity: 0 }} 
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4, ease: "easeInOut" }}
-            src={OSRA} 
-            alt="OSRA pic" 
-            className="w-[400px] xl:w-[600px] relative z-10 drop-shadow" 
-          />
-         
-        </div>
+  <motion.img
+    initial={{ x: 50, opacity: 0 }} 
+    animate={{ x: 0, opacity: 1 }}
+    transition={{ duration: 0.6, delay: 0.4, ease: "easeInOut" }}
+    src={OSRA}
+    alt="OSRA with Africa shape"
+    className="w-[600px] h-[600px] object-cover"
+    style={{
+      maskImage: `url(${africa})`,
+      WebkitMaskImage: `url(${africa})`,
+      maskSize: 'cover',
+      WebkitMaskSize: 'cover',
+      maskRepeat: 'no-repeat',
+      WebkitMaskRepeat: 'no-repeat',
+      maskPosition: 'center',
+      WebkitMaskPosition: 'center',
+    }}
+  />
+</div>
+
+
       </div>
     </section>
   );
