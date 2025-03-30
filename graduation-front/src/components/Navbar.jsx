@@ -3,7 +3,7 @@ import { IoMdClose } from "react-icons/io";
 import logo from "../assets/logos/MOH Logo.png";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import { RiArrowDropDownLine } from "react-icons/ri";
 
@@ -16,9 +16,15 @@ const NavbarMenu = [
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const [token, setToken] = useState(true); // Assume logged in for dropdown
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    // Check if the user is logged in (e.g., check for a token in localStorage)
+    const token = localStorage.getItem("access_token");
+    setIsLoggedIn(!!token); // Set isLoggedIn to true if token exists
+  }, []);
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
@@ -30,9 +36,9 @@ const Navbar = () => {
 
   const handleLogout = () => {
     // Simulate logout by clearing token
-    setToken(false);
-    localStorage.removeItem("access_token");  // Remove from localStorage if stored
+    localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
+    setIsLoggedIn(false);
 
     // Close the dropdown and sidebar
     setIsDropdownOpen(false);
@@ -74,10 +80,7 @@ const Navbar = () => {
             >
               My Courses
             </p>
-            <p
-              onClick={handleLogout}
-              className="cursor-pointer"
-            >
+            <p onClick={handleLogout} className="cursor-pointer">
               Logout
             </p>
           </div>
@@ -114,7 +117,7 @@ const Navbar = () => {
               {menu.title}
             </a>
           ))}
-          {token ? <UserMenu /> : (
+          {isLoggedIn ? <UserMenu /> : (
             <button
               onClick={() => navigate("/register")}
               className="py-2 px-4 text-white bg-red hover:bg-blue rounded-md transition-all"
@@ -175,7 +178,7 @@ const Navbar = () => {
             ))}
 
             {/* Conditional Menu Items */}
-            {token ? (
+            {isLoggedIn ? (
               <>
                 <p
                   onClick={() => {
@@ -199,11 +202,11 @@ const Navbar = () => {
             ) : null}
 
             {/* Register/Logout Button */}
-            {!token ? (
+            {!isLoggedIn ? (
               <button
                 onClick={() => {
-                  navigate("/register"); // Navigate to register page
-                  toggleSidebar(); // Close the sidebar
+                  navigate("/register");
+                  toggleSidebar();
                 }}
                 className="py-2 px-4 w-full text-white bg-red hover:bg-blue rounded-md transition-all"
               >
@@ -211,7 +214,7 @@ const Navbar = () => {
               </button>
             ) : (
               <button
-                onClick={handleLogout} // Call the logout function
+                onClick={handleLogout}
                 className="py-2 px-4 w-full text-white bg-red hover:bg-blue rounded-md transition-all"
               >
                 Logout

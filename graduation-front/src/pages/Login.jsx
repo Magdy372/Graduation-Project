@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { jwtDecode } from "jwt-decode";
 import { validateLoginForm } from "../utils/validationUtils";
+import loginPic from "../assets/images/reg.jpg";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -20,7 +21,6 @@ const Login = () => {
     setPasswordError("");
     setIsLoading(true);
 
-    // Validate form before making API call
     const validationErrors = validateLoginForm(email, password);
     
     if (validationErrors.email || validationErrors.password) {
@@ -48,7 +48,6 @@ const Login = () => {
       const data = await response.json();
   
       if (response.ok) {
-        // Handle successful login
         localStorage.setItem("access_token", data.accessToken);
         localStorage.setItem("refresh_token", data.refreshToken);
         localStorage.setItem("isAuthenticated", "true");
@@ -75,65 +74,78 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <div className="flex-grow flex items-center justify-center px-4 py-12">
-        <motion.div
-          initial={{ x: 50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4, ease: "easeInOut" }}
-          className="w-full max-w-md bg-light rounded-xl shadow-md p-8"
-        >
-          <h2 className="text-3xl font-bold text-red mb-6 text-center">Login</h2>
-          <form className="space-y-6" onSubmit={handleSubmit}>  
-            {/* Email Input */}
-            <div>
-              <label htmlFor="email" className="text-m font-medium text-blue block mb-2">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-white-300 text-red border-b-2 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
-                disabled={isLoading}
-              />
-              {emailError && <p className="text-red text-xs">{emailError}</p>}
-            </div>
+      <div className="flex-grow flex justify-center mt-10">
+        <div className=" ml-5 mr-5 w-full flex bg-white rounded-3xl shadow-lg overflow-hidden h-[500px]">
+          {/* Left Side - Image with Overlay */}
+          <div className="relative w-1/2 h-full">
+            <img 
+              src={loginPic}
+              alt="Login Background" 
+              className="w-full h-full object-cover rounded-l-3xl"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-30 rounded-l-3xl"></div>
+          </div>
 
-            {/* Password Input */}
-            <div>
-              <label htmlFor="password" className="text-m font-medium text-blue block mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="bg-white text-red border-b-2 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
-                disabled={isLoading}
-              />
-              {passwordError && <p className="text-red text-xs">{passwordError}</p>}
-            </div>
-
-            {/* General Error Message */}
-            {error && (
-                <p className="text-red text-sm">{error}</p>
-            )}
-
-            {/* Submit Button */}
-            <button
-              className={`w-full text-l bg-red text-white text-center py-3 px-5 rounded-md 
-                ${isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue transition duration-300"}`}
-              type="submit"
-              disabled={isLoading}
+          {/* Right Side - Login Form */}
+          <div className="w-1/2 p-8 flex items-center justify-center h-full">
+            <motion.div
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.4, ease: "easeInOut" }}
+              className="w-full max-w-md"
             >
-              {isLoading ? "Logging in..." : "Login"}
-            </button>
-          </form>
-        </motion.div>
+              <h2 className="text-3xl font-bold text-red mb-6 text-center">Login</h2>
+              <form className="space-y-6" onSubmit={handleSubmit}>  
+                <div>
+                  <label htmlFor="email" className="text-lg font-medium text-blue block mb-2">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="bg-white-300 text-red text-lg border-b-2 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
+                    disabled={isLoading}
+                  />
+                  {emailError && <p className="text-red text-m">{emailError}</p>}
+                </div>
+
+                <div>
+                  <label htmlFor="password" className="text-lg font-medium text-blue block mb-2">
+                    Password
+                  </label>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-white text-red text-lg border-b-2 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
+                    disabled={isLoading}
+                  />
+                  {passwordError && <p className="text-red text-m">{passwordError}</p>}
+                </div>
+
+                {error && <p className="text-red text-m">{error}</p>}
+
+                <button
+                  className={`w-full text-l bg-red text-white text-center py-3 px-5 rounded-md 
+                    ${isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue transition duration-300"}`}
+                  type="submit"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Logging in..." : "Login"}
+                </button>
+                <h2 className="text-m text-center">
+                  Don't have an account?     
+                  <a href="/register" className="text-red underline">Register here</a>
+                </h2>
+              </form>
+            </motion.div>
+          </div>
+        </div>
       </div>
       <Footer />
     </div>

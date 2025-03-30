@@ -69,7 +69,7 @@ const Hero = () => {
               animate="animate"
               className="flex justify-center md:justify-start">
               <button 
-              onClick={() => navigate("/register")}
+              onClick={() => navigate("/login")}
               className="primary-btn flex items-center gap-2 group hover:shadow-lg transition-transform duration-300">
                 Get Started
                 <IoIosArrowForward className="text-xl group-hover:translate-x-2 group-hover:-rotate-45 duration-300" />
