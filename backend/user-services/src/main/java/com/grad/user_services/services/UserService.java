@@ -21,6 +21,7 @@ import com.grad.user_services.model.Admin;
 import com.grad.user_services.model.BaseAccount;
 import com.grad.user_services.model.User;
 import com.grad.user_services.model.UserDocument;
+import com.grad.user_services.dto.AdminProfileDTO;
 
 @Service
 public class UserService {
@@ -184,5 +185,16 @@ public class UserService {
     // This method retrieves a user by their email address
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public AdminProfileDTO getAdminProfile(String email) {
+        return adminRepository.findByEmail(email)
+                .map(admin -> new AdminProfileDTO(
+                    admin.getId(),
+                    admin.getFirstname(),
+                    admin.getLastname(),
+                    admin.getEmail()
+                ))
+                .orElse(null);
     }
 }

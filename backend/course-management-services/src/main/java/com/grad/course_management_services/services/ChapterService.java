@@ -19,23 +19,23 @@ public class ChapterService {
     @Autowired
     private CourseRepository courseRepository;
 
-    // ✅ Get all chapters
+    //  Get all chapters
     public List<Chapter> getAllChapters() {
         return chapterRepository.findAll();
     }
 
-    // ✅ Get chapter by ID
+    //  Get chapter by ID
     public Optional<Chapter> getChapterById(Long id) {
         return chapterRepository.findById(id);
     }
     
 
-    // ✅ Get all chapters by course ID
+    //  Get all chapters by course ID
     public List<Chapter> getChaptersByCourseId(Long courseId) {
         return chapterRepository.findByCourseId(courseId);
     }
 
-    // ✅ Create a new chapter for a course
+    //  Create a new chapter for a course
     public Chapter createChapter(Long courseId, Chapter chapter) {
         Optional<Course> courseOptional = courseRepository.findById(courseId);
         if (courseOptional.isPresent()) {
@@ -46,7 +46,7 @@ public class ChapterService {
         }
     }
 
-    // ✅ Update an existing chapter
+    //  Update an existing chapter
     public Chapter updateChapter(Long id, Chapter updatedChapter) {
         Optional<Chapter> existingChapterOpt = chapterRepository.findById(id);
         if (existingChapterOpt.isPresent()) {
@@ -58,7 +58,7 @@ public class ChapterService {
         return null;
     }
 
-    // ✅ Delete a chapter
+    //  Delete a chapter
     public boolean deleteChapter(Long id) {
         if (chapterRepository.existsById(id)) {
             chapterRepository.deleteById(id);

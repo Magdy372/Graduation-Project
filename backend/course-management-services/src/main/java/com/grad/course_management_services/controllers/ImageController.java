@@ -18,6 +18,7 @@ public class ImageController {
 
 
     @GetMapping("/coursesimages/{filename}")
+    //Get course image by filename
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
         try {
             Path filePath = Paths.get(UPLOAD_DIR).resolve(filename).normalize();
@@ -35,6 +36,7 @@ public class ImageController {
         }
     }
 
+    //Get course video by filename
     @GetMapping("/videos/{filename}")
     public ResponseEntity<Resource> getVideo(@PathVariable String filename) {
         try {

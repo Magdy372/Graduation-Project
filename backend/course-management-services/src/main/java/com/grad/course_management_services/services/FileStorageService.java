@@ -12,6 +12,7 @@ public class FileStorageService {
     private final Path rootLocation = Paths.get("uploads/videos");
     private final Path rootLocationImages = Paths.get("uploads/coursesimages");
 
+    // Store image file
     public String storeFile(MultipartFile file) throws IOException {
         if (!Files.exists(rootLocationImages)) {
             Files.createDirectories(rootLocationImages);
@@ -21,7 +22,7 @@ public class FileStorageService {
         Files.copy(file.getInputStream(), destinationFile);
         return "/uploads/coursesimages/" + filename;
     }
-
+// Store video file
     public String storeVideo(MultipartFile file) throws IOException {
         if (!Files.exists(rootLocation)) {
             Files.createDirectories(rootLocation);
@@ -32,7 +33,7 @@ public class FileStorageService {
         return "/uploads/videos/" + filename;
     }
 
-    // ✅ Delete video file
+    //  Delete video file
     public boolean deleteVideoFile(String filename) {
         try {
             Path filePath = rootLocation.resolve(filename);
