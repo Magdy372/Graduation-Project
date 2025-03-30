@@ -32,6 +32,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final AdminRepository adminRepository;
     private final UserRepository userRepository;
     @Override
+    // Spring Security requires this method name for authentication.
+     // We use email instead of a username for login.
+    // This method loads user details by email, first checking if the user is an admin and then checking if they are a regular user
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         // Try to find an Admin first
         BaseAccount account = adminRepository.findByEmail(email)

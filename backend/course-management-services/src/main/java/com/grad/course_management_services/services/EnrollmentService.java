@@ -15,6 +15,7 @@ public class EnrollmentService {
     @Autowired
     private EnrollmentRepository enrollmentRepository;
 
+    // Enroll a user in a course
     public Enrollment enrollUserInCourse(Long userId, Long courseId) {
         // Check if the enrollment already exists
         Optional<Enrollment> existingEnrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseId);
@@ -28,11 +29,11 @@ public class EnrollmentService {
         enrollment.setCourseId(courseId);
         return enrollmentRepository.save(enrollment);
     }
-
+// Get all enrollments by user ID
     public List<Enrollment> getEnrollmentsByUser(Long userId) {
         return enrollmentRepository.findByUserId(userId);
     }
-
+// Get all enrollments by course ID
     public List<Enrollment> getEnrollmentsByCourse(Long courseId) {
         return enrollmentRepository.findByCourseId(courseId);
     }

@@ -39,6 +39,8 @@ public class CourseService {
     @Autowired
     private FileStorageService fileStorageService;
     private static final Logger logger = LoggerFactory.getLogger(CourseService.class);
+
+    //Constructor injection for repositories
     public CourseService(CourseRepository courseRepository, CategoryRepository categoryRepository, ChapterRepository chapterRepository) {
         this.courseRepository = courseRepository;
         this.categoryRepository = categoryRepository;
@@ -49,6 +51,9 @@ public class CourseService {
     private UserServiceClient userServiceClient; // Feign client to fetch user data
 
     @Transactional
+   
+
+    // Save course with image and category
 public Course saveCourseDto(CourseRequestDTO requestDTO, MultipartFile image) throws IOException {
     // Check if category name is null or empty
     String categoryName = requestDTO.getCategoryName();
@@ -90,7 +95,9 @@ public Course saveCourseDto(CourseRequestDTO requestDTO, MultipartFile image) th
     return course;
 }
     
- 
+
+// Fetch course details including chapters and videos by ID
+  
  public CourseDTO getCourseById(Long courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
@@ -114,6 +121,7 @@ public Course saveCourseDto(CourseRequestDTO requestDTO, MultipartFile image) th
         );
     }
 
+    // Fetch all courses with chapters and videos
     public List<CourseDTO> getAllCourses() {
         return courseRepository.findAll().stream().map(course -> new CourseDTO(
                 course.getId(),
@@ -134,7 +142,7 @@ public Course saveCourseDto(CourseRequestDTO requestDTO, MultipartFile image) th
         )).collect(Collectors.toList());
     }
 
-    // Create or update a course
+    // Create or updatea course
     public Course saveCourse(Course course) {
         return courseRepository.save(course);
     }
@@ -144,7 +152,7 @@ public Course saveCourseDto(CourseRequestDTO requestDTO, MultipartFile image) th
         courseRepository.deleteById(id);
     }
 
-    // Get courses by category ID (example of custom query method)
+    // Get courses by category ID 
     public List<Course> getCoursesByCategoryId(Long categoryId) {
         return courseRepository.findByCategoryId(categoryId);
     }

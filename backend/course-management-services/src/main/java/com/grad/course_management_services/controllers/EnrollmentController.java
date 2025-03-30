@@ -29,7 +29,10 @@ public class EnrollmentController {
     @Autowired
     private EnrollmentService enrollmentService;
 
+    
+    
  @PostMapping("/enroll")
+ //Enroll user in a specific course
 public ResponseEntity<?> enrollUser(@RequestParam Long userId, @RequestParam Long courseId) {
     try {
         // Fetch user details from UserService using UserDTO
@@ -56,6 +59,7 @@ public ResponseEntity<?> enrollUser(@RequestParam Long userId, @RequestParam Lon
 
 
 @GetMapping("/user/{userId}")
+//Get all enrollments for a specific user
 public ResponseEntity<?> getUserEnrollments(@PathVariable Long userId) {
     try {
         // Fetch all enrollments for the given user ID

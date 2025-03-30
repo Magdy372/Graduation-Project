@@ -88,7 +88,7 @@ public class VideoService {
         return videoRepository.findByChapterId(chapterId);
     }
 
-    // Delete a video by ID (including file removal)
+    // Delete a video by ID
     public void deleteVideo(Long videoId) {
         Optional<Video> videoOptional = videoRepository.findById(videoId);
         if (videoOptional.isPresent()) {

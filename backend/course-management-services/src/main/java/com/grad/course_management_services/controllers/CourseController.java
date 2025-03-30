@@ -26,16 +26,17 @@ public class CourseController {
     @Autowired
     private CourseService courseService;
 
+// Get course by ID
     @GetMapping("courses/{id}")
     public CourseDTO getCourse(@PathVariable Long id) {
         return courseService.getCourseById(id);
     }
-
+// Get all courses
     @GetMapping("courses")
     public List<CourseDTO> getAllCourses() {
         return courseService.getAllCourses();
     }
-
+// Update course
     @PutMapping("courses/{courseId}")
     public ResponseEntity<CourseDTO> updateCourse(
             @PathVariable Long courseId,
@@ -61,6 +62,7 @@ public class CourseController {
 
   @PostMapping("courses") // Endpoint: POST /courses
 @Consumes({MediaType.MULTIPART_FORM_DATA_VALUE})
+//Create course
 public ResponseEntity<Course> saveCourse(
         @RequestPart(value = "image", required = false) MultipartFile image,
         @RequestPart("requestDTO") CourseRequestDTO requestDTO) throws IOException {

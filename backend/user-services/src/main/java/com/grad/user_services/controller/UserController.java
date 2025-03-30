@@ -132,7 +132,7 @@ public UserController(UserRepository userRepository) {
     // It accepts a UserWithDocumentsDTO object in the request body and returns the created user
     // It handles file uploads for the documents
     @PostMapping(value = "/with-documents", consumes = "multipart/form-data")
-    public ResponseEntity<?> createUserWithDocuments(
+    public ResponseEntity<?> RegUser(
             @Valid @ModelAttribute UserWithDocumentsDTO userWithDocumentsDTO,
             BindingResult result) throws Exception {
 
