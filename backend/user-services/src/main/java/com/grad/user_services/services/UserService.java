@@ -38,6 +38,9 @@ public class UserService {
     private FileValidationService fileValidationService;
 
     public User saveUser(@Valid User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already exists");
+        }
         // Encrypt the password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole();

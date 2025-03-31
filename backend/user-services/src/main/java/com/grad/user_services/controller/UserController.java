@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -28,6 +30,7 @@ import com.grad.user_services.dto.UserResponseDTO;
 import com.grad.user_services.dto.UserWithDocumentsDTO;
 import com.grad.user_services.model.BaseAccount;
 import com.grad.user_services.model.User;
+import com.grad.user_services.model.UserDocument;
 import com.grad.user_services.services.UserService;
 
 
@@ -38,6 +41,7 @@ public class UserController {
     @Autowired
     private UserService userService;
     private final UserRepository userRepository;
+    
 
     // Constructor injection for UserRepository
 public UserController(UserRepository userRepository) {
@@ -66,26 +70,41 @@ public UserController(UserRepository userRepository) {
            : ResponseEntity.notFound().build();
    }
 
-   //Register user
-   // It accepts a User object in the request body and returns the created user
+//    Register user
+//    It accepts a User object in the request body and returns the created user
    
-//   @PostMapping("/add")
-// public ResponseEntity<User> addUser(@Valid @RequestBody User user, BindingResult bindingResult) {
-//     if (bindingResult.hasErrors()) {
-//         // Print validation errors
-//         bindingResult.getAllErrors().forEach(error -> System.out.println(error.getDefaultMessage()));
-//         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-//     }
+@PostMapping("/add")
+public ResponseEntity<?> addUser(@Valid @RequestBody UserWithDocumentsDTO userDTO, BindingResult bindingResult) {
+    if (bindingResult.hasErrors()) {
+        Map<String, String> errors = new HashMap<>();
+        for (FieldError error : bindingResult.getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
 
-//     try {
-//         User savedUser = userService.saveUser(user);
-//         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
-//     } catch (Exception ex) {
-//         ex.printStackTrace();
-//         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-//     }
-    
-// }
+    try {
+        User user = new User();
+        user.setFirstname(userDTO.getFirstname());
+        user.setLastname(userDTO.getLastname());
+        user.setEmail(userDTO.getEmail());
+        user.setPassword(userDTO.getPassword());  // ⚠️ Encode password before saving
+        user.setPhonenumber(userDTO.getPhonenumber());
+        user.setTitle(userDTO.getTitle());
+        user.setGovernorate(userDTO.getGovernorate());
+
+        User savedUser = userService.saveUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+    } catch (DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Collections.singletonMap("error", "Duplicate email or phone number."));
+    } catch (Exception ex) {
+        ex.printStackTrace(); // Log error
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Collections.singletonMap("error", "Unexpected server error."));
+    }
+}
+
 
     // Update User
     // It accepts a user ID in the URL and a UserDTO object in the request body

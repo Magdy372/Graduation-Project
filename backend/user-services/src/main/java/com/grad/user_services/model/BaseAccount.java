@@ -7,6 +7,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,6 +33,9 @@ import lombok.ToString;
 @NoArgsConstructor
 
 public abstract class BaseAccount implements UserDetails {
+    
+    @JsonIgnore // Prevents direct serialization of GrantedAuthority
+    protected Collection<? extends GrantedAuthority> authorities;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

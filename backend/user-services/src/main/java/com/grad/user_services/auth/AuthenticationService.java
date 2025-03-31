@@ -86,8 +86,7 @@ public AuthenticationResponse authenticate(AuthenticationRequest request) {
             .map(admin -> (BaseAccount) admin)
             .orElseGet(() -> userRepository.findByEmail(email)
                 .map(user -> (BaseAccount) user)
-                .orElseThrow(() -> new AuthenticationException("User or Admin not found with email: " + email))
-            );
+                .orElseThrow(() -> new AuthenticationException("Invalid email or password."))             );
     }
 
     private void ensureUserIsApproved(BaseAccount account) {
