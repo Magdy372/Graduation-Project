@@ -6,6 +6,8 @@ import com.grad.course_management_services.dto.CourseRequestDTO;
 import com.grad.course_management_services.models.Course;
 import com.grad.course_management_services.services.CourseService;
 
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -60,16 +64,15 @@ public class CourseController {
     //     return ResponseEntity.status(HttpStatus.CREATED).body(savedCourse);
     // }
 
-  @PostMapping("courses") // Endpoint: POST /courses
-@Consumes({MediaType.MULTIPART_FORM_DATA_VALUE})
-//Create course
-public ResponseEntity<Course> saveCourse(
-        @RequestPart(value = "image", required = false) MultipartFile image,
-        @RequestPart("requestDTO") CourseRequestDTO requestDTO) throws IOException {
+    @PostMapping("courses")
+    @Consumes({MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Course> saveCourse(
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @Valid @RequestPart("requestDTO") CourseRequestDTO requestDTO) throws IOException {
+        Course savedCourse = courseService.saveCourseDto(requestDTO, image);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCourse);
+    }
 
-    Course savedCourse = courseService.saveCourseDto(requestDTO, image);
-    return ResponseEntity.status(HttpStatus.CREATED).body(savedCourse);
-}
 
     // Delete course
     @DeleteMapping("courses/{id}")
@@ -77,5 +80,23 @@ public ResponseEntity<Course> saveCourse(
         courseService.deleteCourse(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+    
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, String>> handleConstraintViolation(ConstraintViolationException ex) {
+        Map<String, String> errorMessages = new HashMap<>();
+        ex.getConstraintViolations().forEach(violation ->
+            errorMessages.put(violation.getPropertyPath().toString(), violation.getMessage()));
+        return new ResponseEntity<>(errorMessages, HttpStatus.BAD_REQUEST);
+    }
+    
+    @RestControllerAdvice
+    public class GlobalExceptionHandler {
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+    }
+}
+
 
 }

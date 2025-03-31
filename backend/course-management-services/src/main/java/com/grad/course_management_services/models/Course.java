@@ -38,6 +38,7 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
     @Column(nullable = true)
     @NotBlank(message = "Course image is required")
     private String imageUrl;

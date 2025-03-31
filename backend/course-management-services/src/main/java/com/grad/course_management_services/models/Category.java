@@ -20,7 +20,7 @@ public class Category {
     private Long id;
 
     @Column(nullable = false)
-    @NotBlank(message = "Category name is required")
+    @NotBlank(message = "Category name cannot be empty")
     private String name;
 
     public Category() {

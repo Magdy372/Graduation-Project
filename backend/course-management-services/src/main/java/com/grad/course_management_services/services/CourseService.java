@@ -54,46 +54,64 @@ public class CourseService {
    
 
     // Save course with image and category
-public Course saveCourseDto(CourseRequestDTO requestDTO, MultipartFile image) throws IOException {
-    // Check if category name is null or empty
-    String categoryName = requestDTO.getCategoryName();
-    if (categoryName == null || categoryName.trim().isEmpty()) {
-        throw new IllegalArgumentException("Category name cannot be null or empty");
-    }
-
-    System.out.println("category name = " + categoryName);
-
-    // Save the uploaded image and get its URL
-    String imageUrl = fileStorageService.storeFile(image);
-
-    // Find or create the category
-    Category category = categoryRepository.findByName(categoryName)
-        .orElseGet(() -> categoryRepository.save(new Category(null, categoryName)));
-
-    // Create the course
-    Course course = new Course();
-    course.setName(requestDTO.getName());
-    course.setDescription(requestDTO.getDescription());
-    course.setImageUrl(imageUrl); // Set the image URL
-    course.setCategory(category); // Associate course with category
-
-    // Save course first to get an ID
-    course = courseRepository.save(course);
-
-    // Create chapters (without videos)
-    List<Chapter> chapters = new ArrayList<>();
-    if (requestDTO.getChapterTitles() != null) {
-        for (String title : requestDTO.getChapterTitles()) {
-            Chapter chapter = new Chapter();
-            chapter.setTitle(title);
-            chapter.setCourse(course); // Associate chapter with course
-            chapters.add(chapter);
+    public Course saveCourseDto(CourseRequestDTO requestDTO, MultipartFile image) throws IOException {
+        // Check if category name is null or empty
+        String categoryName = requestDTO.getCategoryName();
+        if (categoryName == null || categoryName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Category name cannot be empty");
         }
-        chapterRepository.saveAll(chapters);
-    }
 
-    return course;
-}
+        System.out.println("category name = " + categoryName);
+
+        // String courseName = requestDTO.getName();
+        // if (courseName == null || courseName.trim().isEmpty()) {
+        //     throw new IllegalArgumentException("Course name is required");
+        // }
+
+        // String courseDesc = requestDTO.getDescription();
+        // if (courseDesc == null || courseDesc.trim().isEmpty()) {
+        //     throw new IllegalArgumentException("Course description is required");
+        // }
+
+
+        List<String> chapterTitles = requestDTO.getChapterTitles();
+        if (chapterTitles == null || chapterTitles.isEmpty() || chapterTitles.contains("")) {
+            throw new IllegalArgumentException("At least one chapter title is required");
+        }
+
+        if (image == null || image.isEmpty()) {
+            throw new IllegalArgumentException("Course image is required");
+        }
+        String imageUrl = fileStorageService.storeFile(image);
+
+        // Find or create the category
+        Category category = categoryRepository.findByName(categoryName)
+            .orElseGet(() -> categoryRepository.save(new Category(null, categoryName)));
+
+        // Create the course
+        Course course = new Course();
+        course.setName(requestDTO.getName());
+        course.setDescription(requestDTO.getDescription());
+        course.setImageUrl(imageUrl); // Set the image URL
+        course.setCategory(category); // Associate course with category
+
+        // Save course first to get an ID
+        course = courseRepository.save(course);
+
+        // Create chapters (without videos)
+        List<Chapter> chapters = new ArrayList<>();
+        if (requestDTO.getChapterTitles() != null) {
+            for (String title : requestDTO.getChapterTitles()) {
+                Chapter chapter = new Chapter();
+                chapter.setTitle(title);
+                chapter.setCourse(course); // Associate chapter with course
+                chapters.add(chapter);
+            }
+            chapterRepository.saveAll(chapters);
+        }
+
+        return course;
+    }
     
 
 // Fetch course details including chapters and videos by ID

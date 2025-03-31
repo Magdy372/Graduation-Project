@@ -26,7 +26,7 @@ public class Chapter {
     private Long id;
 
     @Column(nullable = false)
-    @NotBlank(message = "Chapter title is required")
+    @NotBlank(message = "At least one chapter title is required")
     private String title;
 
     @ManyToOne
