@@ -14,7 +14,6 @@ public class QuestionDTO {
     private Long quizId;
     private String correctAnswer; 
     private String[] options;     
-    private String sampleAnswer;  
     public QuestionDTO() {
     }
 
@@ -25,11 +24,6 @@ public class QuestionDTO {
         this.quizId = quizId;
         this.correctAnswer = correctAnswer;
         this.options = options;
-    }
-
-    public QuestionDTO(String questionType, String text, double grade, Long quizId, String sampleAnswer) {
-        this(questionType, text, grade, quizId, null, null);  // call the main constructor
-        this.sampleAnswer = sampleAnswer;
     }
 
     // Getters and setters

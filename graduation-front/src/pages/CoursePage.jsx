@@ -5,6 +5,7 @@ import { Card, CardHeader, CardContent } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import { motion } from 'framer-motion';
 import Confetti from 'react-confetti';
+import { jwtDecode } from "jwt-decode";
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ModalCongrat from '../components/ModalCongrat';
@@ -47,6 +48,11 @@ const CoursePage = () => {
   const [examQuestions, setExamQuestions] = useState([]);
   const [questionsLoading, setQuestionsLoading] = useState(true);
   const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(null);
+  const [timerInterval, setTimerInterval] = useState(null);
+  const [quizTimeLimit, setQuizTimeLimit] = useState(30); // Default 30 minutes
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
+  const [showQuizSelection, setShowQuizSelection] = useState(false);
 
   // Fetch course data
   useEffect(() => {
@@ -112,7 +118,77 @@ const CoursePage = () => {
   };
 
   const handleExamStart = () => {
-    setExamStarted(true);
+    setShowQuizSelection(true);
+  };
+
+  // Modify the existing fetchQuizzes function to remove attempts fetching
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        // Fetch all quizzes for the course's chapters
+        const quizzesPromises = chapters.map(chapter => 
+          fetch(`http://localhost:8084/api/quizzes/chapter/${chapter.id}`)
+            .then(res => {
+              if (!res.ok) {
+                throw new Error(`Failed to fetch quizzes for chapter ${chapter.id}`);
+              }
+              return res.json();
+            })
+            .catch(error => {
+              console.error(`Error fetching quizzes for chapter ${chapter.id}:`, error);
+              return [];
+            })
+        );
+        const quizzesResults = await Promise.all(quizzesPromises);
+        const allQuizzes = quizzesResults.flat().filter(quiz => quiz && quiz.id);
+        setQuizzes(allQuizzes);
+      } catch (error) {
+        console.error('Error fetching quizzes:', error);
+        setQuizzes([]);
+      }
+    };
+
+    if (chapters.length > 0) {
+      fetchQuizzes();
+    }
+  }, [chapters]);
+
+  // Modify handleQuizSelect to remove attempts check
+  const handleQuizSelect = async (quiz) => {
+    setSelectedQuiz(quiz);
+    setQuizTimeLimit(quiz.timeLimit);
+    setShowQuizSelection(false);
+    
+    try {
+      // Fetch questions for the selected quiz
+      const response = await fetch(`http://localhost:8084/api/quizzes/${quiz.id}/questions`);
+      const questions = await response.json();
+      
+      // Transform questions to exam format
+      const transformedQuestions = questions.map(q => {
+        if (q.questionType === 'MCQ') {
+          return {
+            question: q.text,
+            options: q.options,
+            answer: parseInt(q.correctAnswer)
+          };
+        } else if (q.questionType === 'TRUE_FALSE') {
+          return {
+            question: q.text,
+            options: ['True', 'False'],
+            answer: q.correctAnswer === 'true' ? 0 : 1
+          };
+        }
+        return null;
+      }).filter(q => q !== null);
+
+      setExamQuestions(transformedQuestions);
+      setQuestionsLoading(false);
+      setExamStarted(true);
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+      setQuestionsLoading(false);
+    }
   };
 
   const handleAnswerSelect = (questionIndex, selectedOption) => {
@@ -136,19 +212,76 @@ const CoursePage = () => {
     return Math.round((correct / examQuestions.length) * 100);
   };
 
-  const handleExamSubmit = () => {
+  // Add timer functionality
+  useEffect(() => {
+    if (examStarted && timeLeft === null) {
+      // Convert minutes to seconds
+      const initialTime = quizTimeLimit * 60;
+      setTimeLeft(initialTime);
+      
+      const interval = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            handleExamSubmit(); // Auto-submit when time is up
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      
+      setTimerInterval(interval);
+    }
+
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+    };
+  }, [examStarted, quizTimeLimit]);
+
+  // Format time for display
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  // Modify handleExamSubmit to remove attempts recording
+  const handleExamSubmit = async () => {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+    }
     const calculatedScore = calculateScore();
     setScore(calculatedScore);
     setExamSubmitted(true);
     setShowModal(true);
     
-    if (calculatedScore >= 50) {
-      // Update badges count in localStorage
-      const currentBadges = parseInt(localStorage.getItem('badgesCount') || '0', 10);
-      localStorage.setItem('badgesCount', currentBadges + 1);
-    } else {
-      setExamStarted(false);
-      setUserAnswers({});
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      // Handle success
+      if (calculatedScore >= 50) {
+        const currentBadges = parseInt(localStorage.getItem('badgesCount') || '0', 10);
+        localStorage.setItem('badgesCount', currentBadges + 1);
+      } else {
+        setExamStarted(false);
+        setUserAnswers({});
+      }
+    } catch (error) {
+      console.error('Error handling exam submission:', error);
+      // Still show the results even if saving fails
+      if (calculatedScore >= 50) {
+        const currentBadges = parseInt(localStorage.getItem('badgesCount') || '0', 10);
+        localStorage.setItem('badgesCount', currentBadges + 1);
+      } else {
+        setExamStarted(false);
+        setUserAnswers({});
+      }
     }
   };
 
@@ -159,59 +292,7 @@ const CoursePage = () => {
       navigate('/feedback');
   };
 
-  // Add this useEffect for fetching quizzes and questions
-  useEffect(() => {
-    const fetchQuizzesAndQuestions = async () => {
-      try {
-        // Fetch all quizzes for the course's chapters
-        const quizzesPromises = chapters.map(chapter => 
-          fetch(`http://localhost:8084/api/quizzes/chapter/${chapter.id}`).then(res => res.json())
-        );
-        const quizzesResults = await Promise.all(quizzesPromises);
-        const allQuizzes = quizzesResults.flat();
-        setQuizzes(allQuizzes);
-
-        // Fetch questions for all quizzes
-        const questionsPromises = allQuizzes.map(quiz => 
-          fetch(`http://localhost:8084/api/quizzes/${quiz.id}/questions`).then(res => res.json())
-        );
-        const questionsResults = await Promise.all(questionsPromises);
-        const allQuestions = questionsResults.flat();
-
-        // Transform questions to exam format
-        const transformedQuestions = allQuestions.map(q => {
-          if (q.questionType === 'MCQ') {
-            return {
-              question: q.text,
-              options: q.options,
-              answer: parseInt(q.correctAnswer) // Convert to number
-            };
-          } else if (q.questionType === 'TRUE_FALSE') {
-            return {
-              question: q.text,
-              options: ['True', 'False'],
-              answer: q.correctAnswer === 'true' ? 0 : 1 // Assuming 'true' is index 0
-            };
-          }
-          return null;
-        }).filter(q => q !== null);
-
-        setExamQuestions(transformedQuestions);
-        setQuestionsLoading(false);
-        } catch (error) {
-        console.error('Error fetching questions:', error);
-        setQuestionsLoading(false);
-        }
-        };
-
-        if (chapters.length > 0) {
-        fetchQuizzesAndQuestions();
-        }
-        }, [chapters]);
-
-
   if (!course || !chapters.length) return <div>Loading...</div>;
-
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -303,52 +384,74 @@ const CoursePage = () => {
               animate="animate"
             >
               {!examStarted ? (
-                selectedVideo && (
-                  <>
-                    <video 
-                      key={selectedVideo.id}
-                      controls 
-                      className="w-full h-[500px]"
-                      onEnded={handleVideoEnded}
-                      crossOrigin="anonymous"
-                    >
-                      <source 
-                        src={`http://localhost:8084${selectedVideo.videoPath}`} 
-                        type="video/mp4" 
-                      />
-                      Your browser does not support the video tag.
-                    </video>
-                    <div className="bg-white mt-3">
-                      <h2 className="text-2xl font-semibold mb-2">{selectedVideo.title}</h2>
-                      <p className="text-gray-600">{course.description}</p>
+                showQuizSelection ? (
+                  <div className="w-full h-full p-6 bg-white rounded-lg shadow">
+                    <h2 className="text-2xl font-semibold mb-6">Select a Quiz</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {quizzes.map((quiz) => (
+                        <div
+                          key={quiz.id}
+                          className="p-4 border rounded-lg hover:border-red cursor-pointer transition-colors"
+                          onClick={() => handleQuizSelect(quiz)}
+                        >
+                          <h3 className="text-xl font-semibold mb-2">{quiz.title}</h3>
+                          <p className="text-gray-600">Time Limit: {quiz.timeLimit} minutes</p>
+                          <p className="text-gray-600">Total Grade: {quiz.totalGrade}</p>
+                          <p className="text-gray-600">Questions: {quiz.questions?.length || 0}</p>
+                        </div>
+                      ))}
                     </div>
-                  </>
+                    <button
+                      onClick={() => setShowQuizSelection(false)}
+                      className="mt-4 p-3 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  selectedVideo && (
+                    <>
+                      <video 
+                        key={selectedVideo.id}
+                        controls 
+                        className="w-full h-[500px]"
+                        onEnded={handleVideoEnded}
+                        crossOrigin="anonymous"
+                      >
+                        <source 
+                          src={`http://localhost:8084${selectedVideo.videoPath}`} 
+                          type="video/mp4" 
+                        />
+                        Your browser does not support the video tag.
+                      </video>
+                      <div className="bg-white mt-3">
+                        <h2 className="text-2xl font-semibold mb-2">{selectedVideo.title}</h2>
+                        <p className="text-gray-600">{course.description}</p>
+                      </div>
+                    </>
+                  )
                 )
               ) : (
                 <div className="w-full h-full p-6 bg-white rounded-lg shadow">
-                  <h2 className="text-2xl font-semibold mb-6">
-                    {examSubmitted ? 'Exam Results' : 'Course Examination'}
-                  </h2>
-
-                  {examSubmitted && (
-                    <div className={`p-6 rounded-lg mb-6 ${
-                      score >= 50 ? 'bg-green-100' : 'bg-red-100'
-                    }`}>
-                      <h3 className="text-2xl font-semibold text-gray-800">
-                        Your Grade: {score}%
-                      </h3>
-                      <p className="mt-2 text-gray-700">
-                        {score >= 50 
-                          ? 'Congratulations! You passed!' 
-                          : 'Please review the material and try again.'}
-                      </p>
-                    </div>
-                  )}
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-semibold">
+                      {examSubmitted ? 'Exam Results' : selectedQuiz?.title || 'Course Examination'}
+                    </h2>
+                    {examStarted && !examSubmitted && (
+                      <div className="bg-red text-white px-6 py-2 rounded-lg text-xl font-bold">
+                        Remaining time : {formatTime(timeLeft)}
+                      </div>
+                    )}
+                  </div>
 
                   {questionsLoading ? (
-                    <p>Loading questions...</p>
+                    <div className="flex justify-center items-center h-64">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red"></div>
+                    </div>
                   ) : examQuestions.length === 0 ? (
-                    <p>No questions available for this exam.</p>
+                    <div className="text-center p-8">
+                      <p className="text-xl text-gray-600">No questions available for this quiz.</p>
+                    </div>
                   ) : (
                     examQuestions.map((question, index) => (
                       <div key={index} className="mb-6">

@@ -16,7 +16,6 @@ import lombok.Setter;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "question_type")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = MCQQuestion.class, name = "MCQ"),
-    @JsonSubTypes.Type(value = EssayQuestion.class, name = "ESSAY"),
     @JsonSubTypes.Type(value = TrueFalseQuestion.class, name = "TRUE_FALSE")
 })
 public abstract class Question {

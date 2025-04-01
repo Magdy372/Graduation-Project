@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; // Added useEffect import
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaSave, FaTimes } from 'react-icons/fa';
 import Navbar from '../components/Navbar';
@@ -13,7 +13,9 @@ const AddQuiz = () => {
   
   const [quiz, setQuiz] = useState({
     title: '',
-    totalGrade: 0
+    totalGrade: 0,
+    timeLimit: 30, // Default time limit of 30 minutes
+    questions: []
   });
 
   // Fetch chapters when the page loads
@@ -36,39 +38,51 @@ const AddQuiz = () => {
     e.preventDefault();
     
     if (!selectedChapter) {
-      // Handle validation error
+      alert("Please select a chapter");
       return;
     }
 
     try {
-      // Find the selected chapter object from chapters array
-      const chapter = chapters.find(ch => ch.id == selectedChapter);
-      console.log("chapter" + chapter)
-      console.log("chapter1" + selectedChapter)
-      
+      const quizData = {
+        title: quiz.title,
+        chapterId: parseInt(selectedChapter),
+        totalGrade: parseFloat(quiz.totalGrade),
+        timeLimit: parseInt(quiz.timeLimit),
+        questions: []
+      };
+
+      console.log('Sending quiz data:', quizData); // Debug log
+
       const response = await fetch('http://localhost:8084/api/quizzes', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: quiz.title,
-          chapter: chapter, // Send the entire chapter object
-          totalGrade: quiz.totalGrade
-        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(quizData)
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error('Server response:', response.status, errorData); // Debug log
+        throw new Error(errorData?.message || `Failed to create quiz: ${response.status}`);
+      }
+
       const data = await response.json();
+      console.log('Quiz created successfully:', data); // Debug log
       navigate(`/layout/quizzes/${data.id}/add-questions`);
     } catch (error) {
       console.error('Error creating quiz:', error);
+      alert(`Failed to create quiz: ${error.message}`);
     }
   };
 
   return (
     <>
-      <div className="container mx-auto px-6  text-right">
-        <h1 className="text-2xl font-bold mb-4 text-red"> إضافة امتحان جديد </h1>
+      <div className="container mx-auto px-6 text-right">
+        <h1 className="text-2xl font-bold mb-4 text-red">إضافة امتحان جديد</h1>
         <p className='text-xl font-semibold mb-6'>{course?.name} : اسم الدورة</p>
-        <form onSubmit={handleSubmit} className=" bg-white rounded-lg shadow-lg p-6 w-full">
-        <div className="mb-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-6 w-full">
+          <div className="mb-4">
             <label className="block text-blue text-lg mb-2 text-right">عنوان الامتحان</label>
             <input
               type="text"
@@ -78,11 +92,14 @@ const AddQuiz = () => {
               required
             />
           </div>
+          
           <div className="mb-6">
+            <label className="block text-blue text-lg mb-2 text-right">اختر الفصل</label>
             <select
               className="p-3 border rounded-md w-full shadow-sm text-right"
               value={selectedChapter}
               onChange={(e) => setSelectedChapter(e.target.value)}
+              required
             >
               <option value="">اختر الفصل</option>
               {chapters.map((chapter) => (
@@ -92,34 +109,51 @@ const AddQuiz = () => {
               ))}
             </select>
           </div>
+
           <div className="mb-4 text-right">
             <label className="block text-blue mb-2 text-lg">الدرجة الكلية</label>
             <input
               type="number"
+              min="0"
+              step="0.5"
               value={quiz.totalGrade}
               onChange={(e) => setQuiz({ ...quiz, totalGrade: e.target.value })}
               className="p-2 border rounded w-full text-right text-gray-500"
+              required
             />
           </div>
+
+          <div className="mb-4 text-right">
+            <label className="block text-blue mb-2 text-lg">الوقت المحدد (بالدقائق)</label>
+            <input
+              type="number"
+              min="1"
+              value={quiz.timeLimit}
+              onChange={(e) => setQuiz({ ...quiz, timeLimit: e.target.value })}
+              className="p-2 border rounded w-full text-right text-gray-500"
+              required
+            />
+          </div>
+
           <div className="flex gap-4">
-          <button
+            <button
               type="button"
               onClick={() => navigate(-1)}
               className="bg-blue w-[50%] text-white px-4 py-2 rounded"
             >
-               لغي
-               <FaTimes className="inline ml-2" />
+              إلغاء
+              <FaTimes className="inline ml-2" />
             </button>
-            <button type="submit" className="p-3 bg-red text-white rounded-md w-[50%] ">
-                  حفظ الامتحان
-              <FaSave className="inline ml-2" /> 
+            <button type="submit" className="p-3 bg-red text-white rounded-md w-[50%]">
+              حفظ الامتحان
+              <FaSave className="inline ml-2" />
             </button>
-
           </div>
         </form>
       </div>
     </>
   );
-  };
+};
+
 export default AddQuiz;
 

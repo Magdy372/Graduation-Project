@@ -88,7 +88,6 @@ const AddQuestions = () => {
               className="p-2 border rounded w-full text-right text-gray-500"
             >
               <option value="MCQ">إختيار من متعدد</option>
-              <option value="ESSAY">مقالي</option>
               <option value="TRUE_FALSE">صح/خطأ</option>
             </select>
           </div>

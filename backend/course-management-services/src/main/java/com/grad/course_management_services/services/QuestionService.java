@@ -11,7 +11,6 @@ import com.grad.course_management_services.dao.QuestionRepository;
 import com.grad.course_management_services.dao.QuizRepository;
 import com.grad.course_management_services.dto.QuestionDTO;
 import com.grad.course_management_services.models.Quiz;
-import com.grad.course_management_services.models.Questions.EssayQuestion;
 import com.grad.course_management_services.models.Questions.MCQQuestion;
 import com.grad.course_management_services.models.Questions.Question;
 import com.grad.course_management_services.models.Questions.TrueFalseQuestion;
@@ -24,7 +23,6 @@ public class QuestionService {
     private final QuestionRepository questionRepository;
     @Autowired
     private QuizRepository quizRepository;
-
 
     public QuestionService(QuestionRepository questionRepository) {
         this.questionRepository = questionRepository;
@@ -59,17 +57,6 @@ public class QuestionService {
                 );
                 break;
     
-            case "ESSAY":
-                // Create the EssayQuestion with next order
-                question = new EssayQuestion(
-                        questionDTO.getText(),
-                        questionDTO.getGrade(),
-                        quiz,
-                        questionDTO.getSampleAnswer(),
-                        nextOrder // Set the next available order
-                );
-                break;
-    
             case "TRUE_FALSE":
                 boolean correctAnswer = Boolean.parseBoolean(questionDTO.getCorrectAnswer());
                 // Create the TrueFalseQuestion with next order
@@ -98,11 +85,6 @@ public class QuestionService {
     // Get MCQ questions by quiz ID
     public List<MCQQuestion> getMCQQuestionsByQuizId(Long quizId) {
         return questionRepository.findMCQQuestionsByQuizId(quizId);
-    }
-
-    // Get Essay questions by quiz ID
-    public List<EssayQuestion> getEssayQuestionsByQuizId(Long quizId) {
-        return questionRepository.findEssayQuestionsByQuizId(quizId);
     }
 
     // Get True/False questions by quiz ID

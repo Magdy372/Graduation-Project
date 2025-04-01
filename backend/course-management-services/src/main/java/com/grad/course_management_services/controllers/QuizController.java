@@ -7,8 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.grad.course_management_services.dto.QuestionDTO;
-import com.grad.course_management_services.models.Quiz;
-import com.grad.course_management_services.models.Questions.Question;
+import com.grad.course_management_services.dto.QuizDTO;
 import com.grad.course_management_services.services.QuizService;
 
 @RestController
@@ -20,34 +19,34 @@ public class QuizController {
 
     // ✅ Create a new quiz
     @PostMapping
-    public ResponseEntity<Quiz> createQuiz(@RequestBody Quiz quiz) {
-        Quiz createdQuiz = quizService.createQuiz(quiz);
+    public ResponseEntity<QuizDTO> createQuiz(@RequestBody QuizDTO quizDTO) {
+        QuizDTO createdQuiz = quizService.createQuiz(quizDTO);
         return ResponseEntity.status(201).body(createdQuiz);
     }
 
     // ✅ Get all quizzes
     @GetMapping
-    public ResponseEntity<List<Quiz>> getAllQuizzes() {
+    public ResponseEntity<List<QuizDTO>> getAllQuizzes() {
         return ResponseEntity.ok(quizService.getAllQuizzes());
     }
 
     // ✅ Get a quiz by ID
     @GetMapping("/{quizId}")
-    public ResponseEntity<Quiz> getQuizById(@PathVariable Long quizId) {
-        Quiz quiz = quizService.getQuizById(quizId);
+    public ResponseEntity<QuizDTO> getQuizById(@PathVariable Long quizId) {
+        QuizDTO quiz = quizService.getQuizById(quizId);
         return ResponseEntity.ok(quiz);
     }
 
     // ✅ Get quizzes by chapter
     @GetMapping("/chapter/{chapterId}")
-    public ResponseEntity<List<Quiz>> getQuizzesByChapter(@PathVariable Long chapterId) {
+    public ResponseEntity<List<QuizDTO>> getQuizzesByChapter(@PathVariable Long chapterId) {
         return ResponseEntity.ok(quizService.getQuizzesByChapter(chapterId));
     }
 
     // ✅ Update a quiz
     @PutMapping("/{quizId}")
-    public ResponseEntity<Quiz> updateQuiz(@PathVariable Long quizId, @RequestBody Quiz updatedQuiz) {
-        Quiz quiz = quizService.updateQuiz(quizId, updatedQuiz);
+    public ResponseEntity<QuizDTO> updateQuiz(@PathVariable Long quizId, @RequestBody QuizDTO updatedQuizDTO) {
+        QuizDTO quiz = quizService.updateQuiz(quizId, updatedQuizDTO);
         return ResponseEntity.ok(quiz);
     }
 
@@ -57,7 +56,6 @@ public class QuizController {
         quizService.deleteQuiz(quizId);
         return ResponseEntity.noContent().build();
     }
-
 
     // ✅ Get all questions for a quiz
     @GetMapping("/{quizId}/questions")
