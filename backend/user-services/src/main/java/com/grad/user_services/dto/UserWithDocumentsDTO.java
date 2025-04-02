@@ -14,7 +14,7 @@ public class UserWithDocumentsDTO {
     @Size(max = 20, message = "First name must be less than 20 characters")
     @Pattern(regexp = "^[a-zA-Z]+$", message = "First name must contain only letters")
     private String firstname;
-
+ 
     @NotBlank(message = "Last name is required")
     @Size(max = 20, message = "Last name must be less than 20 characters")
     @Pattern(regexp = "^[a-zA-Z]+$", message = "Last name must contain only letters")

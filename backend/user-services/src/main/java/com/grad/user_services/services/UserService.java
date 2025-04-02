@@ -7,21 +7,29 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.grad.user_services.dao.AdminRepository;
+import com.grad.user_services.dao.ContactRepository;
 import com.grad.user_services.dao.UserRepository;
 import com.grad.user_services.dto.UserDTO;
 import com.grad.user_services.dto.UserResponseDTO;
 import com.grad.user_services.dto.UserWithDocumentsDTO;
 import com.grad.user_services.model.Admin;
 import com.grad.user_services.model.BaseAccount;
+import com.grad.user_services.model.Contact;
 import com.grad.user_services.model.User;
 import com.grad.user_services.model.UserDocument;
 import com.grad.user_services.dto.AdminProfileDTO;
+import com.grad.user_services.dto.ContactDTO;
 
 @Service
 public class UserService {
@@ -36,6 +44,9 @@ public class UserService {
     private AdminRepository adminRepository;
     @Autowired
     private FileValidationService fileValidationService;
+    @Autowired
+    private ContactRepository contactRepository;
+
 
     public User saveUser(@Valid User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
@@ -200,4 +211,19 @@ public class UserService {
                 ))
                 .orElse(null);
     }
+    public Contact saveContactFrom(ContactDTO contactDTO, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Contact contact = new Contact(user, contactDTO.getMessage());
+        return contactRepository.save(contact);
+    }
+    
+
+    public List<Contact> getAllMessages() {
+        // Assuming you have a ContactRepository (JPA repository) to fetch the messages
+        return contactRepository.findAll();  // Fetch all contacts/messages from the database
+    }
+
+
+    
+
 }

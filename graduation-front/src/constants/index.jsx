@@ -1,4 +1,4 @@
-import { ChartColumn, Home, LayoutDashboard, LogOut, NotepadText, Package, PackagePlus, User, UserCheck, UserPlus, Users } from "lucide-react";
+import { ChartColumn, Home, LayoutDashboard, LogOut, MessageCircle, MessageCircleCodeIcon, MessageCircleDashed, MessageSquare, NotepadText, Package, PackagePlus, User, UserCheck, UserPlus, Users } from "lucide-react";
 import ProfileImage from "../assets/images/profile-image.jpg"
 import ProductImage from "../assets/images/course.jpg"
 import { FaUserDoctor } from "react-icons/fa6";
@@ -75,6 +75,12 @@ export const navbarLinks = [
     {
        // title: "إعدادات",
         links: [
+            {
+                label:"الرسائل",
+                icon:MessageCircle,
+                path: "/layout/Messages"
+
+            },
             {
                 label: "تسجيل الخروج",
                 icon: LogOut,

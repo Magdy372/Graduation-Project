@@ -179,9 +179,7 @@ const CourseDesc = () => {
               <BiGlobe />
               <span>English</span>
             </motion.span>
-            <motion.span className="flex items-center space-x-1" variants={FadeUp(0.7)}>
-              <span>Number of enrolled people</span>
-            </motion.span>
+
           </div>
         </motion.div>
 

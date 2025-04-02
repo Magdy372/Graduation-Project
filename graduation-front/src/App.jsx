@@ -31,6 +31,8 @@ import Report from './pages/Report';
 import Chatbot from "./pages/chatbot";
 import ApprovedDoctors from "./pages/ApprovedDoctors";
 import ApprovedPharmacists from "./pages/ApprovedPharmacists";
+import ContactUs from "./pages/ContactUs";
+import Messages from "./pages/Messages";
 
 
 
@@ -64,6 +66,7 @@ const App = () => {
           <Route path="/myProfile" element={<MyProfile />} />
           <Route path="/coursePage" element={<CoursePage />} />
           <Route path="/feedback" element={<Feedback />} />
+          <Route path="/contact" element={<ContactUs />}/>
           {/* <Route path="/addvideo" element={<AddVideo />} /> */}
           {/* <Route path="/editCourse" element={<EditCourse />} /> */}
           {/* <Route path="/quizzes/:quizId/add-questions" element={<AddQuestions />} /> */}
@@ -94,6 +97,17 @@ const App = () => {
               }
             />
             <Route
+            path="Messages"
+            element={
+              <ProtectedRoute
+              element={<Messages/>}
+              requiredRole="Admin"
+              redirectTo="/Messages"
+              />
+            }
+            />
+            
+            <Route
               path="Report"
               element={
                 <ProtectedRoute
@@ -103,6 +117,7 @@ const App = () => {
                 />
               }
             />
+            
             <Route
               path="Doctors"
               element={
