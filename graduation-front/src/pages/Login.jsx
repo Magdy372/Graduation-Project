@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Footer from "../components/Footer";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
@@ -13,6 +13,27 @@ const Login = () => {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+    const accessToken = localStorage.getItem("access_token");
+    
+    if (isAuthenticated && accessToken) {
+      try {
+        const decodedToken = jwtDecode(accessToken);
+        if (decodedToken.roles.includes("Admin")) {
+          window.location.replace("/layout/ViewCourses");
+        } else {
+          window.location.replace("/");
+        }
+      } catch (error) {
+        // If token is invalid, clear the authentication state
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("isAuthenticated");
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,9 +80,16 @@ const Login = () => {
           window.location.replace("/");
         }
       } else {
-        if (data.email) setEmailError(data.email);
-        if (data.password) setPasswordError(data.password);
-        if (data.message) setError(data.message);
+        // Handle structured error response
+        if (data.errors) {
+          // Set field-specific errors
+          if (data.errors.email) setEmailError(data.errors.email);
+          if (data.errors.password) setPasswordError(data.errors.password);
+          if (data.errors.general) setError(data.errors.general);
+        } else {
+          // Fallback for unexpected error format
+          setError(data.message || "An unexpected error occurred. Please try again.");
+        }
       }
     } catch (err) {
       console.error("Login error:", err);

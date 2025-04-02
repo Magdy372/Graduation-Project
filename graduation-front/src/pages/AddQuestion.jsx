@@ -3,15 +3,17 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FaSave, FaPlus, FaArrowLeft } from 'react-icons/fa';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { validateQuestion, getFieldError, hasError } from '../utils/questionValidationUtils';
 
 const AddQuestions = () => {
   const { quizId } = useParams();
   const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
+  const [errors, setErrors] = useState({});
   const [currentQuestion, setCurrentQuestion] = useState({
     questionType: 'MCQ',
-    text: '',
-    grade: 0,
+    questionText: '',
+    points: 0,
     correctAnswer: '',
     options: ['', '', '', ''],
     sampleAnswer: '',
@@ -25,19 +27,33 @@ const AddQuestions = () => {
       options: e.target.value === 'MCQ' ? ['', '', '', ''] : [],
       sampleAnswer: '',
     });
+    // Clear errors when changing question type
+    setErrors({});
   };
 
   const handleOptionChange = (index, value) => {
     const newOptions = [...currentQuestion.options];
     newOptions[index] = value;
     setCurrentQuestion({ ...currentQuestion, options: newOptions });
+    // Clear option-specific errors
+    const newErrors = { ...errors };
+    delete newErrors[`option${index + 1}`];
+    setErrors(newErrors);
   };
 
   const addQuestion = async () => {
+    // Validate the question
+    const validationErrors = validateQuestion(currentQuestion);
+    setErrors(validationErrors);
+    
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+
     const questionData = {
       questionType: currentQuestion.questionType,
-      text: currentQuestion.text,
-      grade: parseFloat(currentQuestion.grade),
+      text: currentQuestion.questionText,
+      grade: parseFloat(currentQuestion.points),
       quizId: parseInt(quizId),
       correctAnswer: currentQuestion.correctAnswer,
       options: currentQuestion.questionType === 'MCQ' ? currentQuestion.options : undefined,
@@ -50,18 +66,27 @@ const AddQuestions = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(questionData),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrors({ general: errorData.message || 'حدث خطأ أثناء إضافة السؤال' });
+        return;
+      }
+
       const data = await response.json();
       setQuestions([...questions, data]);
       setCurrentQuestion({
         questionType: 'MCQ',
-        text: '',
-        grade: 0,
+        questionText: '',
+        points: 0,
         correctAnswer: '',
         options: ['', '', '', ''],
         sampleAnswer: '',
       });
+      setErrors({});
     } catch (error) {
       console.error('Error adding question:', error);
+      setErrors({ general: 'حدث خطأ في الاتصال بالخادم' });
     }
   };
 
@@ -78,28 +103,37 @@ const AddQuestions = () => {
           <h1 className="text-2xl font-bold">وضع اسئلة للامتحان</h1>
         </div>
 
-
         <div className="bg-white p-6 rounded-lg shadow-md mb-8 text-right">
           <div className="mb-4">
             <label className="block text-blue mb-2 text-lg">نوع الاسئلة</label>
             <select
               value={currentQuestion.questionType}
               onChange={handleQuestionTypeChange}
-              className="p-2 border rounded w-full text-right text-gray-500"
+              className={`p-2 border rounded w-full text-right text-gray-500 ${
+                hasError(errors, 'questionType') ? 'border-red' : ''
+              }`}
             >
               <option value="MCQ">إختيار من متعدد</option>
               <option value="TRUE_FALSE">صح/خطأ</option>
             </select>
+            {hasError(errors, 'questionType') && (
+              <p className="text-red text-sm mt-1">{getFieldError(errors, 'questionType')}</p>
+            )}
           </div>
 
           <div className="mb-4">
             <label className="block text-blue text-lg mb-2">السؤال</label>
             <textarea
-              value={currentQuestion.text}
-              onChange={(e) => setCurrentQuestion({ ...currentQuestion, text: e.target.value })}
-              className="p-2 border rounded w-full text-gray-500 text-right"
+              value={currentQuestion.questionText}
+              onChange={(e) => setCurrentQuestion({ ...currentQuestion, questionText: e.target.value })}
+              className={`p-2 border rounded w-full text-gray-500 text-right ${
+                hasError(errors, 'questionText') ? 'border-red' : ''
+              }`}
               rows="3"
             />
+            {hasError(errors, 'questionText') && (
+              <p className="text-red text-sm mt-1">{getFieldError(errors, 'questionText')}</p>
+            )}
           </div>
 
           <div className="mb-4">
@@ -107,10 +141,15 @@ const AddQuestions = () => {
             <input
               type="number"
               step="0.5"
-              value={currentQuestion.grade}
-              onChange={(e) => setCurrentQuestion({ ...currentQuestion, grade: e.target.value })}
-              className="p-2 border rounded w-full text-right text-gray-500"
+              value={currentQuestion.points}
+              onChange={(e) => setCurrentQuestion({ ...currentQuestion, points: e.target.value })}
+              className={`p-2 border rounded w-full text-right text-gray-500 ${
+                hasError(errors, 'points') ? 'border-red' : ''
+              }`}
             />
+            {hasError(errors, 'points') && (
+              <p className="text-red text-sm mt-1">{getFieldError(errors, 'points')}</p>
+            )}
           </div>
 
           {currentQuestion.questionType === 'MCQ' && (
@@ -118,14 +157,20 @@ const AddQuestions = () => {
               <div className="mb-4">
                 <label className="block text-blue text-lg mb-2">الاختيارات</label>
                 {currentQuestion.options.map((option, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    value={option}
-                    onChange={(e) => handleOptionChange(index, e.target.value)}
-                    className="p-2 border rounded w-full mb-2 text-right"
-                    placeholder={`الاختيار ${index + 1}`}
-                  />
+                  <div key={index} className="mb-2">
+                    <input
+                      type="text"
+                      value={option}
+                      onChange={(e) => handleOptionChange(index, e.target.value)}
+                      className={`p-2 border rounded w-full text-right ${
+                        hasError(errors, `option${index + 1}`) ? 'border-red' : ''
+                      }`}
+                      placeholder={`الاختيار ${index + 1}`}
+                    />
+                    {hasError(errors, `option${index + 1}`) && (
+                      <p className="text-red text-sm mt-1">{getFieldError(errors, `option${index + 1}`)}</p>
+                    )}
+                  </div>
                 ))}
               </div>
               <div className="mb-4">
@@ -136,8 +181,13 @@ const AddQuestions = () => {
                   max="4"
                   value={currentQuestion.correctAnswer}
                   onChange={(e) => setCurrentQuestion({ ...currentQuestion, correctAnswer: e.target.value })}
-                  className="p-2 border rounded w-full text-right text-gray-500"
+                  className={`p-2 border rounded w-full text-right text-gray-500 ${
+                    hasError(errors, 'correctAnswer') ? 'border-red' : ''
+                  }`}
                 />
+                {hasError(errors, 'correctAnswer') && (
+                  <p className="text-red text-sm mt-1">{getFieldError(errors, 'correctAnswer')}</p>
+                )}
               </div>
             </>
           )}
@@ -160,13 +210,22 @@ const AddQuestions = () => {
               <select
                 value={currentQuestion.correctAnswer}
                 onChange={(e) => setCurrentQuestion({ ...currentQuestion, correctAnswer: e.target.value })}
-                className="p-2 border rounded w-full text-right text-gray-500"
+                className={`p-2 border rounded w-full text-right text-gray-500 ${
+                  hasError(errors, 'correctAnswer') ? 'border-red' : ''
+                }`}
               >
                 <option value="">اختر الاجابة الصحيحة</option>
                 <option value="true">صح</option>
                 <option value="false">خطأ</option>
               </select>
+              {hasError(errors, 'correctAnswer') && (
+                <p className="text-red text-sm mt-1">{getFieldError(errors, 'correctAnswer')}</p>
+              )}
             </div>
+          )}
+
+          {errors.general && (
+            <p className="text-red text-sm mb-4">{errors.general}</p>
           )}
 
           <button

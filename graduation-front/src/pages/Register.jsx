@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Footer from "../components/Footer";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import Navbar from "../components/Navbar";
 import { validateRegisterEmail } from "../utils/validationUtils";
 import debounce from 'lodash/debounce';
 import { validateFile } from '../utils/fileValidation';
+import { jwtDecode } from "jwt-decode";
 
 // Define motion variants
 export const FadeUp = (delay) => {
@@ -43,6 +44,27 @@ const Register = () => {
   const [formErrors, setFormErrors] = useState({});
   const [emailError, setEmailError] = useState("");
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+
+  useEffect(() => {
+    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+    const accessToken = localStorage.getItem("access_token");
+    
+    if (isAuthenticated && accessToken) {
+      try {
+        const decodedToken = jwtDecode(accessToken);
+        if (decodedToken.roles.includes("Admin")) {
+          window.location.replace("/layout/ViewCourses");
+        } else {
+          window.location.replace("/");
+        }
+      } catch (error) {
+        // If token is invalid, clear the authentication state
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("isAuthenticated");
+      }
+    }
+  }, []);
 
   // Debounced email validation function
   const debouncedEmailCheck = useCallback(

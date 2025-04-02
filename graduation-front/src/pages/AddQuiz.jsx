@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { FaSave, FaTimes } from 'react-icons/fa';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { validateExam, getFieldError, hasError } from '../utils/examValidationUtils';
 
 const AddQuiz = () => {
   const navigate = useNavigate();
@@ -10,18 +11,20 @@ const AddQuiz = () => {
   const { course } = location.state || {};
   const [chapters, setChapters] = useState([]);
   const [selectedChapter, setSelectedChapter] = useState("");
+  const [errors, setErrors] = useState({});
   
   const [quiz, setQuiz] = useState({
     title: '',
-    timeLimit: 30, // Default time limit of 30 minutes
-    maxAttempts: 3, // Default max attempts of 3
+    duration: 30,
+    maxAttempts: 3,
+    courseId: course?.id,
     questions: []
   });
 
   // Fetch chapters when the page loads
   useEffect(() => {
     fetchChapters();
-  }, [course.id]);
+  }, [course?.id]);
 
   const fetchChapters = async () => {
     try {
@@ -31,14 +34,22 @@ const AddQuiz = () => {
       setChapters(data);
     } catch (error) {
       console.error("Error fetching chapters:", error);
+      setErrors({ general: 'حدث خطأ أثناء تحميل الفصول' });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({});
     
-    if (!selectedChapter) {
-      alert("Please select a chapter");
+    // Validate the quiz data
+    const validationErrors = validateExam({
+      ...quiz,
+      chapterId: selectedChapter
+    });
+    
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
@@ -46,7 +57,7 @@ const AddQuiz = () => {
       const quizData = {
         title: quiz.title,
         chapterId: parseInt(selectedChapter),
-        timeLimit: parseInt(quiz.timeLimit),
+        timeLimit: parseInt(quiz.duration),
         maxAttempts: parseInt(quiz.maxAttempts),
         questions: []
       };
@@ -64,7 +75,8 @@ const AddQuiz = () => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         console.error('Server response:', response.status, errorData); // Debug log
-        throw new Error(errorData?.message || `Failed to create quiz: ${response.status}`);
+        setErrors({ general: errorData?.message || 'حدث خطأ أثناء إنشاء الامتحان' });
+        return;
       }
 
       const data = await response.json();
@@ -72,7 +84,7 @@ const AddQuiz = () => {
       navigate(`/layout/quizzes/${data.id}/add-questions`);
     } catch (error) {
       console.error('Error creating quiz:', error);
-      alert(`Failed to create quiz: ${error.message}`);
+      setErrors({ general: 'حدث خطأ في الاتصال بالخادم' });
     }
   };
 
@@ -88,18 +100,23 @@ const AddQuiz = () => {
               type="text"
               value={quiz.title}
               onChange={(e) => setQuiz({ ...quiz, title: e.target.value })}
-              className="p-2 border rounded w-full text-right text-gray-500"
-              required
+              className={`p-2 border rounded w-full text-right text-gray-500 ${
+                hasError(errors, 'title') ? 'border-red' : ''
+              }`}
             />
+            {hasError(errors, 'title') && (
+              <p className="text-red text-sm mt-1">{getFieldError(errors, 'title')}</p>
+            )}
           </div>
           
           <div className="mb-6">
             <label className="block text-blue text-lg mb-2 text-right">اختر الفصل</label>
             <select
-              className="p-3 border rounded-md w-full shadow-sm text-right"
+              className={`p-3 border rounded-md w-full shadow-sm text-right ${
+                hasError(errors, 'chapterId') ? 'border-red' : ''
+              }`}
               value={selectedChapter}
               onChange={(e) => setSelectedChapter(e.target.value)}
-              required
             >
               <option value="">اختر الفصل</option>
               {chapters.map((chapter) => (
@@ -108,6 +125,9 @@ const AddQuiz = () => {
                 </option>
               ))}
             </select>
+            {hasError(errors, 'chapterId') && (
+              <p className="text-red text-sm mt-1">{getFieldError(errors, 'chapterId')}</p>
+            )}
           </div>
 
           <div className="mb-4 text-right">
@@ -115,11 +135,15 @@ const AddQuiz = () => {
             <input
               type="number"
               min="1"
-              value={quiz.timeLimit}
-              onChange={(e) => setQuiz({ ...quiz, timeLimit: e.target.value })}
-              className="p-2 border rounded w-full text-right text-gray-500"
-              required
+              value={quiz.duration}
+              onChange={(e) => setQuiz({ ...quiz, duration: e.target.value })}
+              className={`p-2 border rounded w-full text-right text-gray-500 ${
+                hasError(errors, 'duration') ? 'border-red' : ''
+              }`}
             />
+            {hasError(errors, 'duration') && (
+              <p className="text-red text-sm mt-1">{getFieldError(errors, 'duration')}</p>
+            )}
           </div>
 
           <div className="mb-4 text-right">
@@ -129,10 +153,18 @@ const AddQuiz = () => {
               min="1"
               value={quiz.maxAttempts}
               onChange={(e) => setQuiz({ ...quiz, maxAttempts: e.target.value })}
-              className="p-2 border rounded w-full text-right text-gray-500"
-              required
+              className={`p-2 border rounded w-full text-right text-gray-500 ${
+                hasError(errors, 'maxAttempts') ? 'border-red' : ''
+              }`}
             />
+            {hasError(errors, 'maxAttempts') && (
+              <p className="text-red text-sm mt-1">{getFieldError(errors, 'maxAttempts')}</p>
+            )}
           </div>
+
+          {errors.general && (
+            <p className="text-red text-sm mb-4">{errors.general}</p>
+          )}
 
           <div className="flex gap-4">
             <button

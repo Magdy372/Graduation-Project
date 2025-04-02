@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.grad.user_services.Exceptions.AuthenticationException;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -33,18 +34,33 @@ public class AuthenticationController {
     }
 
     private ResponseEntity<?> handleAuthenticationException(AuthenticationException e) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        
         switch (e.getMessage()) {
             case "Invalid email or password.":
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("error", "Invalid email or password")); // 401 Unauthorized
+                response.put("status", "error");
+                response.put("message", "Invalid email or password");
+                response.put("errors", Map.of(
+                    "general", "Invalid email or password. Please try again."
+                ));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 
             case "Your account is under review. Please wait for approval.":
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", "Your account is under review. Please wait for approval.")); // 403 Forbidden
+                response.put("status", "error");
+                response.put("message", "Account pending approval");
+                response.put("errors", Map.of(
+                    "email", "Your email is under approval. Please wait for admin verification."
+                ));
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
 
             default:
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(Map.of("error", "An unexpected error occurred.")); // 500 Internal Server Error
+                response.put("status", "error");
+                response.put("message", "An unexpected error occurred");
+                response.put("errors", Map.of(
+                    "general", "An unexpected error occurred. Please try again."
+                ));
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
