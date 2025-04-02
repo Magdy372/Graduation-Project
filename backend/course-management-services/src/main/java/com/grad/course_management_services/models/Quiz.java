@@ -17,6 +17,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,8 +52,13 @@ public class Quiz {
     @Column(nullable = false)
     private Integer timeLimit = 30; // Default time limit of 30 minutes
 
+    @Column(nullable = false)
+    @Min(value = 1, message = "Maximum attempts must be at least 1")
+    private Integer maxAttempts = 3; // Default max attempts of 3
+
     public Quiz() {
         this.timeLimit = 30; // Default time limit of 30 minutes
+        this.maxAttempts = 3; // Default max attempts of 3
         this.questions = new ArrayList<>();
     }
 
@@ -60,6 +66,7 @@ public class Quiz {
         this.title = title;
         this.chapter = chapter;
         this.timeLimit = 30; // Default time limit of 30 minutes
+        this.maxAttempts = 3; // Default max attempts of 3
         this.questions = new ArrayList<>();
     }
 }

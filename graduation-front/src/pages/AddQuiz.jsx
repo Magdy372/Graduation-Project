@@ -13,8 +13,8 @@ const AddQuiz = () => {
   
   const [quiz, setQuiz] = useState({
     title: '',
-    totalGrade: 0,
     timeLimit: 30, // Default time limit of 30 minutes
+    maxAttempts: 3, // Default max attempts of 3
     questions: []
   });
 
@@ -46,8 +46,8 @@ const AddQuiz = () => {
       const quizData = {
         title: quiz.title,
         chapterId: parseInt(selectedChapter),
-        totalGrade: parseFloat(quiz.totalGrade),
         timeLimit: parseInt(quiz.timeLimit),
+        maxAttempts: parseInt(quiz.maxAttempts),
         questions: []
       };
 
@@ -111,25 +111,24 @@ const AddQuiz = () => {
           </div>
 
           <div className="mb-4 text-right">
-            <label className="block text-blue mb-2 text-lg">الدرجة الكلية</label>
-            <input
-              type="number"
-              min="0"
-              step="0.5"
-              value={quiz.totalGrade}
-              onChange={(e) => setQuiz({ ...quiz, totalGrade: e.target.value })}
-              className="p-2 border rounded w-full text-right text-gray-500"
-              required
-            />
-          </div>
-
-          <div className="mb-4 text-right">
             <label className="block text-blue mb-2 text-lg">الوقت المحدد (بالدقائق)</label>
             <input
               type="number"
               min="1"
               value={quiz.timeLimit}
               onChange={(e) => setQuiz({ ...quiz, timeLimit: e.target.value })}
+              className="p-2 border rounded w-full text-right text-gray-500"
+              required
+            />
+          </div>
+
+          <div className="mb-4 text-right">
+            <label className="block text-blue mb-2 text-lg">العدد الأقصى للمحاولات</label>
+            <input
+              type="number"
+              min="1"
+              value={quiz.maxAttempts}
+              onChange={(e) => setQuiz({ ...quiz, maxAttempts: e.target.value })}
               className="p-2 border rounded w-full text-right text-gray-500"
               required
             />

@@ -1,7 +1,7 @@
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { BsFillCheckCircleFill, BsFillXCircleFill } from "react-icons/bs";
 
-const ModalCongrat = ({ score, onClose, onTryAgain }) => {
+const ModalCongrat = ({ score, userGrade, totalGrade, onClose, onTryAgain }) => {
   const isPassed = score >= 50;
 
   return (
@@ -14,39 +14,48 @@ const ModalCongrat = ({ score, onClose, onTryAgain }) => {
           <IoCloseCircleOutline />
         </button>
         
-        <div className={`text-4xl mb-4 ${isPassed ? 'text-green-500' : 'text-Red-500'}`}>
-          {isPassed ? <BsFillCheckCircleFill /> : <BsFillXCircleFill />}
+        <div className={`text-4xl mb-4 ${isPassed ? 'text-green-500' : 'text-red-500'}`}>
+          {isPassed ? <BsFillXCircleFill /> : <BsFillXCircleFill />}
         </div>
 
         <h1 className="text-2xl font-semibold mb-4">
-          {isPassed ? 'HURRAYYY!!' : 'OOPS! TRY AGAIN'}
+          {isPassed ? 'CONGRATULATIONS!' : 'TRY AGAIN'}
         </h1>
 
         <div className="space-y-4 mb-6">
           <p className="text-gray-700">
             {isPassed 
-              ? 'You have completed the course successfully!'
-              : 'You need to score at least 50% to pass.'}
+              ? 'You have successfully passed the exam!'
+              : 'You need at least 50% to pass this exam.'}
           </p>
-          <p className={`font-bold ${isPassed ? 'text-green-600' : 'text-red-600'}`}>
-            Your Score: {score}%
-          </p>
+          <div className="flex justify-center gap-4">
+            <p className="font-bold text-blue-600">
+              Grade: {userGrade}/{totalGrade}
+            </p>
+            <p className={`font-bold ${isPassed ? 'text-green-600' : 'text-red-600'}`}>
+              ({score}%)
+            </p>
+          </div>
         </div>
 
         <div className="flex justify-center gap-4">
           {!isPassed && (
             <button
               onClick={onTryAgain}
-              className="mt-4 p-3 bg-blue text-white w-full rounded-md hover:bg-red"
+              className="mt-4 p-3 bg-blue-600 text-white w-full rounded-md hover:bg-blue-700 transition-colors"
             >
               Try Again
             </button>
           )}
           <button
             onClick={onClose}
-            className="mt-4 p-3 bg-blue text-white w-full rounded-md hover:bg-red"
+            className={`mt-4 p-3 w-full rounded-md transition-colors ${
+              isPassed 
+                ? 'bg-green-600 hover:bg-green-700 text-white'
+                : 'bg-gray-600 hover:bg-gray-700 text-white'
+            }`}
           >
-            {isPassed ? 'Close' : 'Return to Course'}
+            {isPassed ? 'View Results' : 'Review Answers'}
           </button>
         </div>
       </div>

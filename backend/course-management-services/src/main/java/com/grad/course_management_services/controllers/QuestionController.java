@@ -17,60 +17,61 @@ import com.grad.course_management_services.dto.QuestionDTO;
 import com.grad.course_management_services.models.Questions.MCQQuestion;
 import com.grad.course_management_services.models.Questions.Question;
 import com.grad.course_management_services.models.Questions.TrueFalseQuestion;
-import com.grad.course_management_services.services.QuestionService;
+import com.grad.course_management_services.services.QuizService;
 
 @RestController
 @RequestMapping("/api/questions")
 public class QuestionController {
 
-    private final QuestionService questionService;
+    private final QuizService quizService;
 
-    public QuestionController(QuestionService questionService) {
-        this.questionService = questionService;
+    public QuestionController(QuizService quizService) {
+        this.quizService = quizService;
     }
 
     // Create a new question
     @PostMapping
-    public ResponseEntity<Question> createQuestion(@RequestBody QuestionDTO questionDTO) {
-        // Create the question using the service method
-        Question createdQuestion = questionService.createQuestion(questionDTO);
-
-        // Return a response with the created question and a status of CREATED (HTTP 201)
+    public ResponseEntity<QuestionDTO> createQuestion(@RequestBody QuestionDTO questionDTO) {
+        // Create the question using the quiz service method
+        QuestionDTO createdQuestion = quizService.createQuestion(questionDTO);
         return new ResponseEntity<>(createdQuestion, HttpStatus.CREATED);
     }
 
     // Get all MCQ questions by quiz ID
     @GetMapping("/quiz/{quizId}/mcq")
     public ResponseEntity<List<MCQQuestion>> getMCQQuestionsByQuizId(@PathVariable Long quizId) {
-        List<MCQQuestion> questions = questionService.getMCQQuestionsByQuizId(quizId);
+        List<MCQQuestion> questions = quizService.getMCQQuestionsByQuizId(quizId);
         return new ResponseEntity<>(questions, HttpStatus.OK);
     }
 
     // Get all True/False questions by quiz ID
     @GetMapping("/quiz/{quizId}/truefalse")
     public ResponseEntity<List<TrueFalseQuestion>> getTrueFalseQuestionsByQuizId(@PathVariable Long quizId) {
-        List<TrueFalseQuestion> questions = questionService.getTrueFalseQuestionsByQuizId(quizId);
+        List<TrueFalseQuestion> questions = quizService.getTrueFalseQuestionsByQuizId(quizId);
         return new ResponseEntity<>(questions, HttpStatus.OK);
     }
 
     // Get a question by ID
     @GetMapping("/{id}")
     public ResponseEntity<Question> getQuestionById(@PathVariable Long id) {
-        Question question = questionService.getQuestionById(id);
+        Question question = quizService.getQuestionById(id);
         return new ResponseEntity<>(question, HttpStatus.OK);
     }
 
     // Update a question
     @PutMapping("/{id}")
-    public ResponseEntity<Question> updateQuestion(@PathVariable Long id, @RequestBody Question questionDetails) {
-        Question updatedQuestion = questionService.updateQuestion(id, questionDetails);
-        return new ResponseEntity<>(updatedQuestion, HttpStatus.OK);
+    public ResponseEntity<QuestionDTO> updateQuestion(@PathVariable Long id, @RequestBody QuestionDTO questionDetails) {
+        Question question = quizService.getQuestionById(id);
+        question.setText(questionDetails.getText());
+        question.setGrade(questionDetails.getGrade());
+        Question updatedQuestion = quizService.updateQuestion(id, question);
+        return new ResponseEntity<>(quizService.createQuestionDTO(updatedQuestion), HttpStatus.OK);
     }
 
     // Delete a question
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteQuestion(@PathVariable Long id) {
-        questionService.deleteQuestion(id);
+        quizService.deleteQuestion(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaArrowLeft, FaPlayCircle, FaDownload } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardContent } from "@mui/material";
@@ -9,7 +9,6 @@ import { jwtDecode } from "jwt-decode";
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ModalCongrat from '../components/ModalCongrat';
-import videoDemo from '../assets/videos/rec.mp4';
 
 const FadeUp = (delay) => ({
   initial: { opacity: 0, y: 50 },
@@ -50,11 +49,25 @@ const CoursePage = () => {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(null);
   const [timerInterval, setTimerInterval] = useState(null);
-  const [quizTimeLimit, setQuizTimeLimit] = useState(30); // Default 30 minutes
+  const [quizTimeLimit, setQuizTimeLimit] = useState(30);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [showQuizSelection, setShowQuizSelection] = useState(false);
+  const [quizAttempts, setQuizAttempts] = useState([]);
+  const [maxAttempts, setMaxAttempts] = useState(3);
+  const [currentAttempt, setCurrentAttempt] = useState(1);
+  const [userGrade, setUserGrade] = useState(0);
+  const [totalGrade, setTotalGrade] = useState(0);
+  const userAnswersRef = useRef({});
 
-  // Fetch course data
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+
+  const decodedToken = jwtDecode(token);
+  const userId = decodedToken.userId;
+
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
@@ -78,7 +91,6 @@ const CoursePage = () => {
     fetchCourseData();
   }, [courseId]);
 
-  // Window resize handler
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
@@ -89,7 +101,6 @@ const CoursePage = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Save watched videos to localStorage
   useEffect(() => {
     localStorage.setItem(
       `watchedVideos_${courseId}`,
@@ -121,11 +132,9 @@ const CoursePage = () => {
     setShowQuizSelection(true);
   };
 
-  // Modify the existing fetchQuizzes function to remove attempts fetching
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
-        // Fetch all quizzes for the course's chapters
         const quizzesPromises = chapters.map(chapter => 
           fetch(`http://localhost:8084/api/quizzes/chapter/${chapter.id}`)
             .then(res => {
@@ -153,36 +162,78 @@ const CoursePage = () => {
     }
   }, [chapters]);
 
-  // Modify handleQuizSelect to remove attempts check
+  useEffect(() => {
+    const fetchQuizAttempts = async () => {
+      if (selectedQuiz && userId) {
+        try {
+          const response = await fetch(`http://localhost:8084/api/quizzes/attempts/quiz/${selectedQuiz.id}`);
+          const attempts = await response.json();
+          setQuizAttempts(attempts);
+          setCurrentAttempt(attempts.length + 1);
+        } catch (error) {
+          console.error('Error fetching quiz attempts:', error);
+        }
+      }
+    };
+
+    fetchQuizAttempts();
+  }, [selectedQuiz]);
+
+  useEffect(() => {
+    const fetchAllQuizAttempts = async () => {
+      if (userId) {
+        try {
+          const response = await fetch(`http://localhost:8084/api/quizzes/attempts/user/${userId}`);
+          const attempts = await response.json();
+          setQuizAttempts(attempts);
+        } catch (error) {
+          console.error('Error fetching all quiz attempts:', error);
+        }
+      }
+    };
+
+    fetchAllQuizAttempts();
+  }, [userId]);
+
   const handleQuizSelect = async (quiz) => {
-    setSelectedQuiz(quiz);
-    setQuizTimeLimit(quiz.timeLimit);
-    setShowQuizSelection(false);
-    
     try {
-      // Fetch questions for the selected quiz
-      const response = await fetch(`http://localhost:8084/api/quizzes/${quiz.id}/questions`);
-      const questions = await response.json();
+      const response = await fetch(`http://localhost:8084/api/quizzes/attempts/count?quizId=${quiz.id}&userId=${userId}`);
+      const attemptsCount = await response.json();
       
-      // Transform questions to exam format
+      if (attemptsCount >= quiz.maxAttempts) {
+        alert(`You have reached the maximum number of attempts (${quiz.maxAttempts}) for this quiz.`);
+        return;
+      }
+
+      setSelectedQuiz(quiz);
+      setQuizTimeLimit(quiz.timeLimit);
+      setMaxAttempts(quiz.maxAttempts);
+      setShowQuizSelection(false);
+      
+      const questionsResponse = await fetch(`http://localhost:8084/api/quizzes/${quiz.id}/questions`);
+      const questions = await questionsResponse.json();
+      
       const transformedQuestions = questions.map(q => {
         if (q.questionType === 'MCQ') {
           return {
             question: q.text,
             options: q.options,
-            answer: parseInt(q.correctAnswer)
+            answer: parseInt(q.correctAnswer),
+            grade: q.grade || 1
           };
         } else if (q.questionType === 'TRUE_FALSE') {
           return {
             question: q.text,
             options: ['True', 'False'],
-            answer: q.correctAnswer === 'true' ? 0 : 1
+            answer: q.correctAnswer === 'true' ? 0 : 1,
+            grade: q.grade || 1
           };
         }
         return null;
       }).filter(q => q !== null);
 
       setExamQuestions(transformedQuestions);
+      setTotalGrade(transformedQuestions.reduce((sum, q) => sum + q.grade, 0));
       setQuestionsLoading(false);
       setExamStarted(true);
     } catch (error) {
@@ -192,38 +243,46 @@ const CoursePage = () => {
   };
 
   const handleAnswerSelect = (questionIndex, selectedOption) => {
-    setUserAnswers(prev => ({
-      ...prev,
-      [questionIndex]: selectedOption
-    }));
+    setUserAnswers(prev => {
+      const newAnswers = { ...prev, [questionIndex]: selectedOption };
+      userAnswersRef.current = newAnswers;
+      return newAnswers;
+    });
   };
 
-  // Modified score calculation
-  const calculateScore = () => {
-    let correct = 0;
+  const calculateGrade = () => {
+    let grade = 0;
     examQuestions.forEach((question, index) => {
       const userAnswerText = userAnswers[index];
+      if (userAnswerText === undefined) return;
+
       const userAnswerIndex = question.options.indexOf(userAnswerText);
       
-      if (userAnswerIndex === --question.answer) {
-        correct++;
+      if (question.options.length === 2) {
+        if (userAnswerIndex === question.answer) {
+          grade += question.grade;
+        }
+      } else {
+        if (userAnswerIndex === question.answer - 1) {
+          grade += question.grade;
+        }
       }
     });
-    return Math.round((correct / examQuestions.length) * 100);
+    return grade;
   };
 
-  // Add timer functionality
   useEffect(() => {
+    let interval;
+    
     if (examStarted && timeLeft === null) {
-      // Convert minutes to seconds
       const initialTime = quizTimeLimit * 60;
       setTimeLeft(initialTime);
       
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
             clearInterval(interval);
-            handleExamSubmit(); // Auto-submit when time is up
+            handleExamSubmit(true);
             return 0;
           }
           return prev - 1;
@@ -234,62 +293,64 @@ const CoursePage = () => {
     }
 
     return () => {
-      if (timerInterval) {
-        clearInterval(timerInterval);
+      if (interval) {
+        clearInterval(interval);
       }
     };
   }, [examStarted, quizTimeLimit]);
 
-  // Format time for display
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  // Modify handleExamSubmit to remove attempts recording
-  const handleExamSubmit = async () => {
+  const handleExamSubmit = async (isTimerExpired = false) => {
     if (timerInterval) {
       clearInterval(timerInterval);
     }
-    const calculatedScore = calculateScore();
-    setScore(calculatedScore);
+    
+    const finalAnswers = userAnswersRef.current;
+    const calculatedGrade = calculateGrade();
+    const percentageScore = Math.round((calculatedGrade / totalGrade) * 100);
+    
+    setUserAnswers(finalAnswers);
+    setUserGrade(calculatedGrade);
+    setScore(percentageScore);
     setExamSubmitted(true);
     setShowModal(true);
-    
+  
     try {
-      const token = localStorage.getItem('access_token');
-      if (!token) {
-        navigate("/login");
-        return;
-      }
-
-      // Handle success
-      if (calculatedScore >= 50) {
+      await fetch(`http://localhost:8084/api/quizzes/attempts?quizId=${selectedQuiz.id}&userId=${userId}&score=${percentageScore}`, {
+        method: 'POST',
+      });
+      
+      if (percentageScore >= 50) {
         const currentBadges = parseInt(localStorage.getItem('badgesCount') || '0', 10);
         localStorage.setItem('badgesCount', currentBadges + 1);
-      } else {
-        setExamStarted(false);
-        setUserAnswers({});
       }
     } catch (error) {
       console.error('Error handling exam submission:', error);
-      // Still show the results even if saving fails
-      if (calculatedScore >= 50) {
+      if (percentageScore >= 50) {
         const currentBadges = parseInt(localStorage.getItem('badgesCount') || '0', 10);
         localStorage.setItem('badgesCount', currentBadges + 1);
-      } else {
-        setExamStarted(false);
-        setUserAnswers({});
       }
     }
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    //navigate('/');
-    if(score >= 50 )
+    // if(score >= 50) {
+    //   navigate('/feedback');
+    // }
+  };
+  const handleCloseQuiz = () => {
+    setShowModal(false);
+    if(score >= 50) {
       navigate('/feedback');
+    }else{
+      setShowQuizSelection(false)
+    }
   };
 
   if (!course || !chapters.length) return <div>Loading...</div>;
@@ -300,6 +361,8 @@ const CoursePage = () => {
       {showModal && (
         <ModalCongrat 
           score={score} 
+          userGrade={userGrade}
+          totalGrade={totalGrade}
           onClose={handleCloseModal}
           onTryAgain={() => {
             setExamStarted(true);
@@ -388,18 +451,37 @@ const CoursePage = () => {
                   <div className="w-full h-full p-6 bg-white rounded-lg shadow">
                     <h2 className="text-2xl font-semibold mb-6">Select a Quiz</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {quizzes.map((quiz) => (
-                        <div
-                          key={quiz.id}
-                          className="p-4 border rounded-lg hover:border-red cursor-pointer transition-colors"
-                          onClick={() => handleQuizSelect(quiz)}
-                        >
-                          <h3 className="text-xl font-semibold mb-2">{quiz.title}</h3>
-                          <p className="text-gray-600">Time Limit: {quiz.timeLimit} minutes</p>
-                          <p className="text-gray-600">Total Grade: {quiz.totalGrade}</p>
-                          <p className="text-gray-600">Questions: {quiz.questions?.length || 0}</p>
-                        </div>
-                      ))}
+                      {quizzes.map((quiz) => {
+                        const userAttempts = quizAttempts.filter(a => a.quizId === quiz.id).length;
+                        const remainingAttempts = Math.max(0, quiz.maxAttempts - userAttempts);
+                        const hasReachedLimit = userAttempts >= quiz.maxAttempts;
+                        
+                        return (
+                          <div
+                            key={quiz.id}
+                            className={`p-4 border rounded-lg hover:border-red cursor-pointer transition-colors ${
+                              hasReachedLimit ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
+                            onClick={() => !hasReachedLimit && handleQuizSelect(quiz)}
+                          >
+                            <h3 className="text-xl font-semibold mb-2">{quiz.title}</h3>
+                            <p className="text-gray-600">Time Limit: {quiz.timeLimit} minutes</p>
+                            <p className="text-gray-600">Total Grade: {quiz.totalGrade}</p>
+                            <p className="text-gray-600">Questions: {quiz.questions?.length || 0}</p>
+                            <div className="mt-2">
+                              <p className={`text-sm ${!hasReachedLimit ? 'text-green-600' : 'text-red-600'}`}>
+                                Attempts: {userAttempts}/{quiz.maxAttempts}
+                              </p>
+                              <p className={`text-sm ${!hasReachedLimit ? 'text-green-600' : 'text-red-600'}`}>
+                                Remaining Attempts: {remainingAttempts}
+                              </p>
+                            </div>
+                            {hasReachedLimit && (
+                              <p className="text-red-600 text-sm mt-2">Maximum attempts reached</p>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                     <button
                       onClick={() => setShowQuizSelection(false)}
@@ -453,73 +535,94 @@ const CoursePage = () => {
                       <p className="text-xl text-gray-600">No questions available for this quiz.</p>
                     </div>
                   ) : (
-                    examQuestions.map((question, index) => (
-                      <div key={index} className="mb-6">
-                        <h3 className="text-xl font-semibold mb-2">
-                          Question {index + 1}: {question.question}
-                        </h3>
-                        <div className="flex flex-col gap-2">
-                          {question.options.map((option, i) => {
-                            const isCorrect = i === question.answer;
-                            const isUserAnswer = userAnswers[index] === option;
-                            const isWrongAnswer = isUserAnswer && !isCorrect;
+                    <>
+                      {examQuestions.map((question, index) => (
+                        <div key={index} className="mb-6">
+                          <h3 className="text-xl font-semibold mb-2">
+                            Question {index + 1} (Grade: {question.grade}): {question.question}
+                          </h3>
+                          <div className="flex flex-col gap-2">
+                            {question.options.map((option, i) => {
+                              const isCorrect = question.options.length === 2 
+                                ? i === question.answer
+                                : i === (question.answer - 1);
+                              const isUserAnswer = userAnswers[index] === option;
+                              const isWrongAnswer = isUserAnswer && !isCorrect;
 
-                            return (
-                              <label 
-                                key={i} 
-                                className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
-                                  examSubmitted
-                                    ? isCorrect
-                                      ? 'bg-green-100'
-                                      : isWrongAnswer
-                                      ? 'bg-red-100'
-                                      : 'bg-red-50'
-                                    : 'hover:bg-red-100'
-                                }`}
-                              >
-                                <input
-                                  type="radio"
-                                  name={`question-${index}`}
-                                  value={option}
-                                  checked={isUserAnswer}
-                                  onChange={() => handleAnswerSelect(index, option)}
-                                  disabled={examSubmitted}
-                                  className="form-radio"
-                                />
-                                {option}
-                                {examSubmitted && isCorrect && (
-                                  <span className="ml-auto text-green-600">
-                                    ✓ Correct Answer
-                                  </span>
-                                )}
-                                {examSubmitted && isWrongAnswer && (
-                                  <span className="ml-auto text-red-600">
-                                    ✗ Your Answer
-                                  </span>
-                                )}
-                              </label>
-                            );
-                          })}
+                              return (
+                                <label 
+                                  key={i} 
+                                  className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
+                                    examSubmitted
+                                      ? isCorrect
+                                        ? 'bg-green-100'
+                                        : isWrongAnswer
+                                        ? 'bg-red-100'
+                                        : 'bg-red-50'
+                                      : 'hover:bg-red-100'
+                                  }`}
+                                >
+                                  <input
+                                    type="radio"
+                                    name={`question-${index}`}
+                                    value={option}
+                                    checked={isUserAnswer}
+                                    onChange={() => handleAnswerSelect(index, option)}
+                                    disabled={examSubmitted}
+                                    className="form-radio"
+                                  />
+                                  {option}
+                                  {examSubmitted && isCorrect && (
+                                    <span className="ml-auto text-green-600">
+                                      ✓ Correct Answer
+                                    </span>
+                                  )}
+                                  {examSubmitted && isWrongAnswer && (
+                                    <span className="ml-auto text-red-600">
+                                      ✗ Your Answer
+                                    </span>
+                                  )}
+                                </label>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    ))
-                  )}
+                      ))}
 
-                  {!examSubmitted ? (
-                    <button
-                      onClick={handleExamSubmit}
-                      className="mt-4 p-3 bg-blue text-white border hover:bg-red rounded-md"
-                      disabled={Object.keys(userAnswers).length !== examQuestions.length}
-                    >
-                      Submit Exam
-                    </button>
-                  ) : (
-                    <button
-                      onClick={handleCloseModal}
-                      className="mt-4 p-3 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-                    >
-                      {score >= 50 ? 'Return to Dashboard' : 'Return to Course'}
-                    </button>
+                      {examSubmitted && (
+                        <div className="mb-6 p-4 bg-gray-100 rounded-lg">
+                          <h3 className="text-xl font-semibold mb-2">Exam Results</h3>
+                          <p className="text-lg">
+                            Your grade: <span className="font-bold">{userGrade}</span> out of <span className="font-bold">{totalGrade}</span>
+                          </p>
+                          <p className="text-lg">
+                            Percentage: <span className="font-bold">{score}%</span>
+                          </p>
+                          {score >= 50 ? (
+                            <p className="text-green-600 text-lg mt-2">Congratulations! You passed the exam.</p>
+                          ) : (
+                            <p className="text-red-600 text-lg mt-2">You didn't pass this attempt. Please try again.</p>
+                          )}
+                        </div>
+                      )}
+
+                      {!examSubmitted ? (
+                        <button
+                          onClick={handleExamSubmit}
+                          className="mt-4 p-3 bg-blue text-white border hover:bg-red rounded-md"
+                          disabled={Object.keys(userAnswers).length !== examQuestions.length}
+                        >
+                          Submit Exam
+                        </button>
+                      ) : (
+                        <button
+                          onClick={handleCloseQuiz}
+                          className="mt-4 p-3 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                        >
+                          {score >= 50 ? 'Return to Dashboard' : 'Return to Course'}
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               )}
@@ -535,10 +638,6 @@ const CoursePage = () => {
                   <Typography variant="h6" className="text-red font-semibold text-lg">
                     Course Summary
                   </Typography>
-                  {/* <button className="text-lg mb-3 p-3 bg-blue text-white border hover:bg-red rounded-md flex items-center gap-2 text-left w-[150px] text-center">
-                    <FaDownload />
-                  //  Download
-                  </button> */}
                 </div>
               }
             />

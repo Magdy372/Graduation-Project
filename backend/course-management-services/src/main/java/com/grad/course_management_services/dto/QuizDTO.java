@@ -12,6 +12,7 @@ public class QuizDTO {
     private Long chapterId;
     private Double totalGrade;
     private Integer timeLimit;
+    private Integer maxAttempts;
     private List<QuestionDTO> questions;
 
     public QuizDTO() {

@@ -11,11 +11,14 @@ import com.grad.course_management_services.dao.QuizRepository;
 import com.grad.course_management_services.dao.ChapterRepository;
 import com.grad.course_management_services.dto.QuestionDTO;
 import com.grad.course_management_services.dto.QuizDTO;
+import com.grad.course_management_services.dto.QuizAttemptDTO;
 import com.grad.course_management_services.models.Quiz;
 import com.grad.course_management_services.models.Questions.MCQQuestion;
 import com.grad.course_management_services.models.Questions.Question;
 import com.grad.course_management_services.models.Questions.TrueFalseQuestion;
 import com.grad.course_management_services.models.Chapter;
+import com.grad.course_management_services.models.QuizAttempt;
+import com.grad.course_management_services.repositories.QuizAttemptRepository;
 
 @Service
 public class QuizService {
@@ -29,6 +32,9 @@ public class QuizService {
     @Autowired
     private ChapterRepository chapterRepository;
 
+    @Autowired
+    private QuizAttemptRepository quizAttemptRepository;
+
     // Convert Quiz to QuizDTO
     private QuizDTO convertToDTO(Quiz quiz) {
         QuizDTO dto = new QuizDTO();
@@ -37,6 +43,7 @@ public class QuizService {
         dto.setChapterId(quiz.getChapter().getId());
         dto.setTotalGrade(quiz.getTotalGrade());
         dto.setTimeLimit(quiz.getTimeLimit());
+        dto.setMaxAttempts(quiz.getMaxAttempts());
         dto.setQuestions(getQuestionsByQuiz(quiz.getId()));
         return dto;
     }
@@ -45,8 +52,9 @@ public class QuizService {
     private Quiz convertToEntity(QuizDTO dto) {
         Quiz quiz = new Quiz();
         quiz.setTitle(dto.getTitle());
-        quiz.setTotalGrade(dto.getTotalGrade());
         quiz.setTimeLimit(dto.getTimeLimit());
+        quiz.setMaxAttempts(dto.getMaxAttempts() != null ? dto.getMaxAttempts() : 3); // Default to 3 if not specified
+        quiz.setTotalGrade(0.0); // Initialize total grade to 0
         
         // Set the chapter relationship
         Chapter chapter = chapterRepository.findById(dto.getChapterId())
@@ -59,6 +67,7 @@ public class QuizService {
     // ✅ Create a new quiz
     public QuizDTO createQuiz(QuizDTO quizDTO) {
         Quiz quiz = convertToEntity(quizDTO);
+        quiz.setTotalGrade(0.0); // Ensure total grade is set to 0 initially
         Quiz savedQuiz = quizRepository.save(quiz);
         return convertToDTO(savedQuiz);
     }
@@ -91,9 +100,9 @@ public class QuizService {
         
         Quiz updatedQuiz = convertToEntity(updatedQuizDTO);
         existingQuiz.setTitle(updatedQuiz.getTitle());
-        existingQuiz.setTotalGrade(updatedQuiz.getTotalGrade());
         existingQuiz.setTimeLimit(updatedQuiz.getTimeLimit());
         
+        // Don't update total grade here as it's calculated from questions
         Quiz savedQuiz = quizRepository.save(existingQuiz);
         return convertToDTO(savedQuiz);
     }
@@ -143,6 +152,129 @@ public class QuizService {
         } else {
             throw new IllegalArgumentException("Unknown question type: " + question.getClass().getName());
         }
+    }
+
+    // ✅ Get MCQ questions by quiz ID
+    public List<MCQQuestion> getMCQQuestionsByQuizId(Long quizId) {
+        return questionRepository.findMCQQuestionsByQuizId(quizId);
+    }
+
+    // ✅ Get True/False questions by quiz ID
+    public List<TrueFalseQuestion> getTrueFalseQuestionsByQuizId(Long quizId) {
+        return questionRepository.findTrueFalseQuestionsByQuizId(quizId);
+    }
+
+    // ✅ Get a question by ID
+    public Question getQuestionById(Long id) {
+        return questionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Question not found with id " + id));
+    }
+
+    // ✅ Update a question
+    public Question updateQuestion(Long id, Question questionDetails) {
+        Question question = getQuestionById(id);
+        question.setText(questionDetails.getText());
+        question.setGrade(questionDetails.getGrade());
+        Question updatedQuestion = questionRepository.save(question);
+        
+        // Update quiz's total grade after updating a question
+        updateTotalGrade(question.getQuiz().getId());
+        
+        return updatedQuestion;
+    }
+
+    // ✅ Create a new question
+    public QuestionDTO createQuestion(QuestionDTO questionDTO) {
+        Question question = null;
+        Quiz quiz = quizRepository.findById(questionDTO.getQuizId())
+                .orElseThrow(() -> new RuntimeException("Quiz not found"));
+
+        if ("MCQ".equals(questionDTO.getQuestionType())) {
+            question = new MCQQuestion(
+                questionDTO.getText(),
+                questionDTO.getGrade(),
+                quiz,
+                questionDTO.getCorrectAnswer(),
+                String.join(",", questionDTO.getOptions()),
+                quiz.getQuestions().size() + 1
+            );
+        } else if ("TRUE_FALSE".equals(questionDTO.getQuestionType())) {
+            question = new TrueFalseQuestion(
+                questionDTO.getText(),
+                questionDTO.getGrade(),
+                quiz,
+                Boolean.parseBoolean(questionDTO.getCorrectAnswer()),
+                quiz.getQuestions().size() + 1
+            );
+        }
+
+        // Save the question first
+        Question savedQuestion = questionRepository.save(question);
+        
+        // Add the question to the quiz's questions list
+        quiz.getQuestions().add(savedQuestion);
+        
+        // Calculate and update the total grade
+        double totalGrade = quiz.getQuestions().stream()
+            .mapToDouble(Question::getGrade)
+            .sum();
+        quiz.setTotalGrade(totalGrade);
+        
+        // Save the updated quiz
+        quizRepository.save(quiz);
+        
+        return createQuestionDTO(savedQuestion);
+    }
+
+    // Get quiz attempts for a user
+    public List<QuizAttemptDTO> getQuizAttemptsByUser(String userId) {
+        return quizAttemptRepository.findByUserId(userId)
+            .stream()
+            .map(this::convertAttemptToDTO)
+            .collect(Collectors.toList());
+    }
+
+    // Get quiz attempts for a specific quiz
+    public List<QuizAttemptDTO> getQuizAttemptsByQuiz(Long quizId) {
+        return quizAttemptRepository.findByQuizId(quizId)
+            .stream()
+            .map(this::convertAttemptToDTO)
+            .collect(Collectors.toList());
+    }
+
+    // Record a new quiz attempt
+    public QuizAttemptDTO recordQuizAttempt(Long quizId, String userId, Double score) {
+        Quiz quiz = quizRepository.findById(quizId)
+            .orElseThrow(() -> new RuntimeException("Quiz not found"));
+
+        // Get previous attempts for this quiz and user
+        List<QuizAttempt> previousAttempts = quizAttemptRepository.findByQuizIdAndUserId(quizId, userId);
+        
+        // Create new attempt
+        QuizAttempt attempt = new QuizAttempt(quiz, userId);
+        attempt.setScore(score);
+        attempt.setAttemptNumber(previousAttempts.size() + 1);
+        attempt.setPassed(score >= 50); // Assuming 50% is passing grade
+
+        QuizAttempt savedAttempt = quizAttemptRepository.save(attempt);
+        return convertAttemptToDTO(savedAttempt);
+    }
+
+    // Get number of attempts for a quiz by a user
+    public Integer getNumberOfAttempts(Long quizId, String userId) {
+        return quizAttemptRepository.findByQuizIdAndUserId(quizId, userId).size();
+    }
+
+    private QuizAttemptDTO convertAttemptToDTO(QuizAttempt attempt) {
+        return new QuizAttemptDTO(
+            attempt.getId(),
+            attempt.getQuiz().getId(),
+            attempt.getUserId(),
+            attempt.getScore(),
+            attempt.getAttemptDate(),
+            attempt.getAttemptNumber(),
+            attempt.getPassed()
+        );
     }
 }
 
