@@ -31,6 +31,7 @@ import com.grad.user_services.model.UserDocument;
 import com.grad.user_services.dto.AdminProfileDTO;
 import com.grad.user_services.dto.ContactDTO;
 
+
 @Service
 public class UserService {
 
@@ -218,9 +219,15 @@ public class UserService {
     }
     
 
-    public List<Contact> getAllMessages() {
-        // Assuming you have a ContactRepository (JPA repository) to fetch the messages
-        return contactRepository.findAll();  // Fetch all contacts/messages from the database
+    public List<ContactDTO> getAllMessages() {
+        return contactRepository.findAll().stream()
+            .map(contact -> new ContactDTO(
+                contact.getId(),
+                contact.getMess(),
+                contact.getUser().getFirstname() + " " + contact.getUser().getLastname(),
+                contact.getUser().getEmail()
+            ))
+            .collect(Collectors.toList());
     }
 
 

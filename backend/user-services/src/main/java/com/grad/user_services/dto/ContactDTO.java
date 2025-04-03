@@ -1,31 +1,60 @@
 package com.grad.user_services.dto;
 
-
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
-// Lombok annotations can reduce boilerplate (optional)
-// import lombok.Data;
-
-
-    public class ContactDTO {
-
-        @NotBlank(message = "Message is required")
-        private String message;  // Changed from 'mess' for clarity
+public class ContactDTO {
+    private Long id;
     
-        // Constructor that only takes message
-        public ContactDTO(String mess) {
-            this.message = mess;
-        }
+    @NotBlank(message = "Message is required")
+    private String message;
     
-        // Getter and Setter for message
-        public String getMessage() {
-            return message;
-        }
-    
-        public void setMessage(String message) {
-            this.message = message;
-        }
+    private String senderName;
+    private String senderEmail;
+
+    // Constructor for creating new messages
+    public ContactDTO(String message) {
+        this.message = message;
     }
+
+    // Constructor for receiving messages
+    public ContactDTO(Long id, String message, String senderName, String senderEmail) {
+        this.id = id;
+        this.message = message;
+        this.senderName = senderName;
+        this.senderEmail = senderEmail;
+    }
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
+    public String getSenderEmail() {
+        return senderEmail;
+    }
+
+    public void setSenderEmail(String senderEmail) {
+        this.senderEmail = senderEmail;
+    }
+}
     

@@ -36,6 +36,7 @@ import com.grad.user_services.model.User;
 import com.grad.user_services.model.UserDocument;
 import com.grad.user_services.services.UserService;
 
+
 // @CrossOrigin(origins = "http://localhost:5173")  // Allow frontend to interact with this backend
 @RestController
 @RequestMapping("/users")
@@ -231,9 +232,13 @@ public class UserController {
     
     // In UserController.java
     @GetMapping("/get-messages")
-    public ResponseEntity<List<Contact>> getAllMessages() {
-        List<Contact> mess = userService.getAllMessages();  // Fetch messages from the service
-        return ResponseEntity.ok(mess);
+    public ResponseEntity<List<ContactDTO>> getAllMessages() {
+        try {
+            List<ContactDTO> messages = userService.getAllMessages();
+            return ResponseEntity.ok(messages);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 

@@ -29,6 +29,10 @@ public class Contact {
     @NotBlank(message = "Message is required")
     private String mess; // Storing only the message field
 
+    // Default constructor required by JPA/Hibernate
+    public Contact() {
+    }
+
     // Constructor that accepts user and message only
     public Contact(User user, String mess) {
         this.user = user;
