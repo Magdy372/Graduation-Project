@@ -9,6 +9,8 @@ import { jwtDecode } from "jwt-decode";
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ModalCongrat from '../components/ModalCongrat';
+import QuizSecurity from "../utils/quizsec";
+import { CourseService, QuizService } from '../services/courepage';
 
 const FadeUp = (delay) => ({
   initial: { opacity: 0, y: 50 },
@@ -71,11 +73,9 @@ const CoursePage = () => {
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
-        const courseRes = await fetch(`http://localhost:8084/api/courses/${courseId}`);
-        const chaptersRes = await fetch(`http://localhost:8084/api/courses/${courseId}/chapters`);
-        
-        const courseData = await courseRes.json();
-        const chaptersData = await chaptersRes.json();
+        // Using CourseService from API import
+        const courseData = await CourseService.getCourse(courseId);
+        const chaptersData = await CourseService.getChapters(courseId);
         
         setCourse(courseData);
         setChapters(chaptersData);
@@ -135,39 +135,26 @@ const CoursePage = () => {
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
-        const quizzesPromises = chapters.map(chapter => 
-          fetch(`http://localhost:8084/api/quizzes/chapter/${chapter.id}`)
-            .then(res => {
-              if (!res.ok) {
-                throw new Error(`Failed to fetch quizzes for chapter ${chapter.id}`);
-              }
-              return res.json();
-            })
-            .catch(error => {
-              console.error(`Error fetching quizzes for chapter ${chapter.id}:`, error);
-              return [];
-            })
-        );
-        const quizzesResults = await Promise.all(quizzesPromises);
-        const allQuizzes = quizzesResults.flat().filter(quiz => quiz && quiz.id);
-        setQuizzes(allQuizzes);
+        // Using QuizService from API import
+        if (chapters.length > 0) {
+          const allQuizzes = await QuizService.getQuizzesForCourse(chapters);
+          setQuizzes(allQuizzes);
+        }
       } catch (error) {
         console.error('Error fetching quizzes:', error);
         setQuizzes([]);
       }
     };
 
-    if (chapters.length > 0) {
-      fetchQuizzes();
-    }
+    fetchQuizzes();
   }, [chapters]);
 
   useEffect(() => {
     const fetchQuizAttempts = async () => {
       if (selectedQuiz && userId) {
         try {
-          const response = await fetch(`http://localhost:8084/api/quizzes/attempts/quiz/${selectedQuiz.id}`);
-          const attempts = await response.json();
+          // Using QuizService from API import
+          const attempts = await QuizService.getQuizAttempts(selectedQuiz.id);
           setQuizAttempts(attempts);
           setCurrentAttempt(attempts.length + 1);
         } catch (error) {
@@ -177,14 +164,14 @@ const CoursePage = () => {
     };
 
     fetchQuizAttempts();
-  }, [selectedQuiz]);
+  }, [selectedQuiz, userId]);
 
   useEffect(() => {
     const fetchAllQuizAttempts = async () => {
       if (userId) {
         try {
-          const response = await fetch(`http://localhost:8084/api/quizzes/attempts/user/${userId}`);
-          const attempts = await response.json();
+          // Using QuizService from API import
+          const attempts = await QuizService.getUserAttempts(userId);
           setQuizAttempts(attempts);
         } catch (error) {
           console.error('Error fetching all quiz attempts:', error);
@@ -197,8 +184,8 @@ const CoursePage = () => {
 
   const handleQuizSelect = async (quiz) => {
     try {
-      const response = await fetch(`http://localhost:8084/api/quizzes/attempts/count?quizId=${quiz.id}&userId=${userId}`);
-      const attemptsCount = await response.json();
+      // Using QuizService from API import
+      const attemptsCount = await QuizService.getAttemptsCount(quiz.id, userId);
       
       if (attemptsCount >= quiz.maxAttempts) {
         alert(`You have reached the maximum number of attempts (${quiz.maxAttempts}) for this quiz.`);
@@ -210,28 +197,9 @@ const CoursePage = () => {
       setMaxAttempts(quiz.maxAttempts);
       setShowQuizSelection(false);
       
-      const questionsResponse = await fetch(`http://localhost:8084/api/quizzes/${quiz.id}/questions`);
-      const questions = await questionsResponse.json();
+      // Using QuizService from API import
+      const transformedQuestions = await QuizService.getQuizQuestions(quiz.id);
       
-      const transformedQuestions = questions.map(q => {
-        if (q.questionType === 'MCQ') {
-          return {
-            question: q.text,
-            options: q.options,
-            answer: parseInt(q.correctAnswer),
-            grade: q.grade || 1
-          };
-        } else if (q.questionType === 'TRUE_FALSE') {
-          return {
-            question: q.text,
-            options: ['True', 'False'],
-            answer: q.correctAnswer === 'true' ? 0 : 1,
-            grade: q.grade || 1
-          };
-        }
-        return null;
-      }).filter(q => q !== null);
-
       setExamQuestions(transformedQuestions);
       setTotalGrade(transformedQuestions.reduce((sum, q) => sum + q.grade, 0));
       setQuestionsLoading(false);
@@ -321,35 +289,24 @@ const CoursePage = () => {
     setShowModal(true);
   
     try {
-      await fetch(`http://localhost:8084/api/quizzes/attempts?quizId=${selectedQuiz.id}&userId=${userId}&score=${percentageScore}`, {
-        method: 'POST',
-      });
-      
-      if (percentageScore >= 50) {
-        const currentBadges = parseInt(localStorage.getItem('badgesCount') || '0', 10);
-        localStorage.setItem('badgesCount', currentBadges + 1);
-      }
+      // Using QuizService from API import
+      await QuizService.submitQuizAttempt(selectedQuiz.id, userId, percentageScore);
     } catch (error) {
       console.error('Error handling exam submission:', error);
-      if (percentageScore >= 50) {
-        const currentBadges = parseInt(localStorage.getItem('badgesCount') || '0', 10);
-        localStorage.setItem('badgesCount', currentBadges + 1);
-      }
+      // QuizService already handles offline badge functionality
     }
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    // if(score >= 50) {
-    //   navigate('/feedback');
-    // }
   };
+  
   const handleCloseQuiz = () => {
     setShowModal(false);
     if(score >= 50) {
       navigate('/feedback');
-    }else{
-      setShowQuizSelection(false)
+    } else {
+      setShowQuizSelection(false);
     }
   };
 
@@ -357,6 +314,11 @@ const CoursePage = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      {/* Add QuizSecurity Component */}
+      {examStarted && !examSubmitted && (
+        <QuizSecurity handleExamSubmit={handleExamSubmit} />
+      )}
+
       {examSubmitted && score >= 50 && <Confetti width={windowWidth} height={windowHeight} />}
       {showModal && (
         <ModalCongrat 
@@ -454,7 +416,7 @@ const CoursePage = () => {
                       {quizzes.map((quiz) => {
                         const userAttempts = quizAttempts.filter(a => a.quizId === quiz.id).length;
                         const remainingAttempts = Math.max(0, quiz.maxAttempts - userAttempts);
-                        const hasReachedLimit = userAttempts >= quiz.maxAttempts;
+                        const hasReachedLimit = userAttempts >= quiz.maxAttempts;;
                         
                         return (
                           <div
@@ -656,3 +618,4 @@ const CoursePage = () => {
 };
 
 export default CoursePage;
+
