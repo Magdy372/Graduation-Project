@@ -22,7 +22,7 @@ app = Flask(__name__)
 # Eureka Configuration
 EUREKA_SERVER = "http://localhost:8761/eureka"  # Eureka Server URL
 SERVICE_NAME = "Chatbot-Service"  # Name to register in Eureka
-SERVICE_PORT = 8090  # Flask runs on port 8099
+SERVICE_PORT = 8091  # Flask runs on port 8099
 
 CORS(app)  # Enable CORS for cross-origin requests from React
 
