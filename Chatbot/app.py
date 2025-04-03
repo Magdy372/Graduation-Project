@@ -1,3 +1,4 @@
+import socket
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import nltk
@@ -18,6 +19,11 @@ import urllib.request
 
 # Initialize the Flask app
 app = Flask(__name__)
+# Eureka Configuration
+EUREKA_SERVER = "http://localhost:8761/eureka"  # Eureka Server URL
+SERVICE_NAME = "Chatbot-Service"  # Name to register in Eureka
+SERVICE_PORT = 8090  # Flask runs on port 8099
+
 CORS(app)  # Enable CORS for cross-origin requests from React
 
 # Import chatbot logic (from your existing chatbot code)
@@ -205,5 +211,42 @@ def chat():
     return jsonify({'response': bot_response})
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# -------- EUREKA REGISTRATION FUNCTION --------
+def register_with_eureka():
+    """Registers Flask AI service with Eureka."""
+    hostname = socket.gethostname()
+    ip_address = socket.gethostbyname(hostname)
+
+    registration_data = {
+        "instance": {
+            "hostName": hostname,
+            "app": SERVICE_NAME.upper(),
+            "ipAddr": ip_address,
+            "vipAddress": SERVICE_NAME,
+            "secureVipAddress": SERVICE_NAME,
+            "status": "UP",
+            "port": {"$": SERVICE_PORT, "@enabled": "true"},
+            "dataCenterInfo": {
+                "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
+                "name": "MyOwn"
+            }
+        }
+    }
+
+    headers = {"Content-Type": "application/json"}
+    eureka_url = f"{EUREKA_SERVER}/apps/{SERVICE_NAME}"
+
+    try:
+        response = requests.post(eureka_url, data=json.dumps(registration_data), headers=headers)
+        if response.status_code in [200, 204]:
+            print(f"Successfully registered {SERVICE_NAME} with Eureka!")
+        else:
+            print(f"Failed to register with Eureka. Status Code: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        print(f"Eureka registration error: {e}")
+
+# -------- RUN FLASK APP & REGISTER WITH EUREKA --------
+if __name__ == '__main__':
+    time.sleep(5)  # Wait to ensure Eureka Server starts
+    register_with_eureka()
+    app.run(host='0.0.0.0', port=SERVICE_PORT, threaded=True)

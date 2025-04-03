@@ -119,10 +119,10 @@ const Navbar = () => {
           ))}
           {isLoggedIn ? <UserMenu /> : (
             <button
-              onClick={() => navigate("/register")}
+              onClick={() => navigate("/login")}
               className="py-2 px-4 text-white bg-red hover:bg-blue rounded-md transition-all"
             >
-              Register
+              Log in
             </button>
           )}
         </div>
