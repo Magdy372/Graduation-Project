@@ -1,10 +1,13 @@
 package com.grad.user_services.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.grad.user_services.dto.AdminProfileDTO;
+import com.grad.user_services.model.Contact;
 import com.grad.user_services.services.UserService;
 
 @RestController
@@ -20,4 +23,6 @@ public class AdminController {
         AdminProfileDTO profile = userService.getAdminProfile(email);
         return profile != null ? ResponseEntity.ok(profile) : ResponseEntity.notFound().build();
     }
+
+
 } 
