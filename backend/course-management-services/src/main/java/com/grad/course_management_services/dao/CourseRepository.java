@@ -1,7 +1,6 @@
 package com.grad.course_management_services.dao;
 
 
-
 import com.grad.course_management_services.models.Course;
 
 import java.util.List;

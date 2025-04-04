@@ -16,5 +16,5 @@ public class ChapterDTO {
     private Long id;
     private String title;
     @JsonBackReference
-    private List<VideoDTO> videos;  // Use VideoDTO instead of Video
+    private List<VideoDTO> videos;  
 }

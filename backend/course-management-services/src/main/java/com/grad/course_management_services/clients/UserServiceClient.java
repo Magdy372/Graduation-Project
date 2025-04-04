@@ -11,8 +11,8 @@ import com.grad.course_management_services.dto.UserDTO;
 import com.grad.course_management_services.models.User;
 import java.util.List;
 
-@FeignClient(name = "user-services", url = "http://localhost:8089")  // Adjust the URL to the actual User Service URL
-public interface UserServiceClient {
+@FeignClient(name = "user-services", url = "http://localhost:8089")  //to make the user services communicate with the course services
+    public interface UserServiceClient {
 
     @GetMapping("/users/{userId}")
     UserDTO getUserById(@PathVariable Long userId);

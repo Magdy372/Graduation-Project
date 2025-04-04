@@ -26,6 +26,4 @@ public class TrueFalseQuestion extends Question {
         return getGrade();
     }
 
-
-    // Getters and Setters
 }

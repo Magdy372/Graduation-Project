@@ -10,6 +10,5 @@ import com.grad.course_management_services.models.Quiz;
 @Repository
 public interface QuizRepository extends JpaRepository<Quiz, Long> {
 
-    // Custom Query: Find quizzes by chapter
     List<Quiz> findByChapterId(Long chapterId);
 }

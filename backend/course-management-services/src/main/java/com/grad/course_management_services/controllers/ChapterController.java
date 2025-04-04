@@ -19,17 +19,17 @@ public class ChapterController {
 
     @Autowired
     private ChapterService chapterService;
-    @Autowired 
-    private  VideoRepository videoRepository;
+    @Autowired
+    private VideoRepository videoRepository;
 
-    // ✅ Get all chapters
+    // Get all chapters
     @GetMapping("/chapters")
     public ResponseEntity<List<Chapter>> getAllChapters() {
         List<Chapter> chapters = chapterService.getAllChapters();
         return ResponseEntity.ok(chapters);
     }
 
-    // ✅ Get chapter by ID
+    // Get chapter by ID
     @GetMapping("/chapters/{id}")
     public ResponseEntity<Chapter> getChapterById(@PathVariable Long id) {
         Optional<Chapter> chapter = chapterService.getChapterById(id);
@@ -37,28 +37,25 @@ public class ChapterController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // ✅ Get all chapters for a specific course
+    // Get all chapters for a specific course
     @GetMapping("/courses/{courseId}/chapters")
     public ResponseEntity<List<Chapter>> getChaptersByCourse(@PathVariable Long courseId) {
         List<Chapter> chapters = chapterService.getChaptersByCourseId(courseId);
-    
+
         for (Chapter chapter : chapters) {
             chapter.setVideos(videoRepository.findByChapterId(chapter.getId())); // Ensure videos are included
         }
-    
+
         return ResponseEntity.ok(chapters);
     }
-    
 
-    // ✅ Create a new chapter for a specific course
-  // ✅ Create a new chapter for a specific course
-@PostMapping("/chapters/courses/{courseId}")
-public ResponseEntity<Chapter> createChapter(@PathVariable Long courseId, @RequestBody Chapter chapter) {
-    return ResponseEntity.ok(chapterService.createChapter(courseId, chapter));
-}
+    // Create a new chapter for a specific course
+    @PostMapping("/chapters/courses/{courseId}")
+    public ResponseEntity<Chapter> createChapter(@PathVariable Long courseId, @RequestBody Chapter chapter) {
+        return ResponseEntity.ok(chapterService.createChapter(courseId, chapter));
+    }
 
-
-    // ✅ Update a chapter
+    // Update a chapter
     @PutMapping("/chapters/{id}")
     public ResponseEntity<Chapter> updateChapter(@PathVariable Long id, @RequestBody Chapter updatedChapter) {
         Chapter chapter = chapterService.updateChapter(id, updatedChapter);
@@ -68,10 +65,11 @@ public ResponseEntity<Chapter> createChapter(@PathVariable Long courseId, @Reque
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-   // ✅ 5. Delete a Chapter
-   @DeleteMapping("/chapters/{chapterId}")
-   public ResponseEntity<Void> deleteChapter(@PathVariable Long chapterId) {
-       chapterService.deleteChapter(chapterId);
-       return ResponseEntity.noContent().build();
-   }
+
+    // Delete a Chapter
+    @DeleteMapping("/chapters/{chapterId}")
+    public ResponseEntity<Void> deleteChapter(@PathVariable Long chapterId) {
+        chapterService.deleteChapter(chapterId);
+        return ResponseEntity.noContent().build();
+    }
 }

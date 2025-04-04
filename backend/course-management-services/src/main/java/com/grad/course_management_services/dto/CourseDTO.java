@@ -16,7 +16,7 @@ public class CourseDTO {
     private String name;
     private String description;
     private String imageUrl;
-    private String categoryName;  // Store category name instead of Category object
+    private String categoryName;  
       @JsonManagedReference 
     private List<ChapterDTO> chapters;
 }

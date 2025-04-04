@@ -27,7 +27,6 @@ public class MCQQuestion extends Question {
 
     @Override
     public double calculateGrade() {
-        // Custom grade calculation logic for MCQ
         return getGrade();
     }
 }

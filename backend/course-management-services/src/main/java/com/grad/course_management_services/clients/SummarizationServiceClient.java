@@ -8,7 +8,7 @@ import java.util.Map;
 
 import com.grad.course_management_services.dto.SummarizationResponse;
 
-@FeignClient(name = "summarization-service", url = "http://localhost:8090")
+@FeignClient(name = "summarization-service", url = "http://localhost:8090") //to interact with the course service
 public interface SummarizationServiceClient {
     
     @PostMapping("/summarize")

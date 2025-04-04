@@ -32,7 +32,6 @@ public class QuestionController {
     // Create a new question
     @PostMapping
     public ResponseEntity<QuestionDTO> createQuestion(@RequestBody QuestionDTO questionDTO) {
-        // Create the question using the quiz service method
         QuestionDTO createdQuestion = quizService.createQuestion(questionDTO);
         return new ResponseEntity<>(createdQuestion, HttpStatus.CREATED);
     }
@@ -75,4 +74,3 @@ public class QuestionController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
-

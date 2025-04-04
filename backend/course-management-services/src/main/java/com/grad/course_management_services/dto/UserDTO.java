@@ -7,7 +7,6 @@ public class UserDTO {
     private String lastname;
     private String email;
 
-    // Constructors
     public UserDTO() {}
 
     public UserDTO(Long id, String firstname, String lastname, String email) {
@@ -17,7 +16,6 @@ public class UserDTO {
         this.email = email;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -50,7 +48,6 @@ public class UserDTO {
         this.email = email;
     }
 
-    // toString() method
     @Override
     public String toString() {
         return "UserDTO{" +

@@ -37,7 +37,7 @@ public class CategoryController {
 
         if (existingCategory.isPresent()) {
             Category category = existingCategory.get();
-            category.setName(updatedCategory.getName()); // Update fields as needed
+            category.setName(updatedCategory.getName()); // Update category name
             categoryService.saveCategory(category);
             return ResponseEntity.ok(category);
         } else {
