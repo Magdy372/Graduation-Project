@@ -196,21 +196,11 @@ export const QuizService = {
         throw new Error(`Failed to submit quiz attempt: ${response.status}`);
       }
       
-      // If score is 50% or higher, add a badge
-      if (score >= 50) {
-        const currentBadges = parseInt(localStorage.getItem('badgesCount') || '0', 10);
-        localStorage.setItem('badgesCount', currentBadges + 1);
-      }
       
       return await response.json();
     } catch (error) {
       console.error('Error submitting quiz attempt:', error);
       
-      // Even if API fails, still add badge for offline functionality
-      if (score >= 50) {
-        const currentBadges = parseInt(localStorage.getItem('badgesCount') || '0', 10);
-        localStorage.setItem('badgesCount', currentBadges + 1);
-      }
       
       throw error;
     }

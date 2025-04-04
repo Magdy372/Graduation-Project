@@ -8,6 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import profileImage from '../assets/images/profile-image.jpg';
 import { FaMedal, FaCrown, FaStar } from 'react-icons/fa';
 import { FaCheckCircle, FaBullseye } from 'react-icons/fa';
+import { QuizService } from '../services/courepage';
 
 
 
@@ -38,18 +39,18 @@ const MyProfile = () => {
   const [userData, setUserData] = useState(null);  // State to store user data
   const [isLoading, setIsLoading] = useState(true); // State for loading spinner or UI state
   const [error, setError] = useState(""); // State for handling errors
-  const [badgesCount, setBadgesCount] = useState(0); // Add badges state
+  const [quizAttempts, setQuizAttempts] = useState([]); // State for quiz attempts
+  const [badgesCount, setBadgesCount] = useState(0); // State for badges count
 
-
-  // Fetch user data on component mount
+  // Fetch user data and quiz attempts on component mount
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Retrieve the token from localStorage (or sessionStorage or any other storage)
-        const token = localStorage.getItem('access_token');  // Ensure this matches your actual token key
+        // Retrieve the token from localStorage
+        const token = localStorage.getItem('access_token');
 
         if (!token) {
-          navigate("/login"); // Redirect to login if no token
+          navigate("/login");
           return;
         }
 
@@ -58,10 +59,18 @@ const MyProfile = () => {
         const userId = decodedToken.userId;
 
         // Fetch user data using the extracted userId
-        const response = await fetchWithAuth(`http://localhost:8084/users/${userId}`, token);  
+        const response = await fetchWithAuth(`http://localhost:8089/users/${userId}`, token);
 
         if (response) {
-          setUserData(response);  
+          setUserData(response);  // Set user data when successfully fetched
+          
+          // Fetch quiz attempts for the user
+          const attempts = await QuizService.getUserAttempts(userId);
+          setQuizAttempts(attempts);
+          
+          // Calculate badges count based on passed quizzes
+          const passedQuizzes = attempts.filter(attempt => attempt.passed).length;
+          setBadgesCount(passedQuizzes);
         }
       } catch (err) {
         setError("Failed to load user data.");
@@ -72,11 +81,6 @@ const MyProfile = () => {
     };
 
     fetchUserData();
-  }, []);
-
-  useEffect(() => {
-    const savedBadges = localStorage.getItem('badgesCount');
-    setBadgesCount(savedBadges ? parseInt(savedBadges, 10) : 0);
   }, []);
 
   // If loading or there's an error, show loading or error message
