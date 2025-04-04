@@ -4,11 +4,27 @@ import sys
 import os
 import numpy as np
 from collections import Counter
+import face_recognition
 
 from object_detection import yoloV3Detect
 from face_detection import get_face_detector, find_faces
 
 ################################################ Setup  ######################################################
+
+# face recognition
+l = os.listdir('student_db')
+known_face_encodings = []
+known_face_names = []
+face_locations = []
+face_encodings = []
+face_names = []
+
+for image in l:
+    obama_image = face_recognition.load_image_file('student_db/'+image)
+    obama_face_encoding = face_recognition.face_encodings(obama_image)[0]
+
+    known_face_encodings.append(obama_face_encoding)
+    known_face_names.append(image.split('.')[0])
 
 # face detection model
 face_model = get_face_detector()
@@ -18,7 +34,9 @@ video_capture = cv2.VideoCapture(0)
 process_this_frame = False
 no_of_frames_0 = 0
 no_of_frames_1 = 0
+no_of_frames_2 = 0
 font = cv2.FONT_HERSHEY_PLAIN
+flag = True
 
 #################################################### ALERT #####################################################
 def alert(condition, no_of_frames):
@@ -110,13 +128,65 @@ while True:
                 faces = find_faces(small_frame, face_model)
                 if len(faces) > 0:
                     face = faces[0]
-                    # Display Face Detection
-                    (left, top, right, bottom) = face
-                    cv2.rectangle(frame3, (left*4, top*4), (right*4, bottom*4), (0, 0, 255), 2)
                 else:
-                    cv2.putText(report, "No face detected", (1, y_pos + 40), font, 1.1, (0, 0, 255), 2)
+                    condition = (len(faces) < 1)
+                    no_of_frames_2 = alert(condition, no_of_frames_2)
+                    y_pos = 60
+                    alert_pos = (120, 190)
+
+                    # Display
+                    cv2.putText(report, "Number of face detected: "+str(len(faces)), (1, y_pos), font, 1.1, (0, 255, 0), 2)
+                    # Alert
+                    if(no_of_frames_2 > 10):
+                        cv2.putText(report, "Number of face detected: "+str(len(faces)), (1, y_pos), font, 1.1, (0, 0, 255), 2)
+                        cv2.putText(report, "ALERT", alert_pos, font, 4, (0, 0, 255), 2)        
+                    
+                    horizontalAppendedImg = np.hstack((frame3, report))
+                    cv2.imshow("Proctoring_Window", horizontalAppendedImg)
+                    continue
+                
+                # Display Face Detection
+                (left, top, right, bottom) = face
+                cv2.rectangle(frame3, (left*4, top*4), (right*4, bottom*4), (0, 0, 255), 2)
+               
+                if(flag == True):
+                    #### face verification using face_recognition library ####
+                    
+                    # modifying order
+                    face_locations = [[top, right, bottom, left]]
+                   
+                    # Convert BGR image to RGB image (which face_recognition uses)
+                    rgb_small_frame = small_frame[:, :, ::-1]
+
+                    # get CNN feature vector
+                    face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
+
+                    # get similarity
+                    face_encoding = face_encodings[0]
+                    matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
+                    face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+                    best_match_index = np.argmin(face_distances)
+                    if matches[best_match_index]:
+                        name = known_face_names[best_match_index]
+                    else:
+                        name = "Unknown"
+                    flag = False
+                
+                # Buffer
+                condition = (name == 'Unknown')  
+                no_of_frames_2 = alert(condition, no_of_frames_2)
+
+                # Display
+                cv2.putText(report, "Face Recognized: "+str(name), (1, y_pos+40), font, 1.1, (0, 255, 0), 2)
+
+                # Alert
+                if(no_of_frames_2 > 10):
+                    cv2.putText(report, "Face Recognized: "+str(name), (1, y_pos+40), font, 1.1, (0, 0, 255), 2)
                     cv2.putText(report, "ALERT", alert_pos, font, 4, (0, 0, 255), 2)
-            
+
+            else:
+                flag = True
+
             horizontalAppendedImg = np.hstack((frame3, report))
             cv2.imshow("Proctoring_Window", horizontalAppendedImg)
 
