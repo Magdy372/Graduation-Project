@@ -16,7 +16,6 @@ import requests
 from googlesearch import search
 from bs4 import BeautifulSoup
 import urllib.request
-import time
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -251,3 +250,5 @@ if __name__ == '__main__':
     time.sleep(5)  # Wait to ensure Eureka Server starts
     register_with_eureka()
     app.run(host='0.0.0.0', port=SERVICE_PORT, threaded=True)
+    
+
