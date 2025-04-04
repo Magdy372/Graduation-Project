@@ -57,9 +57,18 @@ const ViewUsers = () => {
 
   const handleAccept = async (userId) => {
     try {
-      const response = await fetch(`http://localhost:8089/users/${userId}/approve`, {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      const response = await fetch(`http://localhost:8089/api/admin/users/${userId}/approve`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
       });
 
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);

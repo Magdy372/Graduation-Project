@@ -3,6 +3,7 @@ package com.grad.user_services.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,5 +25,15 @@ public class AdminController {
         return profile != null ? ResponseEntity.ok(profile) : ResponseEntity.notFound().build();
     }
 
+    // Approve user
+    @PutMapping("/users/{id}/approve")
+    public ResponseEntity<?> approveUser(@PathVariable Long id) {
+        boolean isApproved = userService.approveUser(id);
 
+        if (!isApproved) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found or already approved.");
+        }
+
+        return ResponseEntity.ok("User has been approved successfully.");
+    }
 } 

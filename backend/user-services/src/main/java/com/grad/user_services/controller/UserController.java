@@ -190,21 +190,6 @@ public class UserController {
         }
     }
 
-    // Approve user
-    // It accepts a user ID in the URL and returns a success message if the user is
-    // approved
-
-    @PutMapping("/{id}/approve")
-    public ResponseEntity<?> approveUser(@PathVariable Long id) {
-        boolean isApproved = userService.approveUser(id);
-
-        if (!isApproved) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found or already approved.");
-        }
-
-        return ResponseEntity.ok("User has been approved successfully.");
-    }
-
     // Check if email exists in the database
 
     @GetMapping("/check-email") // Ensure it's a GET request with a query parameter
