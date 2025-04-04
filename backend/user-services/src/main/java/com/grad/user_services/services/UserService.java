@@ -42,8 +42,6 @@ public class UserService {
     @Autowired
     private FileStorageService fileStorageService;
     @Autowired
-    private AdminRepository adminRepository;
-    @Autowired
     private FileValidationService fileValidationService;
     @Autowired
     private ContactRepository contactRepository;
@@ -138,34 +136,31 @@ public class UserService {
                 .map(this::mapToUserResponseDTO)
                 .collect(Collectors.toList());
     }
-    //Get All Admins
-    public List<Admin> getAllAdmins() {
-        return adminRepository.findAll();
-    }
-        // Helper method to map User to UserResponseDTO
-        private UserResponseDTO mapToUserResponseDTO(User user) {
-            UserResponseDTO userResponseDTO = new UserResponseDTO();
-            userResponseDTO.setId(user.getId());
-            userResponseDTO.setFirstname(user.getFirstname());
-            userResponseDTO.setLastname(user.getLastname());
-            userResponseDTO.setPhonenumber(user.getPhonenumber());
-            userResponseDTO.setEmail(user.getEmail());
-            userResponseDTO.setTitle(user.getTitle());
-            userResponseDTO.setGovernorate(user.getGovernorate());
-        
-            // Map document fields if the user has documents
-            if (user.getUserDocument() != null) {
-                userResponseDTO.setLicenseFilePath(user.getUserDocument().getLicenseFilePath());
-                userResponseDTO.setProfessionLicenseFilePath(user.getUserDocument().getProfessionLicenseFilePath());
-                userResponseDTO.setSyndicateCardFilePath(user.getUserDocument().getSyndicateCardFilePath());
-                userResponseDTO.setCommercialRegisterFilePath(user.getUserDocument().getCommercialRegisterFilePath());
-                userResponseDTO.setTaxCardFilePath(user.getUserDocument().getTaxCardFilePath());
-            }
-        
-            return userResponseDTO;
+
+    // Helper method to map User to UserResponseDTO
+    private UserResponseDTO mapToUserResponseDTO(User user) {
+        UserResponseDTO userResponseDTO = new UserResponseDTO();
+        userResponseDTO.setId(user.getId());
+        userResponseDTO.setFirstname(user.getFirstname());
+        userResponseDTO.setLastname(user.getLastname());
+        userResponseDTO.setPhonenumber(user.getPhonenumber());
+        userResponseDTO.setEmail(user.getEmail());
+        userResponseDTO.setTitle(user.getTitle());
+        userResponseDTO.setGovernorate(user.getGovernorate());
+    
+        // Map document fields if the user has documents
+        if (user.getUserDocument() != null) {
+            userResponseDTO.setLicenseFilePath(user.getUserDocument().getLicenseFilePath());
+            userResponseDTO.setProfessionLicenseFilePath(user.getUserDocument().getProfessionLicenseFilePath());
+            userResponseDTO.setSyndicateCardFilePath(user.getUserDocument().getSyndicateCardFilePath());
+            userResponseDTO.setCommercialRegisterFilePath(user.getUserDocument().getCommercialRegisterFilePath());
+            userResponseDTO.setTaxCardFilePath(user.getUserDocument().getTaxCardFilePath());
         }
-        // Update User
-        
+    
+        return userResponseDTO;
+    }
+
+    // Update User
     public UserResponseDTO updateUser(Long id, UserDTO userDTO) {
         User user = userRepository.findById(id).orElse(null);
         if (user != null) {
@@ -181,44 +176,17 @@ public class UserService {
         return null;
     }
 
-// Approve User
-    public boolean approveUser(Long id) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            if (!user.isApproved()) {  // Check if not already approved
-                user.setApproved(true);
-                userRepository.save(user);
-                return true;
-            }
-        }
-        
-        return false;
-    }
-
     // This method retrieves a user by their email address
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    public AdminProfileDTO getAdminProfile(String email) {
-        return adminRepository.findByEmail(email)
-                .map(admin -> new AdminProfileDTO(
-                    admin.getId(),
-                    admin.getFirstname(),
-                    admin.getLastname(),
-                    admin.getEmail()
-                ))
-                .orElse(null);
-    }
     public Contact saveContactFrom(ContactDTO contactDTO, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Contact contact = new Contact(user, contactDTO.getMessage());
         return contactRepository.save(contact);
     }
     
-
     public List<ContactDTO> getAllMessages() {
         return contactRepository.findAll().stream()
             .map(contact -> new ContactDTO(
@@ -229,8 +197,4 @@ public class UserService {
             ))
             .collect(Collectors.toList());
     }
-
-
-    
-
 }

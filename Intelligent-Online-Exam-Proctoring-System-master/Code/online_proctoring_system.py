@@ -20,10 +20,10 @@ face_encodings = []
 face_names = []
 
 for image in l:
-    obama_image = face_recognition.load_image_file('student_db/'+image)
-    obama_face_encoding = face_recognition.face_encodings(obama_image)[0]
+    student_image = face_recognition.load_image_file('student_db/'+image)
+    student_face_encoding = face_recognition.face_encodings(student_image)[0]
 
-    known_face_encodings.append(obama_face_encoding)
+    known_face_encodings.append(student_face_encoding)
     known_face_names.append(image.split('.')[0])
 
 # face detection model

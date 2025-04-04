@@ -1,4 +1,3 @@
-
 package com.grad.user_services.config;
 
 import io.jsonwebtoken.Claims;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,11 +53,19 @@ public class JwtService {
     }
 
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, Long userId, long expiration) {
-        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+        // Get the role from the BaseAccount if it's available
+        String role = null;
+        if (userDetails instanceof com.grad.user_services.model.BaseAccount) {
+            role = ((com.grad.user_services.model.BaseAccount) userDetails).getRole();
+        }
         
-        extraClaims.put("roles", authorities.stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList()));
+        // Add role to claims if available
+        if (role != null) {
+            extraClaims.put("roles", Collections.singletonList(role));
+        } else {
+            // If no role is available, use an empty list
+            extraClaims.put("roles", Collections.emptyList());
+        }
                 
         extraClaims.put("userId", userId);
 

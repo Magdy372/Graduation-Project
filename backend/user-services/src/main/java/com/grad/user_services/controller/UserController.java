@@ -215,7 +215,7 @@ public class UserController {
         return ResponseEntity.ok(savedContact);
     }
     
-    // In UserController.java
+    
     @GetMapping("/get-messages")
     public ResponseEntity<List<ContactDTO>> getAllMessages() {
         try {

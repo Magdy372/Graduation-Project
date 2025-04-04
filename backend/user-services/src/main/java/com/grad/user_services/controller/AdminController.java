@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.grad.user_services.dto.AdminProfileDTO;
 import com.grad.user_services.model.Contact;
-import com.grad.user_services.services.UserService;
+import com.grad.user_services.services.AdminService;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -17,18 +17,18 @@ import com.grad.user_services.services.UserService;
 public class AdminController {
 
     @Autowired
-    private UserService userService;
+    private AdminService adminService;
 
     @GetMapping("/profile/{email}")
     public ResponseEntity<AdminProfileDTO> getAdminProfile(@PathVariable String email) {
-        AdminProfileDTO profile = userService.getAdminProfile(email);
+        AdminProfileDTO profile = adminService.getAdminProfile(email);
         return profile != null ? ResponseEntity.ok(profile) : ResponseEntity.notFound().build();
     }
 
     // Approve user
     @PutMapping("/users/{id}/approve")
     public ResponseEntity<?> approveUser(@PathVariable Long id) {
-        boolean isApproved = userService.approveUser(id);
+        boolean isApproved = adminService.approveUser(id);
 
         if (!isApproved) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found or already approved.");

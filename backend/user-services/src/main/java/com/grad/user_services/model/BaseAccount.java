@@ -34,9 +34,6 @@ import lombok.ToString;
 
 public abstract class BaseAccount implements UserDetails {
     
-    @JsonIgnore // Prevents direct serialization of GrantedAuthority
-    protected Collection<? extends GrantedAuthority> authorities;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -75,10 +72,10 @@ public abstract class BaseAccount implements UserDetails {
     // Abstract method to be implemented by subclasses
     public abstract void setRole();
 
-    // Convert role to a GrantedAuthority
+    // Return empty collection for authorities
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(role));
+        return Collections.emptyList();
     }
 
     @Override

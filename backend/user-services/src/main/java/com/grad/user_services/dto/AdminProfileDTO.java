@@ -12,4 +12,5 @@ public class AdminProfileDTO {
     private String firstname;
     private String lastname;
     private String email;
+    private String position;
 } 
