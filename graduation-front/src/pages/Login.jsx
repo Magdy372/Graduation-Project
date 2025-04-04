@@ -57,7 +57,7 @@ const Login = () => {
     };
   
     try {
-      const response = await fetch("http://localhost:8089/api/v1/auth/authenticate", {
+      const response = await fetch("http://localhost:8084/api/v1/auth/authenticate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

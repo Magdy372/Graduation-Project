@@ -58,10 +58,10 @@ const MyProfile = () => {
         const userId = decodedToken.userId;
 
         // Fetch user data using the extracted userId
-        const response = await fetchWithAuth(`http://localhost:8089/users/${userId}`, token);  // The endpoint that gives user info based on the userId
+        const response = await fetchWithAuth(`http://localhost:8084/users/${userId}`, token);  
 
         if (response) {
-          setUserData(response);  // Set user data when successfully fetched
+          setUserData(response);  
         }
       } catch (err) {
         setError("Failed to load user data.");

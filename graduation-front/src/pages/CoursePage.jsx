@@ -498,74 +498,84 @@ const CoursePage = () => {
                     </div>
                   ) : (
                     <>
-                      {examQuestions.map((question, index) => (
-                        <div key={index} className="mb-6">
-                          <h3 className="text-xl font-semibold mb-2">
-                            Question {index + 1} (Grade: {question.grade}): {question.question}
-                          </h3>
-                          <div className="flex flex-col gap-2">
-                            {question.options.map((option, i) => {
-                              const isCorrect = question.options.length === 2 
-                                ? i === question.answer
-                                : i === (question.answer - 1);
-                              const isUserAnswer = userAnswers[index] === option;
-                              const isWrongAnswer = isUserAnswer && !isCorrect;
+                     {examQuestions.map((question, index) => (
+  <div key={index} className="mb-6">
+    <h3 
+      className="text-xl font-semibold mb-2" 
+      style={{ userSelect: 'none' }} // Prevent text selection for question
+    >
+      Question {index + 1} (Grade: {question.grade}): {question.question}
+    </h3>
+    <div className="flex flex-col gap-2">
+      {question.options.map((option, i) => {
+        const isCorrect = question.options.length === 2 
+          ? i === question.answer
+          : i === (question.answer - 1);
+        const isUserAnswer = userAnswers[index] === option;
+        const isWrongAnswer = isUserAnswer && !isCorrect;
 
-                              return (
-                                <label 
-                                  key={i} 
-                                  className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
-                                    examSubmitted
-                                      ? isCorrect
-                                        ? 'bg-green-100'
-                                        : isWrongAnswer
-                                        ? 'bg-red-100'
-                                        : 'bg-red-50'
-                                      : 'hover:bg-red-100'
-                                  }`}
-                                >
-                                  <input
-                                    type="radio"
-                                    name={`question-${index}`}
-                                    value={option}
-                                    checked={isUserAnswer}
-                                    onChange={() => handleAnswerSelect(index, option)}
-                                    disabled={examSubmitted}
-                                    className="form-radio"
-                                  />
-                                  {option}
-                                  {examSubmitted && isCorrect && (
-                                    <span className="ml-auto text-green-600">
-                                      ✓ Correct Answer
-                                    </span>
-                                  )}
-                                  {examSubmitted && isWrongAnswer && (
-                                    <span className="ml-auto text-red-600">
-                                      ✗ Your Answer
-                                    </span>
-                                  )}
-                                </label>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      ))}
+        return (
+          <label 
+            key={i} 
+            className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
+              examSubmitted
+                ? isCorrect
+                  ? 'bg-green-100'
+                  : isWrongAnswer
+                  ? 'bg-red-100'
+                  : 'bg-red-50'
+                : 'hover:bg-red-100'
+            }`}
+            style={{ userSelect: 'none' }} // Prevent text selection for options
+          >
+            <input
+              type="radio"
+              name={`question-${index}`}
+              value={option}
+              checked={isUserAnswer}
+              onChange={() => handleAnswerSelect(index, option)}
+              disabled={examSubmitted}
+              className="form-radio"
+            />
+            {option}
+            {examSubmitted && isCorrect && (
+              <span className="ml-auto text-green-600">
+                ✓ Correct Answer
+              </span>
+            )}
+            {examSubmitted && isWrongAnswer && (
+              <span className="ml-auto text-red-600">
+                ✗ Your Answer
+              </span>
+            )}
+          </label>
+        );
+      })}
+    </div>
+  </div>
+))}
 
-                      {examSubmitted && (
-                        <div className="mb-6 p-4 bg-gray-100 rounded-lg">
-                          <h3 className="text-xl font-semibold mb-2">Exam Results</h3>
-                          <p className="text-lg">
-                            Your grade: <span className="font-bold">{userGrade}</span> out of <span className="font-bold">{totalGrade}</span>
-                          </p>
-                          <p className="text-lg">
-                            Percentage: <span className="font-bold">{score}%</span>
-                          </p>
-                          {score >= 50 ? (
-                            <p className="text-green-600 text-lg mt-2">Congratulations! You passed the exam.</p>
-                          ) : (
-                            <p className="text-red-600 text-lg mt-2">You didn't pass this attempt. Please try again.</p>
-                          )}
-                        </div>
+{examSubmitted && (
+  <div className="mb-6 p-4 bg-gray-100 rounded-lg">
+    <h3 className="text-xl font-semibold mb-2" style={{ userSelect: 'none' }}>
+      Exam Results
+    </h3>
+    <p className="text-lg" style={{ userSelect: 'none' }}>
+      Your grade: <span className="font-bold">{userGrade}</span> out of <span className="font-bold">{totalGrade}</span>
+    </p>
+    <p className="text-lg" style={{ userSelect: 'none' }}>
+      Percentage: <span className="font-bold">{score}%</span>
+    </p>
+    {score >= 50 ? (
+      <p className="text-green-600 text-lg mt-2" style={{ userSelect: 'none' }}>
+        Congratulations! You passed the exam.
+      </p>
+    ) : (
+      <p className="text-red-600 text-lg mt-2" style={{ userSelect: 'none' }}>
+        You didn't pass this attempt. Please try again.
+      </p>
+    )}
+  </div>
                       )}
 
                       {!examSubmitted ? (

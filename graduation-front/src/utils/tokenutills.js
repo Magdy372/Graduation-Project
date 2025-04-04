@@ -35,9 +35,9 @@ export const refreshAccessToken = async () => {
             const { accessToken, refreshToken } = data; // Destructure the response data
 
             // Update both tokens in local storage with the new tokens
-            localStorage.setItem("access_token", accessToken); // Update the access token
-            localStorage.setItem("refresh_token", refreshToken); // Update the refresh token
-            return accessToken; // Return the new access token
+            localStorage.setItem("access_token", accessToken); 
+            localStorage.setItem("refresh_token", refreshToken);
+            return accessToken; 
         } else {
             throw new Error("Failed to refresh token");
         }

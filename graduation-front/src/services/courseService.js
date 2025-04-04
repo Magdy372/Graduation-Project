@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:8087/api";
+const API_BASE_URL = "http://localhost:8084/api";
 
 // Fetch all categories
 export const fetchCategories = async () => {
