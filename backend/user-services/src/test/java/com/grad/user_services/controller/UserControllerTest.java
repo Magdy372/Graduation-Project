@@ -100,7 +100,7 @@ public class UserControllerTest {
     //             .andExpect(status().isCreated()) // Expect HTTP 201 Created
     //             .andExpect(jsonPath("$.email", is("aqw@example.com")));
 
-    //     System.out.println("✅ User registered successfully!");
+    //     System.out.println(". User registered successfully!");
     // }
     
     

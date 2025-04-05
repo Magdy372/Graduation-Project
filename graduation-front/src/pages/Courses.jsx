@@ -35,22 +35,22 @@ export const FadeUp = (delay) => ({
 
 const Courses = () => {
   const navigate = useNavigate();
-  const [courses, setCourses] = useState([]); // All courses from backend
-  const [filterCourses, setFilterCourses] = useState([]); // Courses after filtering
-  const [category, setCategory] = useState(""); // Selected category
-  const [searchQuery, setSearchQuery] = useState(""); // Search input
-  const [currentPage, setCurrentPage] = useState(1); // Current pagination page
-  const coursesPerPage = 9; // Number of courses per page
+  const [courses, setCourses] = useState([]); 
+  const [filterCourses, setFilterCourses] = useState([]); 
+  const [category, setCategory] = useState(""); 
+  const [searchQuery, setSearchQuery] = useState(""); 
+  const [currentPage, setCurrentPage] = useState(1); 
+  const coursesPerPage = 9; 
 
 
 
   // Fetch courses from the backend
   useEffect(() => {
 
-    const token = localStorage.getItem('access_token');  // Ensure this matches your actual token key
+    const token = localStorage.getItem('access_token'); 
 
         if (!token) {
-          navigate("/login"); // Redirect to login if no token
+          navigate("/login");
           return;
         }
 

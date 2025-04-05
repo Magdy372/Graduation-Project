@@ -52,7 +52,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             // Permit all requests without any authentication
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/auth/authenticate").permitAll() // ✅ Allow public access
+                .requestMatchers("/api/v1/auth/authenticate").permitAll() 
 
                 .anyRequest().permitAll()
             )

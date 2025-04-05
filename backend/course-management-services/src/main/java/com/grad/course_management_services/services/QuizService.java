@@ -64,7 +64,7 @@ public class QuizService {
         return quiz;
     }
 
-    // ✅ Create a new quiz
+    // . Create a new quiz
     public QuizDTO createQuiz(QuizDTO quizDTO) {
         Quiz quiz = convertToEntity(quizDTO);
         quiz.setTotalGrade(0.0); // Ensure total grade is set to 0 initially
@@ -72,28 +72,28 @@ public class QuizService {
         return convertToDTO(savedQuiz);
     }
 
-    // ✅ Get all quizzes
+    // . Get all quizzes
     public List<QuizDTO> getAllQuizzes() {
         return quizRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    // ✅ Get a quiz by ID
+    // . Get a quiz by ID
     public QuizDTO getQuizById(Long quizId) {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new RuntimeException("Quiz not found"));
         return convertToDTO(quiz);
     }
 
-    // ✅ Get quizzes by chapter
+    // . Get quizzes by chapter
     public List<QuizDTO> getQuizzesByChapter(Long chapterId) {
         return quizRepository.findByChapterId(chapterId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    // ✅ Update a quiz
+    // . Update a quiz
     public QuizDTO updateQuiz(Long quizId, QuizDTO updatedQuizDTO) {
         Quiz existingQuiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new RuntimeException("Quiz not found"));
@@ -107,12 +107,12 @@ public class QuizService {
         return convertToDTO(savedQuiz);
     }
 
-    // ✅ Delete a quiz
+    // . Delete a quiz
     public void deleteQuiz(Long quizId) {
         quizRepository.deleteById(quizId);
     }
 
-    // ✅ Get all questions for a quiz
+    // . Get all questions for a quiz
     public List<QuestionDTO> getQuestionsByQuiz(Long quizId) {
         List<Question> questions = questionRepository.findByQuizId(quizId);
         
@@ -121,7 +121,7 @@ public class QuizService {
                 .collect(Collectors.toList());
     }
 
-    // ✅ Delete a question
+    // . Delete a question
     public void deleteQuestion(Long questionId) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new RuntimeException("Question not found"));
@@ -132,7 +132,7 @@ public class QuizService {
         updateTotalGrade(quizId);
     }
 
-    // ✅ Update total grade of a quiz
+    // . Update total grade of a quiz
     private void updateTotalGrade(Long quizId) {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new RuntimeException("Quiz not found"));
@@ -154,23 +154,23 @@ public class QuizService {
         }
     }
 
-    // ✅ Get MCQ questions by quiz ID
+    // . Get MCQ questions by quiz ID
     public List<MCQQuestion> getMCQQuestionsByQuizId(Long quizId) {
         return questionRepository.findMCQQuestionsByQuizId(quizId);
     }
 
-    // ✅ Get True/False questions by quiz ID
+    // . Get True/False questions by quiz ID
     public List<TrueFalseQuestion> getTrueFalseQuestionsByQuizId(Long quizId) {
         return questionRepository.findTrueFalseQuestionsByQuizId(quizId);
     }
 
-    // ✅ Get a question by ID
+    // . Get a question by ID
     public Question getQuestionById(Long id) {
         return questionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Question not found with id " + id));
     }
 
-    // ✅ Update a question
+    // . Update a question
     public Question updateQuestion(Long id, Question questionDetails) {
         Question question = getQuestionById(id);
         question.setText(questionDetails.getText());
@@ -183,7 +183,7 @@ public class QuizService {
         return updatedQuestion;
     }
 
-    // ✅ Create a new question
+    // . Create a new question
     public QuestionDTO createQuestion(QuestionDTO questionDTO) {
         Question question = null;
         Quiz quiz = quizRepository.findById(questionDTO.getQuizId())
