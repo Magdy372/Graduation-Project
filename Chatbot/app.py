@@ -13,7 +13,6 @@ import requests
 import re
 from googlesearch import search
 import requests
-from googlesearch import search
 from bs4 import BeautifulSoup
 import urllib.request
 
@@ -22,7 +21,7 @@ app = Flask(__name__)
 # Eureka Configuration
 EUREKA_SERVER = "http://localhost:8761/eureka"  # Eureka Server URL
 SERVICE_NAME = "Chatbot-Service"  # Name to register in Eureka
-SERVICE_PORT = 8099  # Flask runs on port 8099
+SERVICE_PORT = 8099  # Flask runs on port 8099 
 
 CORS(app)  # Enable CORS for cross-origin requests from React
 
@@ -209,6 +208,7 @@ def chat():
     print(f"DEBUG: User message: {user_message}")  # Debugging line
     bot_response = response(user_message)
     return jsonify({'response': bot_response})
+
 
 
 # -------- EUREKA REGISTRATION FUNCTION --------
