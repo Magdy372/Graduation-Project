@@ -1,8 +1,8 @@
-import { ChartColumn, Home, LayoutDashboard, LogOut, MessageCircle, MessageCircleCodeIcon, MessageCircleDashed, MessageSquare, NotepadText, Package, PackagePlus, User, UserCheck, UserPlus, Users } from "lucide-react";
+import {  LogOut, MessageCircle, NotepadText, Package, PackagePlus, User } from "lucide-react";
 import ProfileImage from "../assets/images/profile-image.jpg"
 import ProductImage from "../assets/images/course.jpg"
 import { FaUserDoctor } from "react-icons/fa6";
-import { MdLocalPharmacy, MdOutlineLocalPharmacy } from "react-icons/md";
+import { MdLocalPharmacy } from "react-icons/md";
 export const navbarLinks = [
     {
         // title: "إعدادات",
@@ -18,17 +18,7 @@ export const navbarLinks = [
 
        // title: "العدادات",
         links: [
-            {
-                label: "لوحة البيانات",
-                icon: LayoutDashboard,
-                path: "/layout",
-                
-            },
-            {
-                label: "التحليلات البيانية",
-                icon: ChartColumn,
-                path: "/layout/analytics",
-            },
+          
             {
                 label: "التقارير",
                 icon: NotepadText,

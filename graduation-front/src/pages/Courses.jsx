@@ -1,28 +1,11 @@
-import React, { Suspense, useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import Footer from "../components/Footer";
 import { FaSearch } from "react-icons/fa"; // Import the search icon
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
 
-const FaStethoscope = React.lazy(() =>
-  import("react-icons/fa6").then((mod) => ({ default: mod.FaStethoscope }))
-);
-const FaCapsules = React.lazy(() =>
-  import("react-icons/fa6").then((mod) => ({ default: mod.FaCapsules }))
-);
-const FaMicroscope = React.lazy(() =>
-  import("react-icons/fa6").then((mod) => ({ default: mod.FaMicroscope }))
-);
-const FaSyringe = React.lazy(() =>
-  import("react-icons/fa6").then((mod) => ({ default: mod.FaSyringe }))
-);
-const TbHeartRateMonitor = React.lazy(() =>
-  import("react-icons/tb").then((mod) => ({ default: mod.TbHeartRateMonitor }))
-);
-const FaHandshake = React.lazy(() =>
-  import("react-icons/fa").then((mod) => ({ default: mod.FaHandshake }))
-);
+
 
 export const FadeUp = (delay) => ({
   initial: { opacity: 0, y: 50 },
@@ -37,7 +20,7 @@ const Courses = () => {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]); 
   const [filterCourses, setFilterCourses] = useState([]); 
-  const [category, setCategory] = useState(""); 
+  const [category] = useState(""); 
   const [searchQuery, setSearchQuery] = useState(""); 
   const [currentPage, setCurrentPage] = useState(1); 
   const coursesPerPage = 9; 
@@ -125,30 +108,7 @@ const Courses = () => {
       </div>
 
       <div className="flex gap-10 mt-5 px-5">
-        {/* Filter Categories */}
-        <div className="border border-gray p-5 rounded-lg">
-          <Suspense fallback={<div>Loading...</div>}>
-            <motion.div variants={FadeUp(0.8)} initial="initial" animate="animate" className="mt-5">
-              {[
-                { icon: <FaStethoscope />, label: "Clinical" },
-                { icon: <FaCapsules />, label: "Pharmacy" },
-                { icon: <FaMicroscope />, label: "Research" },
-                { icon: <TbHeartRateMonitor />, label: "Public Health" },
-                { icon: <FaSyringe />, label: "Technology" },
-                { icon: <FaHandshake />, label: "Professional Development" },
-                { icon: null, label: "All Courses" },
-              ].map(({ icon, label }) => (
-                <button
-                  key={label}
-                  className="mb-3 p-3 bg-white text-blue border w-full hover:bg-red hover:text-white rounded-md flex items-center gap-2 text-left"
-                  onClick={() => setCategory(label === "All Courses" ? "" : label)}
-                >
-                  {icon} {label}
-                </button>
-              ))}
-            </motion.div>
-          </Suspense>
-        </div>
+  
 
         {/* Courses Section */}
         <motion.div
