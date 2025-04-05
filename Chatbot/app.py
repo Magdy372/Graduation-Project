@@ -250,5 +250,3 @@ if __name__ == '__main__':
     time.sleep(5)  # Wait to ensure Eureka Server starts
     register_with_eureka()
     app.run(host='0.0.0.0', port=SERVICE_PORT, threaded=True)
-    
-
