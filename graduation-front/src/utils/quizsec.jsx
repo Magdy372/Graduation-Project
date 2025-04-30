@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "re
 import { jwtDecode } from "jwt-decode";
 import ProctoringDisclaimer from "../components/ProctoringDisclaimer";
 
-const QuizSecurity = forwardRef(({ handleExamSubmit }, ref) => {
+const QuizSecurity = forwardRef(({ handleExamSubmit, onProctoringError, onTabWarning }, ref) => {
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
   const [warningCount, setWarningCount] = useState(0);
   const [showWarning, setShowWarning] = useState(false);
@@ -14,9 +14,8 @@ const QuizSecurity = forwardRef(({ handleExamSubmit }, ref) => {
   const proctoringIntervalRef = useRef(null);
   const [proctoringActive, setProctoringActive] = useState(false);
   const [isProctoringReady, setIsProctoringReady] = useState(false);
-  const [violations, setViolations] = useState([]);
-  const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [isProctoringError, setIsProctoringError] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(true);
 
   // Function to get user ID from auth token
   const getUserIdFromToken = () => {
@@ -56,6 +55,7 @@ const QuizSecurity = forwardRef(({ handleExamSubmit }, ref) => {
       setProctoringActive(true);
       setIsProctoringReady(true);
       setIsProctoringError(false);
+      if (onProctoringError) onProctoringError(false);
 
       // Start periodic status checks
       proctoringIntervalRef.current = setInterval(async () => {
@@ -78,14 +78,15 @@ const QuizSecurity = forwardRef(({ handleExamSubmit }, ref) => {
     } catch (error) {
       console.error('Error starting proctoring:', error);
       setIsProctoringError(true);
+      if (onProctoringError) onProctoringError(true);
       return false;
     }
   };
 
-  // Function to stop proctoring and get violations
+  // Function to stop proctoring
   const stopProctoring = async () => {
     try {
-      if (!proctoringActive) return [];
+      if (!proctoringActive) return;
 
       // Stop the proctoring session
       const stopResponse = await fetch('http://localhost:5000/stop_proctoring', {
@@ -99,13 +100,6 @@ const QuizSecurity = forwardRef(({ handleExamSubmit }, ref) => {
         throw new Error('Failed to stop proctoring');
       }
 
-      // Get final violations
-      const violationsResponse = await fetch('http://localhost:5000/get_violations');
-      if (!violationsResponse.ok) {
-        throw new Error('Failed to get violations');
-      }
-
-      const data = await violationsResponse.json();
       setProctoringActive(false);
       setIsProctoringReady(false);
 
@@ -114,11 +108,8 @@ const QuizSecurity = forwardRef(({ handleExamSubmit }, ref) => {
         clearInterval(proctoringIntervalRef.current);
         proctoringIntervalRef.current = null;
       }
-
-      return data.violations || [];
     } catch (error) {
       console.error('Error stopping proctoring:', error);
-      return [];
     }
   };
 
@@ -126,16 +117,6 @@ const QuizSecurity = forwardRef(({ handleExamSubmit }, ref) => {
   const handleSubmit = async (isViolation = false) => {
     try {
       if (proctoringActive) {
-        // Get final violations before stopping
-        const violationsResponse = await fetch('http://localhost:5000/get_violations');
-        if (violationsResponse.ok) {
-          const data = await violationsResponse.json();
-          if (data.violations && data.violations.length > 0) {
-            isViolation = true;
-            setViolations(prevViolations => [...prevViolations, ...data.violations]);
-          }
-        }
-
         // Clear intervals
         if (proctoringIntervalRef.current) {
           clearInterval(proctoringIntervalRef.current);
@@ -160,41 +141,10 @@ const QuizSecurity = forwardRef(({ handleExamSubmit }, ref) => {
     handleSubmit
   }));
 
-  // Handle disclaimer acceptance
-  const handleDisclaimerAccept = () => {
-    setShowDisclaimer(false);
-    startProctoring();
-  };
-
   useEffect(() => {
-    if (!showDisclaimer) {
-      // Check for violations periodically
-      const violationCheckInterval = setInterval(async () => {
-        if (proctoringActive) {
-          try {
-            const response = await fetch('http://localhost:5000/get_violations');
-            if (!response.ok) {
-              throw new Error('Failed to get violations');
-            }
-            
-            const data = await response.json();
-            if (data.violations && data.violations.length > 0) {
-              setViolations(prevViolations => [...prevViolations, ...data.violations]);
-              handleSecurityViolation(`Security violation detected: ${data.violations[0].type}`);
-            }
-          } catch (error) {
-            console.error('Error checking violations:', error);
-          }
-        }
-      }, 30000); // Check every 30 seconds
-
-      return () => {
-        if (violationCheckInterval) {
-          clearInterval(violationCheckInterval);
-        }
-      };
-    }
-  }, [showDisclaimer, proctoringActive]);
+    // Start proctoring immediately when component mounts
+    startProctoring();
+  }, []);
 
   const handleSecurityViolation = (message, isTabSwitch = false) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -217,18 +167,22 @@ const QuizSecurity = forwardRef(({ handleExamSubmit }, ref) => {
 
       timeoutRef.current = setTimeout(() => {
         setWarningCount(3);
-        setWarningMessage("FINAL WARNING: Multiple security violations detected. Your exam will continue, but violations will be recorded.");
-        setShowWarning(true);
+        if (onTabWarning) {
+          onTabWarning("FINAL WARNING: Multiple security violations detected. Your exam will continue, but violations will be recorded.");
+        }
       }, 10000);
     }
 
     if (newWarningCount < 3) {
-      setWarningMessage(`WARNING ${newWarningCount}/2: ${message} ${newWarningCount < 2 ? "One more violation and you will receive a final warning." : ""}`);
+      const warningMsg = `WARNING ${newWarningCount}/2: ${message} ${newWarningCount < 2 ? "One more violation and you will receive a final warning." : ""}`;
+      if (onTabWarning) {
+        onTabWarning(warningMsg);
+      }
     } else {
-      setWarningMessage("FINAL WARNING: Multiple security violations detected. Your exam will continue, but violations will be recorded.");
+      if (onTabWarning) {
+        onTabWarning("FINAL WARNING: Multiple security violations detected. Your exam will continue, but violations will be recorded.");
+      }
     }
-
-    setShowWarning(true);
   };
 
   const closeWarning = () => {
@@ -236,39 +190,81 @@ const QuizSecurity = forwardRef(({ handleExamSubmit }, ref) => {
   };
 
   useEffect(() => {
+    let lastFocusTime = Date.now();
+    let isCurrentlyHidden = false;
+
     const handleVisibilityChange = () => {
-      if (document.hidden && !isHidden) {
+      if (document.hidden && !isCurrentlyHidden) {
+        isCurrentlyHidden = true;
         setIsHidden(true);
-        setTabSwitchCount((prev) => prev + 1);
-        handleSecurityViolation(`You switched tabs or minimized the window! Return within ${timeRemaining} seconds or your quiz will be submitted.`, true);
-      } else if (!document.hidden && isHidden) {
+        setTabSwitchCount(prev => prev + 1);
+        alert("WARNING: You have switched tabs or minimized the window. Please return to your exam immediately!");
+        if (onTabWarning) {
+          onTabWarning("Please return to your exam tab and focus on your exam.");
+        }
+      } else if (!document.hidden && isCurrentlyHidden) {
+        isCurrentlyHidden = false;
         setIsHidden(false);
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         if (intervalRef.current) clearInterval(intervalRef.current);
       }
     };
 
+    const handleWindowFocus = () => {
+      const currentTime = Date.now();
+      if (currentTime - lastFocusTime > 1000 && isCurrentlyHidden) { // Only show if was actually hidden
+        alert("WARNING: You have switched back to the exam tab. Please stay focused on your exam!");
+        if (onTabWarning) {
+          onTabWarning("Please stay focused on your exam.");
+        }
+      }
+      lastFocusTime = currentTime;
+    };
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("blur", handleVisibilityChange);
-    window.addEventListener("focus", handleVisibilityChange);
+    window.addEventListener("focus", handleWindowFocus);
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("blur", handleVisibilityChange);
-      window.removeEventListener("focus", handleVisibilityChange);
+      window.removeEventListener("focus", handleWindowFocus);
     };
-  }, [tabSwitchCount, warningCount, isHidden, timeRemaining]);
+  }, [onTabWarning]);
 
   useEffect(() => {
+    // Set up initial tab tracking
+    const currentTabId = Date.now().toString();
+    localStorage.setItem("currentQuizTab", currentTabId);
+
     const handleNewTabOrWindow = (e) => {
-      if (e.key === "currentQuizTab" && e.newValue !== localStorage.getItem("currentQuizTab")) {
-        handleSecurityViolation("Multiple quiz sessions detected! Please close other windows/tabs.");
+      if (e.key === "currentQuizTab") {
+        const storedTabId = localStorage.getItem("currentQuizTab");
+        if (storedTabId !== currentTabId) {
+          handleSecurityViolation("Please close other windows/tabs and focus on your exam.", true);
+        }
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        handleSecurityViolation("Please return to your exam tab and focus on your exam.", true);
+      }
+    };
+
+    const handleWindowFocus = () => {
+      const storedTabId = localStorage.getItem("currentQuizTab");
+      if (storedTabId !== currentTabId) {
+        handleSecurityViolation("Please close other windows/tabs and focus on your exam.", true);
       }
     };
 
     window.addEventListener("storage", handleNewTabOrWindow);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleWindowFocus);
+    
     return () => {
       window.removeEventListener("storage", handleNewTabOrWindow);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleWindowFocus);
       localStorage.removeItem("currentQuizTab");
     };
   }, []);
@@ -323,27 +319,26 @@ const QuizSecurity = forwardRef(({ handleExamSubmit }, ref) => {
     };
   }, []);
 
+  // Handle disclaimer acceptance
+  const handleDisclaimerAccept = () => {
+    setShowDisclaimer(false);
+    startProctoring();
+  };
+
+  useEffect(() => {
+    if (!showDisclaimer) {
+      // Start proctoring when disclaimer is accepted
+      startProctoring();
+    }
+  }, [showDisclaimer]);
+
   return (
     <div>
       {showDisclaimer ? (
         <ProctoringDisclaimer onAccept={handleDisclaimerAccept} />
       ) : (
         <>
-          {!isProctoringReady && (
-            <div className="fixed top-0 left-0 right-0 bg-yellow-100 p-4 text-center z-50">
-              <p className="text-yellow-800 font-medium">
-                This exam is proctored. The system is initializing your camera. Please wait while we set up the security measures.
-                You will be able to start the exam once the camera is ready.
-              </p>
-            </div>
-          )}
-          {isProctoringError && (
-            <div className="fixed top-0 left-0 right-0 bg-red-100 p-4 text-center z-50">
-              <p className="text-red-800 font-medium">
-                There was an error initializing the proctoring system. Your exam will continue, but violations may not be properly recorded.
-              </p>
-            </div>
-          )}
+         
           {showWarning && (
             <div className="fixed top-0 left-0 right-0 bg-red-500 text-white p-4 text-center z-50">
               <p>{warningMessage}</p>
@@ -353,13 +348,6 @@ const QuizSecurity = forwardRef(({ handleExamSubmit }, ref) => {
               >
                 Dismiss
               </button>
-            </div>
-          )}
-          {violations.length > 0 && (
-            <div className="fixed bottom-0 left-0 right-0 bg-yellow-100 p-4 text-center z-50">
-              <p className="text-yellow-800 font-medium">
-                {violations.length} security violation(s) detected during this exam.
-              </p>
             </div>
           )}
         </>

@@ -61,6 +61,9 @@ const CoursePage = () => {
   const [totalGrade, setTotalGrade] = useState(0);
   const userAnswersRef = useRef({});
   const quizSecurityRef = useRef(null);
+  const [proctoringError, setProctoringError] = useState(false);
+  const [tabWarning, setTabWarning] = useState(false);
+  const [warningMessage, setWarningMessage] = useState("");
 
   const token = localStorage.getItem('access_token');
   if (!token) {
@@ -331,8 +334,27 @@ const CoursePage = () => {
       {examStarted && !examSubmitted && (
         <QuizSecurity 
           ref={quizSecurityRef}
-          handleExamSubmit={handleExamSubmit} 
+          handleExamSubmit={handleExamSubmit}
+          onProctoringError={() => setProctoringError(true)}
+          onTabWarning={(message) => {
+            setWarningMessage(message);
+            setTabWarning(true);
+          }}
         />
+      )}
+
+     
+
+      {tabWarning && (
+        <div className="fixed top-0 left-0 right-0 bg-red-500 text-white p-4 text-center z-50">
+          <p>{warningMessage}</p>
+          <button
+            onClick={() => setTabWarning(false)}
+            className="mt-2 px-4 py-2 bg-white text-red-500 rounded hover:bg-red-100"
+          >
+            Dismiss
+          </button>
+        </div>
       )}
 
       {examSubmitted && score >= 50 && <Confetti width={windowWidth} height={windowHeight} />}
