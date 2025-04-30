@@ -46,7 +46,7 @@ const Messages = () => {
   if (error) {
     return (
       <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-semibold mb-4">Messages</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-right">الرسائل</h2>
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           <p className="font-bold">Error</p>
           <p>{error}</p>
@@ -63,7 +63,7 @@ const Messages = () => {
 
   return (
     <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-semibold mb-4">Messages</h2>
+      <h2 className="text-2xl font-semibold mb-4 text-right">الرسائل</h2>
       {messages.length === 0 ? (
         <div className="text-gray-500 text-center py-4">No messages found.</div>
       ) : (
@@ -71,14 +71,14 @@ const Messages = () => {
           {messages.map((message) => (
             <div
               key={message.id}
-              className="bg-white p-4 rounded-lg shadow-md hover:bg-gray-50 transition-colors duration-300"
+              className="bg-white p-4 rounded-lg shadow-md hover:bg-gray-50 transition-colors duration-300 text-right"
             >
-              <div className="flex items-start space-x-3">
+              <div className="flex items-start space-x-3 text-right">
                 <div className="flex-grow">
-                  <p className="text-gray-600">{message.message}</p>
-                  <div className="mt-2 text-sm text-gray-500">
-                    <p>From: {message.senderName}</p>
-                    <p>Email: {message.senderEmail}</p>
+                  <p className="text-gray-600 text-right">{message.message}</p>
+                  <div className="mt-2 text-sm text-gray-500 text-right">
+                    <p className='text-right'>  {message.senderName}: من   </p>
+                    <p className='text-right'>{message.senderEmail}: الايميل </p>
                   </div>
                 </div>
               </div>

@@ -60,6 +60,7 @@ const CoursePage = () => {
   const [userGrade, setUserGrade] = useState(0);
   const [totalGrade, setTotalGrade] = useState(0);
   const userAnswersRef = useRef({});
+  const quizSecurityRef = useRef(null);
 
   const token = localStorage.getItem('access_token');
   if (!token) {
@@ -273,7 +274,7 @@ const CoursePage = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const handleExamSubmit = async (isTimerExpired = false) => {
+  const handleExamSubmit = async (isViolation = false) => {
     if (timerInterval) {
       clearInterval(timerInterval);
     }
@@ -287,6 +288,18 @@ const CoursePage = () => {
     setScore(percentageScore);
     setExamSubmitted(true);
     setShowModal(true);
+
+    // Stop proctoring when exam is submitted
+    try {
+      await fetch('http://localhost:5000/stop_proctoring', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+    } catch (error) {
+      console.error('Error stopping proctoring:', error);
+    }
   
     try {
       // Using QuizService from API import
@@ -316,7 +329,10 @@ const CoursePage = () => {
     <div className="flex flex-col min-h-screen">
       {/* Add QuizSecurity Component */}
       {examStarted && !examSubmitted && (
-        <QuizSecurity handleExamSubmit={handleExamSubmit} />
+        <QuizSecurity 
+          ref={quizSecurityRef}
+          handleExamSubmit={handleExamSubmit} 
+        />
       )}
 
       {examSubmitted && score >= 50 && <Confetti width={windowWidth} height={windowHeight} />}
