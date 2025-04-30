@@ -64,6 +64,8 @@ const CoursePage = () => {
   const [proctoringError, setProctoringError] = useState(false);
   const [tabWarning, setTabWarning] = useState(false);
   const [warningMessage, setWarningMessage] = useState("");
+  const [proctoringStatus, setProctoringStatus] = useState('inactive');
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   const token = localStorage.getItem('access_token');
   if (!token) {
@@ -133,7 +135,17 @@ const CoursePage = () => {
   };
 
   const handleExamStart = () => {
+    setShowDisclaimer(true);
+  };
+
+  const handleAcceptDisclaimer = () => {
+    setShowDisclaimer(false);
     setShowQuizSelection(true);
+  };
+
+  const handleDeclineDisclaimer = () => {
+    setShowDisclaimer(false);
+    navigate('/MyCourses');
   };
 
   useEffect(() => {
@@ -193,6 +205,25 @@ const CoursePage = () => {
       
       if (attemptsCount >= quiz.maxAttempts) {
         alert(`You have reached the maximum number of attempts (${quiz.maxAttempts}) for this quiz.`);
+        return;
+      }
+
+      // Start proctoring before starting the exam
+      try {
+        const proctoringResponse = await fetch('http://localhost:5000/start_proctoring', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ user_id: userId })
+        });
+
+        if (!proctoringResponse.ok) {
+          throw new Error('Failed to start proctoring');
+        }
+      } catch (error) {
+        console.error('Error starting proctoring:', error);
+        setProctoringError(true);
         return;
       }
 
@@ -326,6 +357,34 @@ const CoursePage = () => {
     }
   };
 
+  useEffect(() => {
+    let statusInterval;
+    
+    if (examStarted && !examSubmitted) {
+      // Check proctoring status every 5 seconds
+      statusInterval = setInterval(async () => {
+        try {
+          const response = await fetch('http://localhost:5000/get_status');
+          const data = await response.json();
+          setProctoringStatus(data.status);
+          
+          if (data.status === 'inactive') {
+            setProctoringError(true);
+          }
+        } catch (error) {
+          console.error('Error checking proctoring status:', error);
+          setProctoringError(true);
+        }
+      }, 5000);
+    }
+
+    return () => {
+      if (statusInterval) {
+        clearInterval(statusInterval);
+      }
+    };
+  }, [examStarted, examSubmitted]);
+
   if (!course || !chapters.length) return <div>Loading...</div>;
 
   return (
@@ -371,6 +430,39 @@ const CoursePage = () => {
             setShowModal(false);
           }}
         />
+      )}
+
+      {showDisclaimer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+            <h2 className="text-2xl font-semibold mb-4 text-red">Exam Disclaimer</h2>
+            <div className="mb-6">
+              <p className="text-gray-700 mb-4">
+                This exam is proctored and monitored. Please note that:
+              </p>
+              <ul className="list-disc list-inside text-gray-700 space-y-2">
+                <li>The exam cannot be closed once started</li>
+                <li>You must complete the exam in one session</li>
+                <li>Your activity will be monitored throughout the exam</li>
+                <li>Any attempts to switch tabs or windows may result in exam termination</li>
+              </ul>
+            </div>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={handleDeclineDisclaimer}
+                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+              >
+                Decline
+              </button>
+              <button
+                onClick={handleAcceptDisclaimer}
+                className="px-4 py-2 bg-red text-white rounded hover:bg-red-600"
+              >
+                Accept
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <Navbar />

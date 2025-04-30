@@ -5,269 +5,231 @@ import os
 import numpy as np
 from collections import Counter
 import face_recognition
-import json
-from datetime import datetime
-import logging
+from flask import Flask, Response, render_template, jsonify, request
+import threading
 import time
+import json
+import datetime
+from flask_cors import CORS
 
 from object_detection import yoloV3Detect
 from face_detection import get_face_detector, find_faces
 
 ################################################ Setup  ######################################################
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, 
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-def show_disclaimer():
-    disclaimer_text = """
-    ============================================
-    ONLINE EXAM PROCTORING SYSTEM DISCLAIMER
-    ============================================
-    
-    This exam is being proctored using an AI-powered system that:
-    1. Monitors your presence through your camera
-    2. Detects prohibited objects (phones, books, etc.)
-    3. Verifies your identity through face recognition
-    
-    By continuing, you agree to:
-    - Allow camera access for the duration of the exam
-    - Maintain a clear view of your face
-    - Not use any prohibited objects
-    - Not switch tabs or windows
-    - Not have multiple exam sessions open
-    
-    Violations may result in:
-    - Warnings
-    - Automatic exam submission
-    - Disqualification from the exam
-    
-    The system will start in 10 seconds...
-    """
-    print(disclaimer_text)
-    time.sleep(10)  # Give user time to read the disclaimer
-
-# Get user ID from command line arguments
-user_id = "default_user"
-if len(sys.argv) > 1:
-    user_id = sys.argv[1]
-logger.info(f"Starting proctoring for user: {user_id}")
-
-# Show disclaimer
-show_disclaimer()
-
-# Initialize violation log
-violations = []
-
-def signal_handler(signum, frame):
-    """Handle termination signal"""
-    logger.info("Received termination signal")
-    raise KeyboardInterrupt
-
-# Register signal handler
-signal.signal(signal.SIGINT, signal_handler)
-signal.signal(signal.SIGTERM, signal_handler)
+# Initialize Flask app
+app = Flask(__name__)
+CORS(app)
 
 # face recognition
-try:
-    l = os.listdir('student_db')
-    known_face_encodings = []
-    known_face_names = []
-    face_locations = []
-    face_encodings = []
-    face_names = []
+l = os.listdir('student_db')
+known_face_encodings = []
+known_face_names = []
+face_locations = []
+face_encodings = []
+face_names = []
 
-    for image in l:
-        student_image = face_recognition.load_image_file('student_db/'+image)
-        student_face_encoding = face_recognition.face_encodings(student_image)[0]
-
-        known_face_encodings.append(student_face_encoding)
-        known_face_names.append(image.split('.')[0])
-    
-    logger.info(f"Loaded {len(known_face_names)} known faces")
-except Exception as e:
-    logger.error(f"Error loading face database: {e}")
-    known_face_encodings = []
-    known_face_names = []
+for image in l:
+    student_image = face_recognition.load_image_file('student_db/' + image)
+    student_face_encoding = face_recognition.face_encodings(student_image)[0]
+    known_face_encodings.append(student_face_encoding)
+    known_face_names.append(image.split('.')[0])
 
 # face detection model
-try:
-    face_model = get_face_detector()
-    logger.info("Face detection model loaded successfully")
-except Exception as e:
-    logger.error(f"Error loading face detection model: {e}")
-    face_model = None
+face_model = get_face_detector()
 
-# Others
-try:
-    video_capture = cv2.VideoCapture(0)
-    if not video_capture.isOpened():
-        logger.error("Failed to open camera")
-        sys.exit(1)
-    logger.info("Camera opened successfully")
-except Exception as e:
-    logger.error(f"Error opening camera: {e}")
-    sys.exit(1)
-
+# Global variables for video processing
+alert_logs = []
+video_capture = None
 process_this_frame = False
 no_of_frames_0 = 0
 no_of_frames_1 = 0
 no_of_frames_2 = 0
 font = cv2.FONT_HERSHEY_PLAIN
 flag = True
+current_alerts = {
+    "multiple_people": False,
+    "banned_objects": False,
+    "face_recognition": False
+}
+proctoring_active = False
+current_user_id = None
 
 #################################################### ALERT #####################################################
-def alert(condition, no_of_frames, violation_type):
-    if(condition):
-        no_of_frames = no_of_frames + 1
-        if no_of_frames == 1:  # Log only the first occurrence of each violation
-            violation = {
-                'type': violation_type,
-                'timestamp': datetime.now().isoformat(),
-                'user_id': user_id
-            }
-            violations.append(violation)
-            logger.warning(f"Violation detected: {violation_type} for user {user_id}")
-            
-            # Save violation immediately
-            try:
-                if not os.path.exists('violations'):
-                    os.makedirs('violations')
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                filename = f'violations/proctoring_violations_{timestamp}.json'
-                with open(filename, 'w') as f:
-                    json.dump(violation, f, indent=2)
-                logger.info(f"Violation saved to {filename}")
-            except Exception as e:
-                logger.error(f"Error saving violation: {e}")
+def log_violation(alert_type):
+    alert_logs.append({
+        "timestamp": datetime.datetime.now().isoformat(),
+        "user_id": current_user_id,
+        "violation": alert_type
+    })
+
+def alert(condition, no_of_frames):
+    if condition:
+        no_of_frames += 1
     else:
         no_of_frames = 0
-
     return no_of_frames
 
-#################################################### MAIN #####################################################
+def generate_frames():
+    global process_this_frame, no_of_frames_0, no_of_frames_1, no_of_frames_2, flag, current_alerts, video_capture
 
-try:
-    logger.info("Starting proctoring loop")
-    while True:
-        # frame skipping to save time
-        process_this_frame = not process_this_frame 
+    if not video_capture:
+        return
 
-        # Grab a single frame of video
+    while proctoring_active:
+        process_this_frame = not process_this_frame
+
         ret, frame = video_capture.read()
         if not ret:
-            logger.warning("Failed to grab frame from camera")
-            continue
+            break
 
-        # Resize frame of video to 1/4 size for faster processing
+        frame2 = frame.copy()
+        frame3 = frame.copy()
+        report = np.zeros((frame3.shape[0], frame3.shape[1], 3), np.uint8)
+
         small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
-        # Functionalities
         if process_this_frame:
             try:
                 ##### Object Detection #####
                 try:
                     fboxes, fclasses = yoloV3Detect(small_frame)
-                    
-                    to_detect = ['person', 'laptop', 'cell phone', 'book', 'tv']
 
+                    to_detect = ['person', 'laptop', 'cell phone', 'book', 'tv']
                     temp1, temp2 = [], []
 
                     for i in range(len(fclasses)):
-                        if(fclasses[i] in to_detect):
+                        if fclasses[i] in to_detect:
                             temp1.append(fboxes[i])
                             temp2.append(fclasses[i])
-                 
-                    # Counter
+
                     count_items = Counter(temp2)
                 except Exception as e:
-                    logger.error(f"Error in object detection: {e}")
-                    count_items = {}
-                    count_items['person'] = 0
-                    count_items['laptop'] = 0
-                    count_items['cell phone'] = 0
-                    count_items['book'] = 0
-                    count_items['tv'] = 0
+                    count_items = {'person': 0, 'laptop': 0, 'cell phone': 0, 'book': 0, 'tv': 0}
+                    print(e)
 
-                # Multiple Person Buffer
+                # Multiple Person Detection (with repeated logging)
                 condition = (count_items['person'] != 1)
-                no_of_frames_0 = alert(condition, no_of_frames_0, 'multiple_people')
+                no_of_frames_0 = alert(condition, no_of_frames_0)
+                if no_of_frames_0 > 10:
+                    log_violation("multiple_people")
+                    no_of_frames_0 = 0  # reset to allow re-logging
 
-                if(count_items['person'] == 1):
-                    #### face detection using OpenCV's DNN module with TensorFlow model ####
-                    
-                    # detect face
-                    if face_model:
-                        faces = find_faces(small_frame, face_model)
-                        if len(faces) > 0:
-                            face = faces[0]
-                        else:
-                            condition = (len(faces) < 1)
-                            no_of_frames_2 = alert(condition, no_of_frames_2, 'no_face')
-                            continue
+                # Banned Object Detection (with repeated logging)
+                condition = (
+                    count_items['laptop'] >= 1 or
+                    count_items['cell phone'] >= 1 or
+                    count_items['book'] >= 1 or
+                    count_items['tv'] >= 1
+                )
+                no_of_frames_1 = alert(condition, no_of_frames_1)
+                if no_of_frames_1 > 5:
+                    log_violation("banned_objects")
+                    no_of_frames_1 = 0  # reset to allow re-logging
+
+                if count_items['person'] == 1:
+                    #### Face Detection ####
+                    faces = find_faces(small_frame, face_model)
+                    if len(faces) > 0:
+                        face = faces[0]
+                        left, top, right, bottom = face
                     else:
-                        logger.warning("Face model not available, skipping face detection")
+                        condition = (len(faces) < 1)
+                        no_of_frames_2 = alert(condition, no_of_frames_2)
+                        if no_of_frames_2 > 10:
+                            log_violation("face_recognition")
+                            no_of_frames_2 = 0
                         continue
-                    
-                    if(flag == True):
-                        #### face verification using face_recognition library ####
-                        
-                        # modifying order
-                        face_locations = [[top, right, bottom, left]]
-                       
-                        # Convert BGR image to RGB image (which face_recognition uses)
-                        rgb_small_frame = small_frame[:, :, ::-1]
 
-                        # get CNN feature vector
+                    if flag:
+                        #### Face Recognition ####
+                        face_locations = [[top, right, bottom, left]]
+                        rgb_small_frame = small_frame[:, :, ::-1]
                         face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
 
-                        # get similarity
-                        face_encoding = face_encodings[0]
-                        matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
-                        face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
-                        best_match_index = np.argmin(face_distances)
-                        if matches[best_match_index]:
-                            name = known_face_names[best_match_index]
+                        if len(face_encodings) > 0:
+                            face_encoding = face_encodings[0]
+                            matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
+                            face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+                            best_match_index = np.argmin(face_distances)
+                            if matches[best_match_index]:
+                                name = known_face_names[best_match_index]
+                            else:
+                                name = "Unknown"
                         else:
                             name = "Unknown"
-                        flag = False
-                    
-                    # Buffer
-                    condition = (name == 'Unknown')  
-                    no_of_frames_2 = alert(condition, no_of_frames_2, 'unknown_face')
 
+                        flag = False
+
+                    condition = (name == "Unknown")
+                    no_of_frames_2 = alert(condition, no_of_frames_2)
+                    if no_of_frames_2 > 10:
+                        log_violation("face_recognition")
+                        no_of_frames_2 = 0  # reset
                 else:
                     flag = True
 
             except Exception as e:
-                logger.error(f"Error in main processing loop: {e}")
+                print("Error in frame processing:", e)
 
-except KeyboardInterrupt:
-    logger.info("\nStopping proctoring system...")
-except Exception as e:
-    logger.error(f"Unexpected error: {e}")
-finally:
-    # Release handle to the webcam
-    video_capture.release()
-    logger.info("Camera released")
-    
-    # Save final violation record
+@app.route('/get_alerts_log', methods=['GET'])
+def get_alerts_log():
+    return jsonify(alert_logs)
+
+@app.route('/start_proctoring', methods=['POST'])
+def start_proctoring():
+    global video_capture, proctoring_active, current_user_id
+
     try:
-        if not os.path.exists('violations'):
-            os.makedirs('violations')
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f'violations/proctoring_violations_{timestamp}.json'
-        final_violation = {
-            'type': 'exam_completion',
-            'timestamp': datetime.now().isoformat(),
-            'user_id': user_id,
-            'details': 'Exam completed or proctoring stopped'
-        }
-        with open(filename, 'w') as f:
-            json.dump(final_violation, f, indent=2)
-        logger.info(f"Final violation record saved to {filename}")
+        data = request.get_json()
+        user_id = data.get('user_id')
+
+        if not user_id:
+            return jsonify({'error': 'User ID is required'}), 400
+
+        current_user_id = user_id
+
+        if not video_capture:
+            video_capture = cv2.VideoCapture(0)
+            if not video_capture.isOpened():
+                return jsonify({'error': 'Failed to open camera'}), 500
+
+        proctoring_active = True
+        threading.Thread(target=generate_frames, daemon=True).start()
+
+        return jsonify({'status': 'success', 'message': 'Proctoring started'})
     except Exception as e:
-        logger.error(f"Error saving final violation record: {e}")
-    
-    logger.info("Proctoring system stopped")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/stop_proctoring', methods=['POST'])
+def stop_proctoring():
+    global video_capture, proctoring_active, current_user_id
+
+    try:
+        proctoring_active = False
+        current_user_id = None
+
+        if video_capture:
+            video_capture.release()
+            video_capture = None
+
+        return jsonify({'status': 'success', 'message': 'Proctoring stopped'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/get_status')
+def get_status():
+    global video_capture, proctoring_active
+
+    try:
+        camera_status = 'open' if video_capture and video_capture.isOpened() else 'closed'
+        return jsonify({
+            'status': 'active' if proctoring_active else 'inactive',
+            'camera_status': camera_status,
+            'alerts': current_alerts
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
