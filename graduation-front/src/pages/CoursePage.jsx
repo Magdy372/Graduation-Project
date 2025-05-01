@@ -347,13 +347,6 @@ const CoursePage = () => {
 
     try {
       await QuizService.submitQuizAttempt(selectedQuiz.id, userId, percentageScore);
-      
-      // Update chapter quiz attempts
-      const attempts = await QuizService.getQuizAttempts(selectedQuiz.id);
-      setQuizAttempts(prev => ({
-        ...prev,
-        [selectedChapter]: attempts
-      }));
     } catch (error) {
       console.error('Error handling exam submission:', error);
     }
@@ -361,35 +354,18 @@ const CoursePage = () => {
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setExamStarted(false);
-    setExamSubmitted(false);
-    setSelectedQuiz(null);
-    setSelectedChapter(null);
-    setUserAnswers({});
-    setTimeLeft(null);
   };
   
   const handleCloseQuiz = () => {
     setShowModal(false);
-    if (score >= 50) {
-      // Check if all chapter quizzes are completed with passing scores
-      const allChaptersCompleted = chapters.every(chapter => {
-        const chapterAttempts = quizAttempts[chapter.id] || [];
-        return chapterAttempts.some(attempt => attempt.score >= 50);
-      });
-      
-      if (allChaptersCompleted) {
-        navigate('/feedback');
-      } else {
-        setExamStarted(false);
-        setExamSubmitted(false);
-        setSelectedQuiz(null);
-        setSelectedChapter(null);
-        setUserAnswers({});
-        setTimeLeft(null);
-      }
+    if(score >= 50) {
+      navigate('/feedback');
     } else {
       setShowQuizSelection(false);
+      setExamStarted(false);
+      setExamSubmitted(false);
+      setUserAnswers({});
+      setExamQuestions([]);
     }
   };
 
@@ -427,22 +403,6 @@ const CoursePage = () => {
     if (!chapter) return false;
     
     return chapter.videos.every(video => watchedVideos[video.id]);
-  };
-
-  // Function to get attempts for a specific chapter quiz
-  const getChapterQuizAttempts = async (chapterId) => {
-    try {
-      const chapterQuiz = chapterQuizzes[chapterId]?.[0];
-      if (!chapterQuiz) return [];
-      
-      const attempts = await QuizService.getQuizAttempts(chapterQuiz.id);
-      setQuizAttempts(prev => ({
-        ...prev,
-        [chapterId]: attempts
-      }));
-    } catch (error) {
-      console.error('Error fetching chapter quiz attempts:', error);
-    }
   };
 
   if (!course || !chapters.length) return <div>Loading...</div>;
@@ -591,16 +551,9 @@ const CoursePage = () => {
                     {chapterQuizzes[chapter.id]?.length > 0 ? (
                       <button
                         onClick={() => handleExamStart(chapter.id)}
-                        className={`w-full p-2 rounded-md text-white text-sm ${
-                          quizAttempts[chapter.id]?.length >= maxAttempts
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-blue hover:bg-red'
-                        }`}
-                        disabled={quizAttempts[chapter.id]?.length >= maxAttempts}
+                        className="w-full p-2 rounded-md text-white text-sm bg-blue hover:bg-red"
                       >
-                        {quizAttempts[chapter.id]?.length >= maxAttempts
-                          ? 'Max Attempts Reached'
-                          : 'Take Chapter Quiz'}
+                        Take Chapter Quiz
                       </button>
                     ) : (
                       <p className="text-sm text-gray-500 italic">No quiz available</p>
@@ -626,8 +579,7 @@ const CoursePage = () => {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {chapterQuizzes[selectedChapter]?.map((quiz) => {
-                        const chapterAttempts = quizAttempts[selectedChapter] || [];
-                        const userAttempts = chapterAttempts.filter(a => a.quizId === quiz.id).length;
+                        const userAttempts = quizAttempts.filter(a => a.quizId === quiz.id).length;
                         const remainingAttempts = Math.max(0, quiz.maxAttempts - userAttempts);
                         const hasReachedLimit = userAttempts >= quiz.maxAttempts;
                         
