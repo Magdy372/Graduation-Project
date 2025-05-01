@@ -34,6 +34,8 @@ import ApprovedPharmacists from "./pages/ApprovedPharmacists";
 import ContactUs from "./pages/ContactUs";
 import Messages from "./pages/Messages";
 import ManageQuizzes from "./pages/ManageQuizzes";
+import ViewQuiz from "./pages/ViewQuiz";
+import EditQuiz from "./pages/EditQuiz";
 
 
 
@@ -234,6 +236,26 @@ const App = () => {
               element={
                 <ProtectedRoute
                   element={<ManageQuizzes />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="view-quiz/:quizId"
+              element={
+                <ProtectedRoute
+                  element={<ViewQuiz />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="edit-quiz/:quizId"
+              element={
+                <ProtectedRoute
+                  element={<EditQuiz />}
                   requiredRole="Admin"
                   redirectTo="/login"
                 />

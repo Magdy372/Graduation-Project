@@ -2,6 +2,7 @@ package com.grad.course_management_services.services;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -98,13 +99,96 @@ public class QuizService {
         Quiz existingQuiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new RuntimeException("Quiz not found"));
         
-        Quiz updatedQuiz = convertToEntity(updatedQuizDTO);
-        existingQuiz.setTitle(updatedQuiz.getTitle());
-        existingQuiz.setTimeLimit(updatedQuiz.getTimeLimit());
+        // Update basic quiz properties
+        existingQuiz.setTitle(updatedQuizDTO.getTitle());
+        existingQuiz.setTimeLimit(updatedQuizDTO.getTimeLimit());
+        existingQuiz.setMaxAttempts(updatedQuizDTO.getMaxAttempts());
         
-        // Don't update total grade here as it's calculated from questions
+        // Update chapter if changed
+        if (!existingQuiz.getChapter().getId().equals(updatedQuizDTO.getChapterId())) {
+            Chapter newChapter = chapterRepository.findById(updatedQuizDTO.getChapterId())
+                .orElseThrow(() -> new RuntimeException("Chapter not found with id: " + updatedQuizDTO.getChapterId()));
+            existingQuiz.setChapter(newChapter);
+        }
+        
+        // Handle questions
+        // First, remove questions that are no longer in the updated quiz
+        List<Question> existingQuestions = questionRepository.findByQuizId(quizId);
+        List<Long> updatedQuestionIds = updatedQuizDTO.getQuestions().stream()
+            .map(QuestionDTO::getId)
+            .filter(id -> id != null)
+            .collect(Collectors.toList());
+        
+        existingQuestions.stream()
+            .filter(q -> !updatedQuestionIds.contains(q.getId()))
+            .forEach(questionRepository::delete);
+        
+        // Update existing questions and add new ones
+        List<Question> updatedQuestions = new ArrayList<>();
+        for (QuestionDTO questionDTO : updatedQuizDTO.getQuestions()) {
+            Question question;
+            if (questionDTO.getId() != null) {
+                // Update existing question
+                question = questionRepository.findById(questionDTO.getId())
+                    .orElseThrow(() -> new RuntimeException("Question not found with id: " + questionDTO.getId()));
+                question.setText(questionDTO.getText());
+                question.setGrade(questionDTO.getGrade());
+                
+                if (question instanceof MCQQuestion && "MCQ".equals(questionDTO.getQuestionType())) {
+                    MCQQuestion mcqQuestion = (MCQQuestion) question;
+                    mcqQuestion.setCorrectAnswer(questionDTO.getCorrectAnswer());
+                    mcqQuestion.setOptions(String.join(",", questionDTO.getOptions()));
+                } else if (question instanceof TrueFalseQuestion && "TRUE_FALSE".equals(questionDTO.getQuestionType())) {
+                    TrueFalseQuestion tfQuestion = (TrueFalseQuestion) question;
+                    tfQuestion.setCorrectAnswer(Boolean.parseBoolean(questionDTO.getCorrectAnswer()));
+                }
+                questionRepository.save(question);
+            } else {
+                // Create new question
+                questionDTO.setQuizId(quizId); // Set the quiz ID for the new question
+                Question newQuestion = createQuestionFromDTO(questionDTO, existingQuiz);
+                question = questionRepository.save(newQuestion);
+            }
+            updatedQuestions.add(question);
+        }
+        
+        // Update total grade
+        double totalGrade = updatedQuestions.stream()
+            .mapToDouble(Question::getGrade)
+            .sum();
+        existingQuiz.setTotalGrade(totalGrade);
+        
+        // Save the updated quiz
         Quiz savedQuiz = quizRepository.save(existingQuiz);
+        
+        // Return the updated quiz with all its questions
         return convertToDTO(savedQuiz);
+    }
+
+    // Helper method to create a new Question from DTO
+    private Question createQuestionFromDTO(QuestionDTO dto, Quiz quiz) {
+        Question question;
+        if ("MCQ".equals(dto.getQuestionType())) {
+            question = new MCQQuestion(
+                dto.getText(),
+                dto.getGrade(),
+                quiz,
+                dto.getCorrectAnswer(),
+                String.join(",", dto.getOptions()),
+                quiz.getQuestions().size() + 1
+            );
+        } else if ("TRUE_FALSE".equals(dto.getQuestionType())) {
+            question = new TrueFalseQuestion(
+                dto.getText(),
+                dto.getGrade(),
+                quiz,
+                Boolean.parseBoolean(dto.getCorrectAnswer()),
+                quiz.getQuestions().size() + 1
+            );
+        } else {
+            throw new IllegalArgumentException("Invalid question type: " + dto.getQuestionType());
+        }
+        return question;
     }
 
     // . Delete a quiz
