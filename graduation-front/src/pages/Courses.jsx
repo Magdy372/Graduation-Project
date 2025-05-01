@@ -115,7 +115,7 @@ const Courses = () => {
           initial={{ x: 50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeInOut" }}
-          className="w-3/4"
+          className="w-full"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {displayedCourses.map((course) => (
