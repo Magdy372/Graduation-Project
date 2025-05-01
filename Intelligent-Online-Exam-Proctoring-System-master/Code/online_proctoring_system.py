@@ -11,6 +11,7 @@ import time
 import json
 import datetime
 from flask_cors import CORS
+import requests
 
 from object_detection import yoloV3Detect
 from face_detection import get_face_detector, find_faces
@@ -54,14 +55,21 @@ current_alerts = {
 }
 proctoring_active = False
 current_user_id = None
+current_quiz_id = None
 
 #################################################### ALERT #####################################################
 def log_violation(alert_type):
-    alert_logs.append({
+    violation_data = {
         "timestamp": datetime.datetime.now().isoformat(),
-        "user_id": current_user_id,
+        "userId": current_user_id,
+        "quizId": current_quiz_id,
         "violation": alert_type
-    })
+    }
+    try:
+        requests.post("http://localhost:8089/api/violations", json=violation_data)
+        alert_logs.append(violation_data)  # still keep it locally if you want
+    except Exception as e:
+        print("Failed to send violation to Spring Boot:", e)
 
 def alert(condition, no_of_frames):
     if condition:
@@ -178,16 +186,18 @@ def get_alerts_log():
 
 @app.route('/start_proctoring', methods=['POST'])
 def start_proctoring():
-    global video_capture, proctoring_active, current_user_id
+    global video_capture, proctoring_active, current_user_id, current_quiz_id
 
     try:
         data = request.get_json()
         user_id = data.get('user_id')
+        quiz_id = data.get('quiz_id')
 
         if not user_id:
             return jsonify({'error': 'User ID is required'}), 400
 
         current_user_id = user_id
+        current_quiz_id = quiz_id
 
         if not video_capture:
             video_capture = cv2.VideoCapture(0)
@@ -203,11 +213,12 @@ def start_proctoring():
 
 @app.route('/stop_proctoring', methods=['POST'])
 def stop_proctoring():
-    global video_capture, proctoring_active, current_user_id
+    global video_capture, proctoring_active, current_user_id, current_quiz_id
 
     try:
         proctoring_active = False
         current_user_id = None
+        current_quiz_id = None
 
         if video_capture:
             video_capture.release()

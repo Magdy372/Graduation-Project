@@ -1,4 +1,3 @@
-// CorsConfig.java
 package com.grad.user_services.config;
 
 import org.springframework.context.annotation.Bean;
@@ -8,21 +7,28 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 import java.util.Arrays;
+import java.util.List;
+
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
-    private static final String FRONTEND_URL = "http://localhost:5173";
+
+    private static final List<String> ALLOWED_ORIGINS = Arrays.asList(
+        "http://localhost:5173", // Frontend
+        "http://localhost:5000"  // Flask app
+    );
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(FRONTEND_URL));
+        configuration.setAllowedOrigins(ALLOWED_ORIGINS);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList(
-            "Authorization", 
-            "Content-Type", 
-            "Accept", 
-            "Origin", 
+            "Authorization",
+            "Content-Type",
+            "Accept",
+            "Origin",
             "X-Requested-With"
         ));
         configuration.setAllowCredentials(true);
@@ -36,7 +42,7 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedOrigins(FRONTEND_URL)
+            .allowedOrigins(ALLOWED_ORIGINS.toArray(new String[0]))
             .allowedMethods("*")
             .allowedHeaders("*")
             .allowCredentials(true)

@@ -215,7 +215,10 @@ const CoursePage = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ user_id: userId })
+          body: JSON.stringify({ 
+            user_id: userId,
+            quiz_id: quiz.id 
+          })
         });
 
         if (!proctoringResponse.ok) {
