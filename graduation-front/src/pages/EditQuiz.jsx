@@ -16,7 +16,7 @@ const EditQuiz = () => {
     text: "",
     grade: 1,
     correctAnswer: "",
-    options: ["", ""]
+    options: ["", "", "", ""]
   });
 
   useEffect(() => {
@@ -80,18 +80,21 @@ const EditQuiz = () => {
   };
 
   const handleNewQuestionChange = (field, value) => {
-    setNewQuestion(prev => ({
-      ...prev,
-      [field]: value
-    }));
-
-    // Reset options and correctAnswer when changing question type
+    console.log('Field changed:', field, 'New value:', value);
+    
     if (field === 'questionType') {
+      const updatedQuestion = {
+        ...newQuestion,
+        questionType: value,
+        options: value === 'MCQ' ? ["", "", "", ""] : [],
+        correctAnswer: value === 'TRUE_FALSE' ? "true" : ""
+      };
+      console.log('Updated question after type change:', updatedQuestion);
+      setNewQuestion(updatedQuestion);
+    } else {
       setNewQuestion(prev => ({
         ...prev,
-        [field]: value,
-        options: value === 'MCQ' ? ["", ""] : [],
-        correctAnswer: value === 'TRUE_FALSE' ? "true" : ""
+        [field]: value
       }));
     }
   };
@@ -128,11 +131,11 @@ const EditQuiz = () => {
       text: "",
       grade: 1,
       correctAnswer: "",
-      options: ["", ""]
+      options: ["", "", "", ""]
     });
   };
 
-  const handleAddQuestion = () => {
+  const handleAddQuestion = async () => {
     // Validate the new question
     if (!newQuestion.text.trim()) {
       alert('يرجى إدخال نص السؤال');
@@ -143,36 +146,50 @@ const EditQuiz = () => {
       return;
     }
 
-    if (newQuestion.questionType === 'MCQ') {
-      if (!newQuestion.correctAnswer) {
-        alert('يرجى اختيار الإجابة الصحيحة');
-        return;
-      }
-      if (newQuestion.options.some(opt => !opt.trim())) {
-        alert('يرجى ملء جميع الخيارات');
-        return;
-      }
-    } else if (newQuestion.questionType === 'TRUE_FALSE') {
-      if (!newQuestion.correctAnswer) {
-        alert('يرجى اختيار الإجابة الصحيحة');
-        return;
-      }
-    }
+    console.log('Adding new question, type:', newQuestion.questionType);
 
+    // Create the question object based on type
     const questionToAdd = {
-      ...newQuestion,
+      text: newQuestion.text,
+      grade: Number(newQuestion.grade),
       quizId: quiz.id,
+      questionType: newQuestion.questionType,
+      correctAnswer: newQuestion.correctAnswer,
       options: newQuestion.questionType === 'MCQ' ? newQuestion.options : []
     };
 
-    setQuiz(prev => ({
-      ...prev,
-      questions: [...prev.questions, questionToAdd]
-    }));
+    console.log('Question to be added:', questionToAdd);
 
-    // Reset form and close modal
-    resetNewQuestion();
-    setShowNewQuestionModal(false);
+    try {
+      // Send the question to the backend
+      const response = await fetch('http://localhost:8084/api/questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(questionToAdd),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add question');
+      }
+
+      const savedQuestion = await response.json();
+      console.log('Saved question from backend:', savedQuestion);
+
+      // Update the quiz with the new question
+      setQuiz(prev => ({
+        ...prev,
+        questions: [...prev.questions, savedQuestion]
+      }));
+
+      // Reset form and close modal
+      resetNewQuestion();
+      setShowNewQuestionModal(false);
+    } catch (error) {
+      console.error('Error adding question:', error);
+      alert('حدث خطأ أثناء إضافة السؤال');
+    }
   };
 
   const handleDeleteQuestion = (index) => {
@@ -199,7 +216,7 @@ const EditQuiz = () => {
         timeLimit: Number(quiz.timeLimit),
         maxAttempts: Number(quiz.maxAttempts),
         questions: quiz.questions.map(question => ({
-          questionType: "MCQ",
+          questionType: question.questionType,
           text: question.text,
           grade: Number(question.grade),
           quizId: quiz.id,
@@ -353,7 +370,7 @@ const EditQuiz = () => {
               <button
                 type="button"
                 onClick={() => setShowNewQuestionModal(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center"
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center"
               >
                 <FaPlus className="ml-2" />
                 إضافة سؤال
@@ -415,10 +432,10 @@ const EditQuiz = () => {
                       <input
                         type="number"
                         value={newQuestion.grade}
-                        onChange={(e) => handleNewQuestionChange('grade', Number(e.target.value))}
+                        onChange={(e) => handleNewQuestionChange('grade', e.target.value)}
                         className="w-full p-2 border rounded-md text-right"
                         required
-                        min="0.5"
+                        min="0"
                         step="0.5"
                       />
                     </div>
@@ -491,6 +508,7 @@ const EditQuiz = () => {
                           className="w-full p-2 border rounded-md text-right"
                           required
                         >
+                          <option value="">اختر الإجابة الصحيحة</option>
                           <option value="true">صح</option>
                           <option value="false">خطأ</option>
                         </select>
@@ -511,7 +529,7 @@ const EditQuiz = () => {
                       <button
                         type="button"
                         onClick={handleAddQuestion}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
                       >
                         إضافة السؤال
                       </button>
