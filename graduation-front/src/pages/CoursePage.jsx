@@ -217,27 +217,27 @@ const CoursePage = () => {
         return;
       }
 
-      // Start proctoring
-      // try {
-      //   const proctoringResponse = await fetch('http://localhost:5000/start_proctoring', {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     },
-      //     body: JSON.stringify({ 
-      //       user_id: userId,
-      //       quiz_id: quiz.id 
-      //     })
-      //   });
+      //Start proctoring
+      try {
+        const proctoringResponse = await fetch('http://localhost:5000/start_proctoring', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            user_id: userId,
+            quiz_id: quiz.id 
+          })
+        });
 
-      //   if (!proctoringResponse.ok) {
-      //     throw new Error('Failed to start proctoring');
-      //   }
-      // } catch (error) {
-      //   console.error('Error starting proctoring:', error);
-      //   setProctoringError(true);
-      //   return;
-      // }
+        if (!proctoringResponse.ok) {
+          throw new Error('Failed to start proctoring');
+        }
+      } catch (error) {
+        console.error('Error starting proctoring:', error);
+        setProctoringError(true);
+        return;
+      }
 
       setSelectedQuiz(quiz);
       setQuizTimeLimit(quiz.timeLimit);
@@ -333,17 +333,17 @@ const CoursePage = () => {
     setExamSubmitted(true);
     setShowModal(true);
 
-    // Stop proctoring
-    // try {
-    //   await fetch('http://localhost:5000/stop_proctoring', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     }
-    //   });
-    // } catch (error) {
-    //   console.error('Error stopping proctoring:', error);
-    // }
+    //Stop proctoring
+    try {
+      await fetch('http://localhost:5000/stop_proctoring', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+    } catch (error) {
+      console.error('Error stopping proctoring:', error);
+    }
 
     try {
       await QuizService.submitQuizAttempt(selectedQuiz.id, userId, percentageScore);
