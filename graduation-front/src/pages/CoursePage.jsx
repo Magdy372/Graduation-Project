@@ -145,12 +145,34 @@ const CoursePage = () => {
 
   const handleExamStart = (chapterId) => {
     setSelectedChapter(chapterId);
-    setShowDisclaimer(true);
+    setShowQuizSelection(true);
   };
 
-  const handleAcceptDisclaimer = () => {
+  const handleAcceptDisclaimer = async () => {
     setShowDisclaimer(false);
-    setShowQuizSelection(true);
+    setExamStarted(true);
+    
+    //Start proctoring here after accepting disclaimer
+    try {
+      const proctoringResponse = await fetch('http://localhost:5000/start_proctoring', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          user_id: userId,
+          quiz_id: selectedQuiz.id 
+        })
+      });
+
+      if (!proctoringResponse.ok) {
+        throw new Error('Failed to start proctoring');
+      }
+    } catch (error) {
+      console.error('Error starting proctoring:', error);
+      setProctoringError(true);
+      return;
+    }
   };
 
   const handleDeclineDisclaimer = () => {
@@ -217,38 +239,16 @@ const CoursePage = () => {
         return;
       }
 
-      //Start proctoring
-      try {
-        const proctoringResponse = await fetch('http://localhost:5000/start_proctoring', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            user_id: userId,
-            quiz_id: quiz.id 
-          })
-        });
-
-        if (!proctoringResponse.ok) {
-          throw new Error('Failed to start proctoring');
-        }
-      } catch (error) {
-        console.error('Error starting proctoring:', error);
-        setProctoringError(true);
-        return;
-      }
-
       setSelectedQuiz(quiz);
       setQuizTimeLimit(quiz.timeLimit);
       setMaxAttempts(quiz.maxAttempts);
-      setShowQuizSelection(false);
       
       const transformedQuestions = await QuizService.getQuizQuestions(quiz.id);
       setExamQuestions(transformedQuestions);
       setTotalGrade(transformedQuestions.reduce((sum, q) => sum + q.grade, 0));
       setQuestionsLoading(false);
-      setExamStarted(true);
+      setShowQuizSelection(false);
+      setShowDisclaimer(true); // Show disclaimer after quiz selection
     } catch (error) {
       console.error('Error fetching questions:', error);
       setQuestionsLoading(false);
