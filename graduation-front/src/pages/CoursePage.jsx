@@ -37,8 +37,10 @@ const CoursePage = () => {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [watchedVideos, setWatchedVideos] = useState(() => {
     const saved = localStorage.getItem(`watchedVideos_${courseId}`);
-    return saved ? new Set(JSON.parse(saved)) : new Set();
+    return saved ? JSON.parse(saved) : {};
   });
+  const [selectedChapter, setSelectedChapter] = useState(null);
+  const [chapterQuizzes, setChapterQuizzes] = useState({});
   const [examStarted, setExamStarted] = useState(false);
   const [examSubmitted, setExamSubmitted] = useState(false);
   const [userAnswers, setUserAnswers] = useState({});
@@ -54,7 +56,7 @@ const CoursePage = () => {
   const [quizTimeLimit, setQuizTimeLimit] = useState(30);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [showQuizSelection, setShowQuizSelection] = useState(false);
-  const [quizAttempts, setQuizAttempts] = useState([]);
+  const [quizAttempts, setQuizAttempts] = useState({});
   const [maxAttempts, setMaxAttempts] = useState(3);
   const [currentAttempt, setCurrentAttempt] = useState(1);
   const [userGrade, setUserGrade] = useState(0);
@@ -79,12 +81,19 @@ const CoursePage = () => {
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
-        // Using CourseService from API import
         const courseData = await CourseService.getCourse(courseId);
         const chaptersData = await CourseService.getChapters(courseId);
         
         setCourse(courseData);
         setChapters(chaptersData);
+        
+        // Fetch quizzes for each chapter
+        const quizzesData = {};
+        for (const chapter of chaptersData) {
+          const chapterQuizzes = await QuizService.getQuizzesByChapter(chapter.id);
+          quizzesData[chapter.id] = chapterQuizzes;
+        }
+        setChapterQuizzes(quizzesData);
         
         if (chaptersData.length > 0 && chaptersData[0].videos.length > 0) {
           setSelectedVideo(chaptersData[0].videos[0]);
@@ -110,13 +119,13 @@ const CoursePage = () => {
   useEffect(() => {
     localStorage.setItem(
       `watchedVideos_${courseId}`,
-      JSON.stringify(Array.from(watchedVideos))
+      JSON.stringify(watchedVideos)
     );
   }, [watchedVideos, courseId]);
 
   const handleVideoWatched = (videoId) => {
-    const newWatchedVideos = new Set(watchedVideos);
-    newWatchedVideos.add(videoId);
+    const newWatchedVideos = { ...watchedVideos };
+    newWatchedVideos[videoId] = true;
     setWatchedVideos(newWatchedVideos);
   };
 
@@ -125,7 +134,7 @@ const CoursePage = () => {
       (total, chapter) => total + chapter.videos.length,
       0
     );
-    return watchedVideos.size === totalVideos;
+    return Object.keys(watchedVideos).length === totalVideos;
   };
 
   const handleVideoEnded = () => {
@@ -134,7 +143,8 @@ const CoursePage = () => {
     }
   };
 
-  const handleExamStart = () => {
+  const handleExamStart = (chapterId) => {
+    setSelectedChapter(chapterId);
     setShowDisclaimer(true);
   };
 
@@ -198,9 +208,8 @@ const CoursePage = () => {
     fetchAllQuizAttempts();
   }, [userId]);
 
-  const handleQuizSelect = async (quiz) => {
+  const handleQuizSelect = async (quiz, chapterId) => {
     try {
-      // Using QuizService from API import
       const attemptsCount = await QuizService.getAttemptsCount(quiz.id, userId);
       
       if (attemptsCount >= quiz.maxAttempts) {
@@ -208,36 +217,34 @@ const CoursePage = () => {
         return;
       }
 
-      // Start proctoring before starting the exam
-      try {
-        const proctoringResponse = await fetch('http://localhost:5000/start_proctoring', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            user_id: userId,
-            quiz_id: quiz.id 
-          })
-        });
+      // Start proctoring
+      // try {
+      //   const proctoringResponse = await fetch('http://localhost:5000/start_proctoring', {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //     body: JSON.stringify({ 
+      //       user_id: userId,
+      //       quiz_id: quiz.id 
+      //     })
+      //   });
 
-        if (!proctoringResponse.ok) {
-          throw new Error('Failed to start proctoring');
-        }
-      } catch (error) {
-        console.error('Error starting proctoring:', error);
-        setProctoringError(true);
-        return;
-      }
+      //   if (!proctoringResponse.ok) {
+      //     throw new Error('Failed to start proctoring');
+      //   }
+      // } catch (error) {
+      //   console.error('Error starting proctoring:', error);
+      //   setProctoringError(true);
+      //   return;
+      // }
 
       setSelectedQuiz(quiz);
       setQuizTimeLimit(quiz.timeLimit);
       setMaxAttempts(quiz.maxAttempts);
       setShowQuizSelection(false);
       
-      // Using QuizService from API import
       const transformedQuestions = await QuizService.getQuizQuestions(quiz.id);
-      
       setExamQuestions(transformedQuestions);
       setTotalGrade(transformedQuestions.reduce((sum, q) => sum + q.grade, 0));
       setQuestionsLoading(false);
@@ -326,35 +333,61 @@ const CoursePage = () => {
     setExamSubmitted(true);
     setShowModal(true);
 
-    // Stop proctoring when exam is submitted
+    // Stop proctoring
+    // try {
+    //   await fetch('http://localhost:5000/stop_proctoring', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     }
+    //   });
+    // } catch (error) {
+    //   console.error('Error stopping proctoring:', error);
+    // }
+
     try {
-      await fetch('http://localhost:5000/stop_proctoring', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-    } catch (error) {
-      console.error('Error stopping proctoring:', error);
-    }
-  
-    try {
-      // Using QuizService from API import
       await QuizService.submitQuizAttempt(selectedQuiz.id, userId, percentageScore);
+      
+      // Update chapter quiz attempts
+      const attempts = await QuizService.getQuizAttempts(selectedQuiz.id);
+      setQuizAttempts(prev => ({
+        ...prev,
+        [selectedChapter]: attempts
+      }));
     } catch (error) {
       console.error('Error handling exam submission:', error);
-      // QuizService already handles offline badge functionality
     }
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
+    setExamStarted(false);
+    setExamSubmitted(false);
+    setSelectedQuiz(null);
+    setSelectedChapter(null);
+    setUserAnswers({});
+    setTimeLeft(null);
   };
   
   const handleCloseQuiz = () => {
     setShowModal(false);
-    if(score >= 50) {
-      navigate('/feedback');
+    if (score >= 50) {
+      // Check if all chapter quizzes are completed with passing scores
+      const allChaptersCompleted = chapters.every(chapter => {
+        const chapterAttempts = quizAttempts[chapter.id] || [];
+        return chapterAttempts.some(attempt => attempt.score >= 50);
+      });
+      
+      if (allChaptersCompleted) {
+        navigate('/feedback');
+      } else {
+        setExamStarted(false);
+        setExamSubmitted(false);
+        setSelectedQuiz(null);
+        setSelectedChapter(null);
+        setUserAnswers({});
+        setTimeLeft(null);
+      }
     } else {
       setShowQuizSelection(false);
     }
@@ -387,6 +420,30 @@ const CoursePage = () => {
       }
     };
   }, [examStarted, examSubmitted]);
+
+  // Function to check if all videos in a chapter are watched
+  const areAllChapterVideosWatched = (chapterId) => {
+    const chapter = chapters.find(c => c.id === chapterId);
+    if (!chapter) return false;
+    
+    return chapter.videos.every(video => watchedVideos[video.id]);
+  };
+
+  // Function to get attempts for a specific chapter quiz
+  const getChapterQuizAttempts = async (chapterId) => {
+    try {
+      const chapterQuiz = chapterQuizzes[chapterId]?.[0];
+      if (!chapterQuiz) return [];
+      
+      const attempts = await QuizService.getQuizAttempts(chapterQuiz.id);
+      setQuizAttempts(prev => ({
+        ...prev,
+        [chapterId]: attempts
+      }));
+    } catch (error) {
+      console.error('Error fetching chapter quiz attempts:', error);
+    }
+  };
 
   if (!course || !chapters.length) return <div>Loading...</div>;
 
@@ -499,7 +556,12 @@ const CoursePage = () => {
                   initial="initial"
                   animate="animate"
                 >
-                  {chapter.title}
+                  <div className="flex justify-between items-center">
+                    <span>{chapter.title}</span>
+                    {areAllChapterVideosWatched(chapter.id) && (
+                      <span className="text-green-600 text-sm">✓ Completed</span>
+                    )}
+                  </div>
                 </motion.div>
                 {chapter.videos.map((video, videoIndex) => (
                   <motion.button
@@ -516,22 +578,37 @@ const CoursePage = () => {
                   >
                     <FaPlayCircle />
                     <span>{video.title}</span>
-                    {watchedVideos.has(video.id) && <span className="ml-auto text-sm">✓</span>}
+                    {watchedVideos[video.id] && <span className="ml-auto text-sm">✓</span>}
                   </motion.button>
                 ))}
+                {areAllChapterVideosWatched(chapter.id) && (
+                  <motion.div
+                    variants={FadeUp(0.4 + chapterIndex * 0.1)}
+                    initial="initial"
+                    animate="animate"
+                    className="mt-2"
+                  >
+                    {chapterQuizzes[chapter.id]?.length > 0 ? (
+                      <button
+                        onClick={() => handleExamStart(chapter.id)}
+                        className={`w-full p-2 rounded-md text-white text-sm ${
+                          quizAttempts[chapter.id]?.length >= maxAttempts
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-blue hover:bg-red'
+                        }`}
+                        disabled={quizAttempts[chapter.id]?.length >= maxAttempts}
+                      >
+                        {quizAttempts[chapter.id]?.length >= maxAttempts
+                          ? 'Max Attempts Reached'
+                          : 'Take Chapter Quiz'}
+                      </button>
+                    ) : (
+                      <p className="text-sm text-gray-500 italic">No quiz available</p>
+                    )}
+                  </motion.div>
+                )}
               </div>
             ))}
-            {allVideosWatched() && !examStarted && !examSubmitted && (
-              <motion.button
-                onClick={handleExamStart}
-                className="mt-4 p-3 bg-blue text-white w-full rounded-md hover:bg-red"
-                variants={FadeUp(0.9)}
-                initial="initial"
-                animate="animate"
-              >
-                Start Exam
-              </motion.button>
-            )}
           </div>
 
           <div className="flex-1 flex justify-center items-start mt-3 ml-3">
@@ -544,12 +621,15 @@ const CoursePage = () => {
               {!examStarted ? (
                 showQuizSelection ? (
                   <div className="w-full h-full p-6 bg-white rounded-lg shadow">
-                    <h2 className="text-2xl font-semibold mb-6">Select a Quiz</h2>
+                    <h2 className="text-2xl font-semibold mb-6">
+                      {chapters.find(c => c.id === selectedChapter)?.title} - Available Quizzes
+                    </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {quizzes.map((quiz) => {
-                        const userAttempts = quizAttempts.filter(a => a.quizId === quiz.id).length;
+                      {chapterQuizzes[selectedChapter]?.map((quiz) => {
+                        const chapterAttempts = quizAttempts[selectedChapter] || [];
+                        const userAttempts = chapterAttempts.filter(a => a.quizId === quiz.id).length;
                         const remainingAttempts = Math.max(0, quiz.maxAttempts - userAttempts);
-                        const hasReachedLimit = userAttempts >= quiz.maxAttempts;;
+                        const hasReachedLimit = userAttempts >= quiz.maxAttempts;
                         
                         return (
                           <div
@@ -557,7 +637,7 @@ const CoursePage = () => {
                             className={`p-4 border rounded-lg hover:border-red cursor-pointer transition-colors ${
                               hasReachedLimit ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
-                            onClick={() => !hasReachedLimit && handleQuizSelect(quiz)}
+                            onClick={() => !hasReachedLimit && handleQuizSelect(quiz, selectedChapter)}
                           >
                             <h3 className="text-xl font-semibold mb-2">{quiz.title}</h3>
                             <p className="text-gray-600">Time Limit: {quiz.timeLimit} minutes</p>
