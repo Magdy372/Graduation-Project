@@ -17,7 +17,9 @@ public class ViolationService {
 
     public void saveViolation(ViolationDTO dto) {
         Violation violation = new Violation();
-        violation.setTimestamp(dto.getTimestamp());
+        violation.setStartTime(dto.getStartTime());
+        violation.setEndTime(dto.getEndTime());
+        violation.setDuration(dto.getDuration());
         violation.setUserId(dto.getUserId());
         violation.setQuizId(dto.getQuizId());
         violation.setViolation(dto.getViolation());
@@ -27,7 +29,9 @@ public class ViolationService {
     public List<ViolationDTO> getAllViolations() {
         return violationRepository.findAll().stream().map(v -> {
             ViolationDTO dto = new ViolationDTO();
-            dto.setTimestamp(v.getTimestamp());
+            dto.setStartTime(v.getStartTime());
+            dto.setEndTime(v.getEndTime());
+            dto.setDuration(v.getDuration());
             dto.setUserId(v.getUserId());
             dto.setQuizId(v.getQuizId());
             dto.setViolation(v.getViolation());

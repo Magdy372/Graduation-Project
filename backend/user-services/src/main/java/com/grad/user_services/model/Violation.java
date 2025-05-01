@@ -9,7 +9,9 @@ public class Violation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String timestamp;
+    private String startTime;
+    private String endTime;    
+    private Long duration;
     private String userId;
     private String quizId;
     private String violation;
@@ -18,8 +20,14 @@ public class Violation {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getTimestamp() { return timestamp; }
-    public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
+   public String getStartTime() { return startTime; }
+    public void setStartTime(String start_time) { this.startTime = start_time; }
+
+    public String getEndTime() { return endTime; }
+    public void setEndTime(String end_time) { this.endTime = end_time; }
+
+    public Long getDuration() { return duration; }
+    public void setDuration(Long duration) { this.duration = duration; }
 
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
