@@ -856,7 +856,7 @@ const CoursePage = () => {
                 title={
                   <div className="flex justify-between items-center">
                     <Typography variant="h6" className="text-red font-semibold text-lg">
-                      Course Summary
+                      video Summary
                     </Typography>
                   </div>
                 }

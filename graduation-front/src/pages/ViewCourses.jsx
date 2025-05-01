@@ -267,7 +267,7 @@ const ViewCourses = () => {
                     className="text-purple-500 cursor-pointer hover:text-purple-700"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate("/layout/add-quiz", { state: { course } });
+                      navigate(`/layout/manage-quizzes/${course.id}`, { state: { course } });
                     }}
                   />
                 </div>

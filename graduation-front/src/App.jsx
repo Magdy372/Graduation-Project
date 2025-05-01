@@ -33,6 +33,7 @@ import ApprovedDoctors from "./pages/ApprovedDoctors";
 import ApprovedPharmacists from "./pages/ApprovedPharmacists";
 import ContactUs from "./pages/ContactUs";
 import Messages from "./pages/Messages";
+import ManageQuizzes from "./pages/ManageQuizzes";
 
 
 
@@ -223,6 +224,16 @@ const App = () => {
               element={
                 <ProtectedRoute
                   element={<AddQuiz />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+            <Route
+              path="manage-quizzes/:courseId"
+              element={
+                <ProtectedRoute
+                  element={<ManageQuizzes />}
                   requiredRole="Admin"
                   redirectTo="/login"
                 />
