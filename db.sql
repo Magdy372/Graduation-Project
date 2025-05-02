@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Feb 06, 2025 at 08:34 AM
+-- Generation Time: May 03, 2025 at 12:31 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -33,15 +33,19 @@ CREATE TABLE `admins` (
   `last_name` varchar(50) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `role` varchar(255) NOT NULL
+  `role` varchar(255) NOT NULL,
+  `position` varchar(255) NOT NULL,
+  `candidate` varchar(255) NOT NULL,
+  `governorate` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `admins`
 --
 
-INSERT INTO `admins` (`id`, `first_name`, `last_name`, `email`, `password`, `role`) VALUES
-(1, 'John', 'Doe', 'admin@gmail.com', '$2a$12$SETYmSWaOvB8bhtTMQrGGe4swf2NVHT2sLz9559h3YuFrW.p2MHP.', 'Admin');
+INSERT INTO `admins` (`id`, `first_name`, `last_name`, `email`, `password`, `role`, `position`, `candidate`, `governorate`) VALUES
+(1, 'John', 'Doe', 'admin@gmail.com', '$2a$12$SETYmSWaOvB8bhtTMQrGGe4swf2NVHT2sLz9559h3YuFrW.p2MHP.', 'Admin', 'مدير', 'الصيدلة', 'القاهرة'),
+(67, 'omar', 'abdelmonem', 'os313030@gmail.com', '$2a$12$SETYmSWaOvB8bhtTMQrGGe4swf2NVHT2sLz9559h3YuFrW.p2MHP.', 'Admin', 'موظف', 'الصيدلة', 'الإسكندرية');
 
 -- --------------------------------------------------------
 
@@ -59,7 +63,24 @@ CREATE TABLE `category` (
 --
 
 INSERT INTO `category` (`id`, `name`) VALUES
-(1, 'Pharm');
+(1, 'Pharm'),
+(14, 'Services');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `certificate`
+--
+
+CREATE TABLE `certificate` (
+  `id` bigint(20) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
+  `course_id` bigint(20) NOT NULL,
+  `issue_date` datetime NOT NULL,
+  `certificate_number` varchar(255) NOT NULL,
+  `final_score` double NOT NULL,
+  `passed` bit(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -78,10 +99,27 @@ CREATE TABLE `chapter` (
 --
 
 INSERT INTO `chapter` (`id`, `title`, `course_id`) VALUES
-(19, 'aaaaaa', 13),
-(20, 'aaaaaa', 14),
-(21, 'ss', 15),
-(23, 'chapter 1', 19);
+(41, 'chapter 1', 30),
+(42, 'chapter 2', 30);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `contact`
+--
+
+CREATE TABLE `contact` (
+  `id` bigint(20) NOT NULL,
+  `mess` varchar(255) DEFAULT NULL,
+  `user_id` bigint(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `contact`
+--
+
+INSERT INTO `contact` (`id`, `mess`, `user_id`) VALUES
+(1, '\nالسلام عليكم اريد التواصل', 114);
 
 -- --------------------------------------------------------
 
@@ -102,11 +140,7 @@ CREATE TABLE `course` (
 --
 
 INSERT INTO `course` (`id`, `name`, `description`, `category_id`, `image_url`) VALUES
-(13, 'aaaa', 'sss', 1, '/uploads/coursesimages/a86282a6-596d-478a-a9cf-dae1ebabc3f0_backiee-98927.jpg'),
-(14, 'aaaa', 'sss', 1, '/uploads/coursesimages/9f185503-81dc-4cef-86b5-86767a31a20e_backiee-98927.jpg'),
-(15, 'ss', 'ss', 1, '/uploads/coursesimages/f3e5944f-820c-48f1-bf7d-835c15875a7e_backiee-96330.jpg'),
-(16, 'new', 'new', 1, '/uploads/coursesimages/7dfff71d-4340-40f2-bb60-8bfa089a4b37_WhatsApp Image 2024-09-05 at 15.18.01_94aa6faa.jpg'),
-(19, 'hhhh', 'hh', 1, '/uploads/coursesimages/293dbf62-5226-43d8-aed2-a618db54faca_ggg.png');
+(30, 'pathfinder', 'pathfinder', 1, '/uploads/coursesimages/9fe0c308-bf89-4973-96c5-508448dc8628_WhatsApp Image 2025-04-27 at 03.22.20_401ab7fc.jpg');
 
 -- --------------------------------------------------------
 
@@ -126,43 +160,50 @@ CREATE TABLE `enrollment` (
 --
 
 INSERT INTO `enrollment` (`id`, `course_id`, `enrollment_date`, `user_id`) VALUES
-(1, 1, '2025-01-29 01:38:57.000000', 25),
-(2, 2, '2025-01-29 01:46:40.000000', 25),
-(3, 4, '2025-01-29 01:50:59.000000', 25);
+(15, 20, '2025-04-04 19:23:14.000000', 114),
+(16, 21, '2025-04-04 19:24:09.000000', 114),
+(17, 22, '2025-04-04 19:24:29.000000', 114),
+(18, 24, '2025-04-04 19:24:42.000000', 114),
+(19, 23, '2025-04-04 23:49:26.000000', 114),
+(20, 21, '2025-04-05 02:00:15.000000', 120),
+(21, 25, '2025-04-05 03:36:27.000000', 114),
+(22, 26, '2025-04-05 03:47:59.000000', 114),
+(23, 27, '2025-04-05 04:33:48.000000', 114),
+(24, 26, '2025-04-05 15:44:11.000000', 123),
+(25, 26, '2025-04-30 21:15:04.000000', 113),
+(26, 29, '2025-05-01 13:57:09.000000', 114),
+(27, 29, '2025-05-01 23:33:47.000000', 125),
+(28, 26, '2025-05-01 23:34:08.000000', 125),
+(29, 25, '2025-05-01 23:34:30.000000', 125),
+(30, 30, '2025-05-01 23:40:40.000000', 125);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `enrollments`
+-- Table structure for table `feedbacks`
 --
 
-CREATE TABLE `enrollments` (
+CREATE TABLE `feedbacks` (
   `id` bigint(20) NOT NULL,
-  `user_id` bigint(20) NOT NULL,
-  `course_id` bigint(20) NOT NULL,
-  `enrollment_date` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `product`
---
-
-CREATE TABLE `product` (
-  `id` bigint(20) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `price` double NOT NULL,
-  `quantity` int(11) NOT NULL
+  `comments` varchar(1000) DEFAULT NULL,
+  `content_quality_rating` int(11) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `ease_of_use_rating` int(11) NOT NULL,
+  `overall_rating` int(11) NOT NULL,
+  `support_satisfaction_rating` int(11) NOT NULL,
+  `user_id` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `product`
+-- Dumping data for table `feedbacks`
 --
 
-INSERT INTO `product` (`id`, `name`, `description`, `price`, `quantity`) VALUES
-(5, 'Laptop', 'High-performance laptop', 1200, 10);
+INSERT INTO `feedbacks` (`id`, `comments`, `content_quality_rating`, `created_at`, `ease_of_use_rating`, `overall_rating`, `support_satisfaction_rating`, `user_id`) VALUES
+(1, 'Perfect', 5, '2025-02-10 22:47:16.000000', 5, 5, 5, 114),
+(5, 'good\n', 3, '2025-04-05 04:44:12.000000', 3, 3, 3, 114),
+(6, 'good', 5, '2025-04-05 12:55:33.000000', 5, 5, 5, 114),
+(7, 'dkdd', 4, '2025-04-30 18:57:20.000000', 4, 4, 4, 114),
+(8, 's;d', 4, '2025-04-30 18:57:33.000000', 4, 3, 4, 114);
 
 -- --------------------------------------------------------
 
@@ -171,47 +212,23 @@ INSERT INTO `product` (`id`, `name`, `description`, `price`, `quantity`) VALUES
 --
 
 CREATE TABLE `question` (
-  `id` bigint(20) NOT NULL,
   `question_type` varchar(31) NOT NULL,
-  `text` varchar(255) NOT NULL,
+  `id` bigint(20) NOT NULL,
   `grade` double NOT NULL,
-  `quiz_id` bigint(20) NOT NULL,
+  `order_num` int(11) NOT NULL,
+  `text` varchar(255) NOT NULL,
   `correct_answer` varchar(255) DEFAULT NULL,
-  `options` varchar(255) DEFAULT NULL,
-  `sample_answer` varchar(255) DEFAULT NULL,
-  `order_num` int(11) NOT NULL
+  `options` varchar(1000) DEFAULT NULL,
+  `quiz_id` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `question`
 --
 
-INSERT INTO `question` (`id`, `question_type`, `text`, `grade`, `quiz_id`, `correct_answer`, `options`, `sample_answer`, `order_num`) VALUES
-(30, 'ESSAY', 'What is the capital of France?', 5, 3, NULL, NULL, 'Paris', 3);
-
---
--- Triggers `question`
---
-DELIMITER $$
-CREATE TRIGGER `delete_quiz_total_grade` AFTER DELETE ON `question` FOR EACH ROW BEGIN
-    UPDATE quiz
-    SET total_grade = (
-        SELECT COALESCE(SUM(grade), 0) FROM question WHERE quiz_id = OLD.quiz_id
-    )
-    WHERE id = OLD.quiz_id;
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `update_quiz_total_grade` AFTER INSERT ON `question` FOR EACH ROW BEGIN
-    UPDATE quiz
-    SET total_grade = (
-        SELECT COALESCE(SUM(grade), 0) FROM question WHERE quiz_id = NEW.quiz_id
-    )
-    WHERE id = NEW.quiz_id;
-END
-$$
-DELIMITER ;
+INSERT INTO `question` (`question_type`, `id`, `grade`, `order_num`, `text`, `correct_answer`, `options`, `quiz_id`) VALUES
+('TRUE_FALSE', 36, 4, 1, 'h', '1', NULL, 22),
+('TRUE_FALSE', 37, 1, 1, 'n', '0', NULL, 23);
 
 -- --------------------------------------------------------
 
@@ -221,18 +238,43 @@ DELIMITER ;
 
 CREATE TABLE `quiz` (
   `id` bigint(20) NOT NULL,
+  `time_limit` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
-  `total_grade` double NOT NULL DEFAULT 0,
-  `chapter_id` bigint(20) NOT NULL
+  `total_grade` double DEFAULT NULL,
+  `chapter_id` bigint(20) NOT NULL,
+  `max_attempts` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `quiz`
 --
 
-INSERT INTO `quiz` (`id`, `title`, `total_grade`, `chapter_id`) VALUES
-(3, 'Science Quiz 1', 5, 23),
-(4, 'History Quiz 1', 0, 23);
+INSERT INTO `quiz` (`id`, `time_limit`, `title`, `total_grade`, `chapter_id`, `max_attempts`) VALUES
+(22, 30, 'm', 4, 41, 2),
+(23, 30, 'n', 1, 42, 3);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `quiz_attempts`
+--
+
+CREATE TABLE `quiz_attempts` (
+  `id` bigint(20) NOT NULL,
+  `attempt_date` datetime(6) DEFAULT NULL,
+  `attempt_number` int(11) DEFAULT NULL,
+  `passed` bit(1) DEFAULT NULL,
+  `score` double DEFAULT NULL,
+  `user_id` varchar(255) DEFAULT NULL,
+  `quiz_id` bigint(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `quiz_attempts`
+--
+
+INSERT INTO `quiz_attempts` (`id`, `attempt_date`, `attempt_number`, `passed`, `score`, `user_id`, `quiz_id`) VALUES
+(173, '2025-05-02 17:51:57.000000', 1, b'1', 100, '125', 22);
 
 -- --------------------------------------------------------
 
@@ -249,17 +291,24 @@ CREATE TABLE `users` (
   `user_document_id` bigint(20) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
   `role` varchar(255) NOT NULL,
-  `approved` bit(1) DEFAULT NULL
+  `approved` bit(1) DEFAULT NULL,
+  `governorate` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `first_name`, `last_name`, `phone_number`, `email`, `user_document_id`, `password`, `role`, `approved`) VALUES
-(1, 'omar', 'abd', '010030054908480', 'o@gmail.com', 97, '$2a$12$fsMAbyttPGOoGlUpI.MCOukXyqA1Q52z6zaU9b5a4E8X9n0YayYsW', 'USER', b'1'),
-(57, 'mahmoud', 'hossam', '01001762250', 'mahmoud584@gmail.com', 106, '$2a$10$Hv3sFT1hrmBSSvDGeLp0yudQdDairHMqbVxyxH7CqvH7JP3ZhKk/a', 'USER', b'1'),
-(58, 'Omar', 'Salah', '010003138219', 'oo@gmail.com', 107, '$2a$10$QSu.0nn.O8r9DtZjEv6kS.izw79h63OKXGAPysCHJP2Ka4bVT.Y26', 'USER', b'0');
+INSERT INTO `users` (`id`, `first_name`, `last_name`, `phone_number`, `email`, `user_document_id`, `password`, `role`, `approved`, `governorate`, `title`) VALUES
+(113, 'ahmed ', 'khaled', '01001762250', 'mahmoud2107860@miuegypt.edu.eg', 163, '$2a$10$bHbWPaMPPPJrZQ1YWjKR7.bCxj8r.3ps5KdbhU5DUoGT608Dr4Bya', 'USER', b'1', 'سوهاج', 'دكتور'),
+(114, 'mahmoud', 'hossam', '01001762250', 'mahmoudhousam584@gmail.com', 164, '$2a$10$QTKa9V6Xx5/lqz0oxCAFLuIdw6D54A0hfD/Z.u8SfknyW1Kn35sei', 'USER', b'1', 'الأقصر', 'دكتور'),
+(115, 'ziad ', 'ahmed', '01001762250', 'mahmoudhousam5844@gmail.com', 165, '$2a$10$nSCMkcS4tCBxsmfV/hErvOpR7GZIzq2yTr3F4LC.XVWYGud.EZ7Cq', 'USER', b'1', 'القليوبية', 'دكتور'),
+(117, 'ali', 'mostafa', '01001762250', 'mahmoudhouqsam584@gmail.com', 167, '$2a$10$YHAf098KQEchmuYS.lHBHeZJLeJlc/jw6giGOZ8yUU2wi1jnsNNcm', 'USER', b'1', 'القاهرة', 'دكتور'),
+(120, 'rana', 'abulkassem', '01001762250', 'T-622e5@ischoolteams.com', 170, '$2a$10$FPkR8Qe2EMgkDXQvmDW0.egXrpKn/xCwN0NXBKZN/V8yFB4AjlvEa', 'USER', b'1', 'شمال سيناء', 'دكتور'),
+(123, 'mohamed', 'magdy', '01022907282', 'm.m123@gmail.com', 173, '$2a$10$KN.g7pQJf/8zq3FAhC1Jben3aUZMwenJjXpEPkfQ2woW7h.t5ocTG', 'USER', b'1', 'جنوب سيناء', 'دكتور'),
+(124, 'mahmoud', 'hossam', '01001762250', 'Mahmoudhousam58@gmail.com', 174, '$2a$10$K.AoImP9xZPfXpoklFcAOezDVX56QTLYnK4aFvdNvr97uavEURA.W', 'USER', b'1', 'القاهرة', 'صيدلي'),
+(125, 'Omar', 'Omar', '01000313821', 'os606030@gmail.com', 175, '$2a$10$YI4VM3ZbBrb1YnajRhQfXOLSyC5cKAnFQFn2FjDcEbQidRE.nI1a2', 'USER', b'1', 'القليوبية', 'دكتور');
 
 -- --------------------------------------------------------
 
@@ -292,7 +341,72 @@ INSERT INTO `user_documents` (`id`, `license_file`, `profession_license_file`, `
 (102, 'c1434846-711d-41af-8f14-22004e6197eb_2025.pdf', 'be2880a4-fc10-4e96-8468-144c420ee52c_2025.pdf', 'ac96a92e-e74b-45e7-91b8-cd0bc6d102d8_2025.pdf', 'c7c9fef4-d87b-4a00-84e7-f2aa691a0238_2025.pdf', '90924475-a0b2-4932-98c6-a697ec4e3fe0_2025.pdf'),
 (103, '8e1ec5c3-014b-43c4-97d2-f9e35890451c_2025.pdf', '521fb9c5-1230-4e31-9b46-92b1b7e41ae8_2025.pdf', '90632a6b-5447-4c77-ab97-900a3bdeb4e5_2025.pdf', '8a2f0b73-3321-425b-85e4-3b0f2a184a63_2025.pdf', '91b7a405-a765-4f29-9b2c-d6cffb0e24a7_2025.pdf'),
 (106, '92e0e52a-377d-4ace-a3fe-a57fca51854c_2025.pdf', '4a1c98e8-5237-46ad-9ed1-48fd8fb47dc5_2025.pdf', 'e1f79e7a-e5ec-4c26-8a37-50d952e7bebe_2025.pdf', '7c08f477-bfc2-46f6-a65e-72d13d3717d5_2025.pdf', 'cd2d5001-68ca-4770-b45e-515c81d1b861_2025.pdf'),
-(107, 'bd244db0-cfbd-41de-8b23-68bb193fd859_Lecture 1_ Mobile Programming_F24.pdf', '1ba2f78e-4a91-4f10-b65a-e0420e63311a_Lecture 1_ Mobile Programming_F24.pdf', '21a20226-883a-4b40-a337-ff36a0a29589_Lecture 1_ Mobile Programming_F24.pdf', '6e5b911d-a383-4b74-b523-4ed86b23a91d_Lecture 1_ Mobile Programming_F24.pdf', '5f14b50d-f056-454c-b5d7-3f4d96d082fa_Lecture 1_ Mobile Programming_F24.pdf');
+(107, 'bd244db0-cfbd-41de-8b23-68bb193fd859_Lecture 1_ Mobile Programming_F24.pdf', '1ba2f78e-4a91-4f10-b65a-e0420e63311a_Lecture 1_ Mobile Programming_F24.pdf', '21a20226-883a-4b40-a337-ff36a0a29589_Lecture 1_ Mobile Programming_F24.pdf', '6e5b911d-a383-4b74-b523-4ed86b23a91d_Lecture 1_ Mobile Programming_F24.pdf', '5f14b50d-f056-454c-b5d7-3f4d96d082fa_Lecture 1_ Mobile Programming_F24.pdf'),
+(108, '80c6d2f8-7f8b-4bf0-9e11-68c5fa25032f_2025.pdf', '1c9f9533-07d2-4f5d-b4e5-c161cc9080b2_2025.pdf', '79c7f684-2831-4b9b-a864-d97db98f5fa1_2025.pdf', '0db60093-5ad5-4c9c-a505-824e4f87d4a1_2025.pdf', 'b87c88be-5518-4b2a-b346-3ffa77acb305_2025.pdf'),
+(109, '43a8ec92-7147-4cf7-b875-2e767b6808cb_q.png', '9f9ae685-b6f7-491c-8835-d373af08d8e0_q.png', '2e97630d-025d-4110-839c-adabe101b1bd_q.png', '580b38b3-09ba-4301-aa48-9effe92a3951_q.png', '47c0ea8e-5142-4197-b80f-d02cb90f4e06_q.png'),
+(110, '2eb3e9cb-0841-41e2-8698-20a4e9029d79_2025.pdf', '994e2182-92e0-479d-9f18-60b3849728a5_2025.pdf', 'eff6a95e-558e-41ed-94ba-bce44916154e_2025.pdf', '8439a706-a1b9-43dc-b419-91fe86c8bb39_2025.pdf', '2e701324-0c36-49bf-a653-b09b30111fae_2025.pdf'),
+(111, '4a04c757-7d74-41d5-b3ef-638183291da6_2025.pdf', '5c415d4c-054c-429e-8e11-2772a6e578cc_2025.pdf', '372a55ef-fda4-438a-bbaa-77921956d0e8_2025.pdf', '320bd3fd-5558-490b-a1be-8c0813d36c57_2025.pdf', 'bb4ca3eb-d00d-4ec6-b58e-fd6606452c2c_2025.pdf'),
+(123, 'a3fe26bb-c29e-4711-b6d5-bf45fc017988_2025.pdf', 'ec02c75d-4c93-4ffe-afcb-7e705d59001a_2025.pdf', 'f8a3b69c-8346-408a-a27e-e841ea490e96_2025.pdf', '62677669-19e2-44e0-893b-6dfadf5048ef_2025.pdf', 'b1daff53-d2ac-4b8a-841e-ee46dbd2b4af_2025.pdf'),
+(159, '2ca864fb-d1a1-477b-902b-cb5df3a121e3_2025.pdf', 'f39e41a2-940c-47f9-8396-ad80ced13ada_2025.pdf', 'b1438f91-e5e1-4458-a12b-04735abc68b1_2025.pdf', '04f9d48a-82ef-4fd5-91bc-7d575cc37fef_2025.pdf', '2ff3a0b3-8ee2-476b-8526-1fd436dda3e9_2025.pdf'),
+(161, 'fe562886-8ada-4f0f-bdfa-784e46852945_2025.pdf', 'f8dc86a6-2387-4c8a-a658-d93d20410c9b_2025.pdf', 'aa226c5e-10ba-46aa-96be-2190192380d0_2025.pdf', '9bdaaf3a-509d-4e56-87bb-153333116471_2025.pdf', '6868b71c-677f-464d-aa43-35db79ca6d8b_2025.pdf'),
+(162, '8fc80636-eb56-42f2-abb7-68891e995014_2025.pdf', '36e9db9e-4a31-4f39-a4fa-96bc60918547_2025.pdf', '2314a897-76b3-485e-8117-6832e92cd837_2025.pdf', 'd57d0443-0610-45fc-a698-eea6343cf3d9_2025.pdf', 'fb136ae6-4e35-447b-a5fd-96925cad51ef_2025.pdf'),
+(163, '43a6fbed-9039-4c5e-8111-f2fe4cb400ae_2025.pdf', '3cc4239e-2afb-4846-a7b1-0922be0332b1_2025.pdf', '28499ce8-1e84-47a8-afe5-c5599cbe4627_2025.pdf', '083feeb3-6792-49d7-bd4f-69db05982ff2_2025.pdf', 'ec311da7-8c92-4580-8a2e-a05f21b97566_2025.pdf'),
+(164, 'cd87f1f0-419a-4da6-b52c-69a65ef00769_2025.pdf', '5169a749-cfb6-4f48-957f-92b02aaf84d0_2025.pdf', '905bfcdb-aa62-4d9e-a75a-2d968393bf26_2025.pdf', '56981de2-57d3-475e-a909-6f8d4c38f84d_2025.pdf', '9d3c018d-0632-4005-b80a-2ea5bdaff607_2025.pdf'),
+(165, 'bf3fa4e5-3553-4ec7-8be4-2a92664ca685_technical discussion requirments.txt', '04854a2a-a788-42a7-9a68-70acce9f96a7_technical discussion requirments.txt', '8aa560ae-93c7-4620-a889-1c44e396a678_technical discussion requirments.txt', 'cb48564f-8193-47e4-91eb-52c8197e9cba_technical discussion requirments.txt', '4cdbeb3e-e7bc-447f-9238-ed57c05a4ebf_technical discussion requirments.txt'),
+(166, 'e5a0a4e9-0602-49b6-9aeb-8560434c61e5_technical discussion requirments.txt', 'c25fdae0-62fb-4ed8-acd9-0c6964975be1_technical discussion requirments.txt', '437142b0-e6c7-4a95-b8e2-80fcbea7bec2_technical discussion requirments.txt', '1fbdbf08-0ae9-46e4-93b2-fb3421ccafd4_technical discussion requirments.txt', 'bb013135-aa6b-4be6-80b3-2400e978ac8b_technical discussion requirments.txt'),
+(167, '12f320cd-1cb8-4500-a67f-3dd87f62e0b1_2025.pdf', 'b8f691b5-6b2c-480e-a326-f8cf5e970b45_2025.pdf', 'e8963931-b7e7-44a6-b35c-cefbedcc4125_2025.pdf', '48706e97-1a4c-48e4-9a38-a84a7d8f3192_2025.pdf', '1821c442-c273-4ce7-8a58-2854ffa6e8fe_2025.pdf'),
+(168, '8094c49c-24d2-4376-a27d-3a90993dc855_2025.pdf', '791c0872-e42c-4dfa-a316-773a99379b29_2025.pdf', 'e240a066-7bf7-49c1-8dad-284fcf95498b_2025.pdf', '46ed3f68-18ce-443b-96ab-c769da002f3e_2025.pdf', 'f2cc5140-e85b-43af-bed1-89c22b936169_2025.pdf'),
+(169, '360a26b7-716c-4314-b1e1-6ec10f53e6e9_mahmoud hossam.jpg', 'bb0c44f8-8d14-4355-80a1-e5702c102568_mahmoud hossam.jpg', 'eb78b89e-5443-439b-9b17-aa84c6e508ed_mahmoud hossam.jpg', '26ba3337-25b0-44c5-a1ee-b80a32d88b48_mahmoud hossam.jpg', 'ccd296a0-e7ba-497b-b764-b54869ceccd4_mahmoud hossam.jpg'),
+(170, 'd6d23e79-bdd3-4cbb-a4c8-3f100fb41b97_mahmoud hossam.jpg', '2e578a22-6b2b-4433-9a8b-b69371adc1a2_mahmoud hossam.jpg', '4f99cb03-4068-443e-8498-39f22fb638c9_mahmoud hossam.jpg', '28048f21-7a25-41c3-83ce-ab109d40b06e_mahmoud hossam.jpg', '35190f28-f532-4387-8e77-9ff945133ba7_mahmoud hossam.jpg'),
+(171, 'path/to/license.pdf', 'path/to/profession_license.pdf', 'path/to/syndicate_card.pdf', 'path/to/commercial_register.pdf', 'path/to/tax_card.pdf'),
+(172, 'path/to/license.pdf', 'path/to/profession_license.pdf', 'path/to/syndicate_card.pdf', 'path/to/commercial_register.pdf', 'path/to/tax_card.pdf'),
+(173, '62a2d9f0-3a50-4ecc-b9db-d6f5d080a402_2025.pdf', '363b04d1-99e7-4330-80f1-51fe910799b8_2025.pdf', 'c8277383-3cb8-4126-8fdb-929639a43ba7_2025.pdf', 'f02e5edb-0022-4de3-a7df-1c74445a88f7_2025.pdf', 'b75fb48c-289e-4aea-926a-42e09ea7fcf0_2025.pdf'),
+(174, 'bccdbe0b-ec54-4705-8d01-51ddb0706186_2025.pdf', '09b5c08f-6b37-4335-8a0c-7a8f4a3ea5c7_2025.pdf', 'fab2dcc5-66f4-4efb-93e2-b40baba5768c_2025.pdf', 'abe0cc92-1ec1-4777-a6c9-d5ffad288b99_2025.pdf', 'c0421a09-845b-4696-8ca9-ebffc6e6fda6_2025.pdf'),
+(175, '1dc06117-250f-4200-a662-89ecbdc3893b_Sheet 3 - Transport Layer.pdf', '194ac34d-ce5e-4d07-9848-983ec81adda5_Sheet 3 - Transport Layer.pdf', 'c24ba9eb-bef8-4b0c-9d2f-fb071aba6c75_Sheet 3 - Transport Layer.pdf', '27643be1-0ac5-4f78-a3e9-65712ba48e6d_Sheet 3 - Transport Layer.pdf', 'f96afc68-77cc-4d8f-989d-8e082ff50eec_Sheet 3 - Transport Layer.pdf');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_progress`
+--
+
+CREATE TABLE `user_progress` (
+  `id` bigint(20) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
+  `course_id` bigint(20) NOT NULL,
+  `last_accessed` datetime DEFAULT NULL,
+  `completion_percentage` double DEFAULT NULL,
+  `total_time_spent` bigint(20) DEFAULT NULL,
+  `is_completed` bit(1) NOT NULL DEFAULT b'0',
+  `time_spent` bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_progress`
+--
+
+INSERT INTO `user_progress` (`id`, `user_id`, `course_id`, `last_accessed`, `completion_percentage`, `total_time_spent`, `is_completed`, `time_spent`) VALUES
+(8, 125, 30, '2025-05-02 01:55:29', 50, 90799075946, b'0', 90799075946);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_progress_watched_videos`
+--
+
+CREATE TABLE `user_progress_watched_videos` (
+  `user_progress_id` bigint(20) DEFAULT NULL,
+  `watched_videos` bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_progress_watched_videos`
+--
+
+INSERT INTO `user_progress_watched_videos` (`user_progress_id`, `watched_videos`) VALUES
+(8, 36),
+(8, 37),
+(8, 38);
 
 -- --------------------------------------------------------
 
@@ -305,7 +419,7 @@ CREATE TABLE `video` (
   `title` varchar(255) NOT NULL,
   `video_path` varchar(255) NOT NULL,
   `chapter_id` bigint(20) NOT NULL,
-  `video_summary` varchar(255) DEFAULT NULL
+  `video_summary` varchar(2550) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -313,8 +427,36 @@ CREATE TABLE `video` (
 --
 
 INSERT INTO `video` (`id`, `title`, `video_path`, `chapter_id`, `video_summary`) VALUES
-(12, 'mmmm', '/uploads/videos/fc2aa97f-ab0c-452a-9691-8e3ee44fe857_How to Screen Record with Audio in Windows 11 and 5 more pages - Work - Microsoft​ Edge 2024-07-09 22-12-02.mp4', 23, NULL),
-(13, 'ddddd', '/uploads/videos/ba36dca7-343b-4ad9-b65d-6c26f1f0b716_How to Screen Record with Audio in Windows 11 and 5 more pages - Work - Microsoft​ Edge 2024-07-09 22-12-02.mp4', 23, NULL);
+(36, 'v1', '/uploads/videos/6d796085-331c-4deb-925d-029d7e3c3cc6_fc2aa97f-ab0c-452a-9691-8e3ee44fe857_How to Screen Record with Audio in Windows 11 and 5 more pages - Work - Microsoft​ Edge 2024-07-09 22-12-02.mp4', 41, NULL),
+(37, 'sss', '/uploads/videos/6ac87758-368d-4089-bcaa-9c49de2000ed_f3f170df-7240-453f-b9b5-678aceab0487_47f30ab6-5b07-4d18-899f-ac528b08f634_How to Screen Record with Audio in Windows 11 and 5 more pages - Work - Microsoft​ Edge 2024-07-09 22-12-02.mp4', 42, NULL),
+(38, 'sss', '/uploads/videos/4d73a15b-db83-4850-8483-23b9f11346c3_9d65d4a9-503d-4364-9bfc-0373a576133a_fc2aa97f-ab0c-452a-9691-8e3ee44fe857_How to Screen Record with Audio in Windows 11 and 5 more pages - Work - Microsoft​ Edge 2024-07-09 22-12-02.mp4', 41, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `violations`
+--
+
+CREATE TABLE `violations` (
+  `id` bigint(20) NOT NULL,
+  `quiz_id` varchar(255) DEFAULT NULL,
+  `user_id` varchar(255) DEFAULT NULL,
+  `violation` varchar(255) DEFAULT NULL,
+  `start_time` varchar(255) DEFAULT NULL,
+  `end_time` varchar(255) DEFAULT NULL,
+  `duration` bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `watched_videos`
+--
+
+CREATE TABLE `watched_videos` (
+  `progress_id` bigint(20) NOT NULL,
+  `video_id` bigint(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Indexes for dumped tables
@@ -334,11 +476,27 @@ ALTER TABLE `category`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `certificate`
+--
+ALTER TABLE `certificate`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uk_certificate_number` (`certificate_number`),
+  ADD KEY `idx_user_course` (`user_id`,`course_id`),
+  ADD KEY `fk_certificate_course` (`course_id`);
+
+--
 -- Indexes for table `chapter`
 --
 ALTER TABLE `chapter`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_course_id` (`course_id`);
+
+--
+-- Indexes for table `contact`
+--
+ALTER TABLE `contact`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FKbxl6anxo14q097g8cd2e51v55` (`user_id`);
 
 --
 -- Indexes for table `course`
@@ -354,32 +512,32 @@ ALTER TABLE `enrollment`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `enrollments`
+-- Indexes for table `feedbacks`
 --
-ALTER TABLE `enrollments`
+ALTER TABLE `feedbacks`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_user_course` (`user_id`,`course_id`),
-  ADD KEY `course_id` (`course_id`);
-
---
--- Indexes for table `product`
---
-ALTER TABLE `product`
-  ADD PRIMARY KEY (`id`);
+  ADD KEY `FK312drfl5lquu37mu4trk8jkwx` (`user_id`);
 
 --
 -- Indexes for table `question`
 --
 ALTER TABLE `question`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `quiz_id` (`quiz_id`);
+  ADD KEY `FKb0yh0c1qaxfwlcnwo9dms2txf` (`quiz_id`);
 
 --
 -- Indexes for table `quiz`
 --
 ALTER TABLE `quiz`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `chapter_id` (`chapter_id`);
+  ADD KEY `FKawdglurlxuavvtgtwg7h5y6v8` (`chapter_id`);
+
+--
+-- Indexes for table `quiz_attempts`
+--
+ALTER TABLE `quiz_attempts`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FKny3k8jif6t9pj9dmhreegmeg7` (`quiz_id`);
 
 --
 -- Indexes for table `users`
@@ -396,11 +554,40 @@ ALTER TABLE `user_documents`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `user_progress`
+--
+ALTER TABLE `user_progress`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_course` (`user_id`,`course_id`),
+  ADD UNIQUE KEY `UK4rkloo0fex0swqlltx1pv0qpn` (`user_id`,`course_id`),
+  ADD KEY `course_id` (`course_id`),
+  ADD KEY `idx_user_course` (`user_id`,`course_id`),
+  ADD KEY `idx_last_accessed` (`last_accessed`);
+
+--
+-- Indexes for table `user_progress_watched_videos`
+--
+ALTER TABLE `user_progress_watched_videos`
+  ADD KEY `user_progress_id` (`user_progress_id`);
+
+--
 -- Indexes for table `video`
 --
 ALTER TABLE `video`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_chapter_id` (`chapter_id`);
+
+--
+-- Indexes for table `violations`
+--
+ALTER TABLE `violations`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `watched_videos`
+--
+ALTER TABLE `watched_videos`
+  ADD PRIMARY KEY (`progress_id`,`video_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -410,77 +597,108 @@ ALTER TABLE `video`
 -- AUTO_INCREMENT for table `admins`
 --
 ALTER TABLE `admins`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+
+--
+-- AUTO_INCREMENT for table `certificate`
+--
+ALTER TABLE `certificate`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `chapter`
 --
 ALTER TABLE `chapter`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+
+--
+-- AUTO_INCREMENT for table `contact`
+--
+ALTER TABLE `contact`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `course`
 --
 ALTER TABLE `course`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `enrollment`
 --
 ALTER TABLE `enrollment`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
--- AUTO_INCREMENT for table `enrollments`
+-- AUTO_INCREMENT for table `feedbacks`
 --
-ALTER TABLE `enrollments`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `product`
---
-ALTER TABLE `product`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+ALTER TABLE `feedbacks`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `question`
 --
 ALTER TABLE `question`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `quiz`
 --
 ALTER TABLE `quiz`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+
+--
+-- AUTO_INCREMENT for table `quiz_attempts`
+--
+ALTER TABLE `quiz_attempts`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=174;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=126;
 
 --
 -- AUTO_INCREMENT for table `user_documents`
 --
 ALTER TABLE `user_documents`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=108;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=176;
+
+--
+-- AUTO_INCREMENT for table `user_progress`
+--
+ALTER TABLE `user_progress`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `video`
 --
 ALTER TABLE `video`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+
+--
+-- AUTO_INCREMENT for table `violations`
+--
+ALTER TABLE `violations`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=174;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `certificate`
+--
+ALTER TABLE `certificate`
+  ADD CONSTRAINT `fk_certificate_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_certificate_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `chapter`
@@ -489,29 +707,40 @@ ALTER TABLE `chapter`
   ADD CONSTRAINT `fk_course_id` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `contact`
+--
+ALTER TABLE `contact`
+  ADD CONSTRAINT `FKbxl6anxo14q097g8cd2e51v55` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
 -- Constraints for table `course`
 --
 ALTER TABLE `course`
   ADD CONSTRAINT `fk_category_id` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE SET NULL;
 
 --
--- Constraints for table `enrollments`
+-- Constraints for table `feedbacks`
 --
-ALTER TABLE `enrollments`
-  ADD CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `enrollments_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE CASCADE;
+ALTER TABLE `feedbacks`
+  ADD CONSTRAINT `FK312drfl5lquu37mu4trk8jkwx` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `question`
 --
 ALTER TABLE `question`
-  ADD CONSTRAINT `question_ibfk_1` FOREIGN KEY (`quiz_id`) REFERENCES `quiz` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `FKb0yh0c1qaxfwlcnwo9dms2txf` FOREIGN KEY (`quiz_id`) REFERENCES `quiz` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `quiz`
 --
 ALTER TABLE `quiz`
-  ADD CONSTRAINT `quiz_ibfk_1` FOREIGN KEY (`chapter_id`) REFERENCES `chapter` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `FKawdglurlxuavvtgtwg7h5y6v8` FOREIGN KEY (`chapter_id`) REFERENCES `chapter` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `quiz_attempts`
+--
+ALTER TABLE `quiz_attempts`
+  ADD CONSTRAINT `FKny3k8jif6t9pj9dmhreegmeg7` FOREIGN KEY (`quiz_id`) REFERENCES `quiz` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `users`
@@ -520,10 +749,29 @@ ALTER TABLE `users`
   ADD CONSTRAINT `fk_user_document` FOREIGN KEY (`user_document_id`) REFERENCES `user_documents` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `user_progress`
+--
+ALTER TABLE `user_progress`
+  ADD CONSTRAINT `user_progress_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `user_progress_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`);
+
+--
+-- Constraints for table `user_progress_watched_videos`
+--
+ALTER TABLE `user_progress_watched_videos`
+  ADD CONSTRAINT `user_progress_watched_videos_ibfk_1` FOREIGN KEY (`user_progress_id`) REFERENCES `user_progress` (`id`);
+
+--
 -- Constraints for table `video`
 --
 ALTER TABLE `video`
   ADD CONSTRAINT `fk_chapter_id` FOREIGN KEY (`chapter_id`) REFERENCES `chapter` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `watched_videos`
+--
+ALTER TABLE `watched_videos`
+  ADD CONSTRAINT `watched_videos_ibfk_1` FOREIGN KEY (`progress_id`) REFERENCES `user_progress` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
