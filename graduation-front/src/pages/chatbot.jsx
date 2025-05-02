@@ -55,7 +55,7 @@ const Chatbot = () => {
       </button>
 
       {isOpen && (
-        <div className="fixed bottom-32 right-4 w-96 h-[450px] bg-white rounded-lg shadow-lg border border-gray-200 p-6 flex flex-col space-y-4">
+        <div className="fixed bottom-32 right-4 w-96 h-[450px] bg-white rounded-lg shadow-lg border border-red p-6 flex flex-col space-y-4">
           <div className="flex-1 overflow-y-auto space-y-4" ref={chatContainerRef}>
             {messages.map((msg, index) => (
               <div
