@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: May 03, 2025 at 12:31 AM
+-- Generation Time: May 03, 2025 at 12:41 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -63,8 +63,7 @@ CREATE TABLE `category` (
 --
 
 INSERT INTO `category` (`id`, `name`) VALUES
-(1, 'Pharm'),
-(14, 'Services');
+(20, 'Pharmacy');
 
 -- --------------------------------------------------------
 
@@ -99,8 +98,8 @@ CREATE TABLE `chapter` (
 --
 
 INSERT INTO `chapter` (`id`, `title`, `course_id`) VALUES
-(41, 'chapter 1', 30),
-(42, 'chapter 2', 30);
+(43, 'ch1', 31),
+(44, 'ch2', 31);
 
 -- --------------------------------------------------------
 
@@ -140,7 +139,7 @@ CREATE TABLE `course` (
 --
 
 INSERT INTO `course` (`id`, `name`, `description`, `category_id`, `image_url`) VALUES
-(30, 'pathfinder', 'pathfinder', 1, '/uploads/coursesimages/9fe0c308-bf89-4973-96c5-508448dc8628_WhatsApp Image 2025-04-27 at 03.22.20_401ab7fc.jpg');
+(31, 'Pathfinder', 'Pathfinder', 20, '/uploads/coursesimages/099d933d-e752-44a2-bf77-802ec66ede2e_WhatsApp Image 2025-04-27 at 03.22.20_401ab7fc.jpg');
 
 -- --------------------------------------------------------
 
@@ -222,14 +221,6 @@ CREATE TABLE `question` (
   `quiz_id` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `question`
---
-
-INSERT INTO `question` (`question_type`, `id`, `grade`, `order_num`, `text`, `correct_answer`, `options`, `quiz_id`) VALUES
-('TRUE_FALSE', 36, 4, 1, 'h', '1', NULL, 22),
-('TRUE_FALSE', 37, 1, 1, 'n', '0', NULL, 23);
-
 -- --------------------------------------------------------
 
 --
@@ -244,14 +235,6 @@ CREATE TABLE `quiz` (
   `chapter_id` bigint(20) NOT NULL,
   `max_attempts` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `quiz`
---
-
-INSERT INTO `quiz` (`id`, `time_limit`, `title`, `total_grade`, `chapter_id`, `max_attempts`) VALUES
-(22, 30, 'm', 4, 41, 2),
-(23, 30, 'n', 1, 42, 3);
 
 -- --------------------------------------------------------
 
@@ -268,13 +251,6 @@ CREATE TABLE `quiz_attempts` (
   `user_id` varchar(255) DEFAULT NULL,
   `quiz_id` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `quiz_attempts`
---
-
-INSERT INTO `quiz_attempts` (`id`, `attempt_date`, `attempt_number`, `passed`, `score`, `user_id`, `quiz_id`) VALUES
-(173, '2025-05-02 17:51:57.000000', 1, b'1', 100, '125', 22);
 
 -- --------------------------------------------------------
 
@@ -367,50 +343,6 @@ INSERT INTO `user_documents` (`id`, `license_file`, `profession_license_file`, `
 -- --------------------------------------------------------
 
 --
--- Table structure for table `user_progress`
---
-
-CREATE TABLE `user_progress` (
-  `id` bigint(20) NOT NULL,
-  `user_id` bigint(20) NOT NULL,
-  `course_id` bigint(20) NOT NULL,
-  `last_accessed` datetime DEFAULT NULL,
-  `completion_percentage` double DEFAULT NULL,
-  `total_time_spent` bigint(20) DEFAULT NULL,
-  `is_completed` bit(1) NOT NULL DEFAULT b'0',
-  `time_spent` bigint(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `user_progress`
---
-
-INSERT INTO `user_progress` (`id`, `user_id`, `course_id`, `last_accessed`, `completion_percentage`, `total_time_spent`, `is_completed`, `time_spent`) VALUES
-(8, 125, 30, '2025-05-02 01:55:29', 50, 90799075946, b'0', 90799075946);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `user_progress_watched_videos`
---
-
-CREATE TABLE `user_progress_watched_videos` (
-  `user_progress_id` bigint(20) DEFAULT NULL,
-  `watched_videos` bigint(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `user_progress_watched_videos`
---
-
-INSERT INTO `user_progress_watched_videos` (`user_progress_id`, `watched_videos`) VALUES
-(8, 36),
-(8, 37),
-(8, 38);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `video`
 --
 
@@ -421,15 +353,6 @@ CREATE TABLE `video` (
   `chapter_id` bigint(20) NOT NULL,
   `video_summary` varchar(2550) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `video`
---
-
-INSERT INTO `video` (`id`, `title`, `video_path`, `chapter_id`, `video_summary`) VALUES
-(36, 'v1', '/uploads/videos/6d796085-331c-4deb-925d-029d7e3c3cc6_fc2aa97f-ab0c-452a-9691-8e3ee44fe857_How to Screen Record with Audio in Windows 11 and 5 more pages - Work - Microsoft​ Edge 2024-07-09 22-12-02.mp4', 41, NULL),
-(37, 'sss', '/uploads/videos/6ac87758-368d-4089-bcaa-9c49de2000ed_f3f170df-7240-453f-b9b5-678aceab0487_47f30ab6-5b07-4d18-899f-ac528b08f634_How to Screen Record with Audio in Windows 11 and 5 more pages - Work - Microsoft​ Edge 2024-07-09 22-12-02.mp4', 42, NULL),
-(38, 'sss', '/uploads/videos/4d73a15b-db83-4850-8483-23b9f11346c3_9d65d4a9-503d-4364-9bfc-0373a576133a_fc2aa97f-ab0c-452a-9691-8e3ee44fe857_How to Screen Record with Audio in Windows 11 and 5 more pages - Work - Microsoft​ Edge 2024-07-09 22-12-02.mp4', 41, NULL);
 
 -- --------------------------------------------------------
 
@@ -445,17 +368,6 @@ CREATE TABLE `violations` (
   `start_time` varchar(255) DEFAULT NULL,
   `end_time` varchar(255) DEFAULT NULL,
   `duration` bigint(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `watched_videos`
---
-
-CREATE TABLE `watched_videos` (
-  `progress_id` bigint(20) NOT NULL,
-  `video_id` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -554,23 +466,6 @@ ALTER TABLE `user_documents`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `user_progress`
---
-ALTER TABLE `user_progress`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_user_course` (`user_id`,`course_id`),
-  ADD UNIQUE KEY `UK4rkloo0fex0swqlltx1pv0qpn` (`user_id`,`course_id`),
-  ADD KEY `course_id` (`course_id`),
-  ADD KEY `idx_user_course` (`user_id`,`course_id`),
-  ADD KEY `idx_last_accessed` (`last_accessed`);
-
---
--- Indexes for table `user_progress_watched_videos`
---
-ALTER TABLE `user_progress_watched_videos`
-  ADD KEY `user_progress_id` (`user_progress_id`);
-
---
 -- Indexes for table `video`
 --
 ALTER TABLE `video`
@@ -582,12 +477,6 @@ ALTER TABLE `video`
 --
 ALTER TABLE `violations`
   ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `watched_videos`
---
-ALTER TABLE `watched_videos`
-  ADD PRIMARY KEY (`progress_id`,`video_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -603,7 +492,7 @@ ALTER TABLE `admins`
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `certificate`
@@ -615,7 +504,7 @@ ALTER TABLE `certificate`
 -- AUTO_INCREMENT for table `chapter`
 --
 ALTER TABLE `chapter`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT for table `contact`
@@ -627,7 +516,7 @@ ALTER TABLE `contact`
 -- AUTO_INCREMENT for table `course`
 --
 ALTER TABLE `course`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `enrollment`
@@ -672,12 +561,6 @@ ALTER TABLE `user_documents`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=176;
 
 --
--- AUTO_INCREMENT for table `user_progress`
---
-ALTER TABLE `user_progress`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
 -- AUTO_INCREMENT for table `video`
 --
 ALTER TABLE `video`
@@ -716,7 +599,7 @@ ALTER TABLE `contact`
 -- Constraints for table `course`
 --
 ALTER TABLE `course`
-  ADD CONSTRAINT `fk_category_id` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `fk_category_id` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `feedbacks`
@@ -749,29 +632,10 @@ ALTER TABLE `users`
   ADD CONSTRAINT `fk_user_document` FOREIGN KEY (`user_document_id`) REFERENCES `user_documents` (`id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `user_progress`
---
-ALTER TABLE `user_progress`
-  ADD CONSTRAINT `user_progress_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `user_progress_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`);
-
---
--- Constraints for table `user_progress_watched_videos`
---
-ALTER TABLE `user_progress_watched_videos`
-  ADD CONSTRAINT `user_progress_watched_videos_ibfk_1` FOREIGN KEY (`user_progress_id`) REFERENCES `user_progress` (`id`);
-
---
 -- Constraints for table `video`
 --
 ALTER TABLE `video`
   ADD CONSTRAINT `fk_chapter_id` FOREIGN KEY (`chapter_id`) REFERENCES `chapter` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `watched_videos`
---
-ALTER TABLE `watched_videos`
-  ADD CONSTRAINT `watched_videos_ibfk_1` FOREIGN KEY (`progress_id`) REFERENCES `user_progress` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
