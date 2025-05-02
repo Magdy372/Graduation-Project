@@ -51,24 +51,37 @@ public class JwtService {
     public String generateRefreshToken(UserDetails userDetails, Long userId) {
         return buildToken(new HashMap<>(), userDetails, userId, refreshExpiration);
     }
-
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, Long userId, long expiration) {
-        // Get the role from the BaseAccount if it's available
+        // Get the role from BaseAccount if available
         String role = null;
         if (userDetails instanceof com.grad.user_services.model.BaseAccount) {
             role = ((com.grad.user_services.model.BaseAccount) userDetails).getRole();
         }
-        
-        // Add role to claims if available
+    
+        // Add role to claims
         if (role != null) {
             extraClaims.put("roles", Collections.singletonList(role));
         } else {
-            // If no role is available, use an empty list
             extraClaims.put("roles", Collections.emptyList());
         }
-                
+    
+        // Add userId
         extraClaims.put("userId", userId);
-
+    
+        // Add governorate to claims
+        if (userDetails instanceof com.grad.user_services.model.BaseAccount) {
+            String governorate = ((com.grad.user_services.model.BaseAccount) userDetails).getGovernorate();
+            if (governorate != null) {
+                extraClaims.put("governorate", governorate);
+            }
+        }
+    
+        // If the user is an Admin, add the candidate field
+        if (userDetails instanceof com.grad.user_services.model.Admin admin) {
+            extraClaims.put("candidate", admin.getCandidate());
+            extraClaims.put("position", admin.getPosition());
+        }
+    
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
@@ -77,6 +90,8 @@ public class JwtService {
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+    
+    
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);

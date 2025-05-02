@@ -9,6 +9,7 @@ import Sponsers from "./components/Sponsers";
 import Footer from "./components/Footer";
 import Register from "./pages/Register";
 import Courses from "./pages/Courses";
+import AdminRegister from "./pages/AdminRegister";
 import About from "./pages/About";
 import MyCourses from "./pages/MyCourses";
 import MyProfile from "./pages/MyProfile";
@@ -56,7 +57,7 @@ const App = () => {
                 <Banner />
                 <Sponsers />
                 <Footer />
-                <Chatbot/>
+                <Chatbot />
               </>
             }
           />
@@ -69,7 +70,7 @@ const App = () => {
           <Route path="/myProfile" element={<MyProfile />} />
           <Route path="/coursePage" element={<CoursePage />} />
           <Route path="/feedback" element={<Feedback />} />
-          <Route path="/contact" element={<ContactUs />}/>
+          <Route path="/contact" element={<ContactUs />} />
           {/* <Route path="/addvideo" element={<AddVideo />} /> */}
           {/* <Route path="/editCourse" element={<EditCourse />} /> */}
           {/* <Route path="/quizzes/:quizId/add-questions" element={<AddQuestions />} /> */}
@@ -99,17 +100,18 @@ const App = () => {
                 />
               }
             />
+
             <Route
-            path="Messages"
-            element={
-              <ProtectedRoute
-              element={<Messages/>}
-              requiredRole="Admin"
-              redirectTo="/Messages"
-              />
-            }
+              path="Messages"
+              element={
+                <ProtectedRoute
+                  element={<Messages />}
+                  requiredRole="Admin"
+                  redirectTo="/Messages"
+                />
+              }
             />
-            
+
             <Route
               path="Report"
               element={
@@ -120,7 +122,7 @@ const App = () => {
                 />
               }
             />
-            
+
             <Route
               path="Doctors"
               element={
@@ -221,6 +223,17 @@ const App = () => {
                 />
               }
             />
+            <Route
+              path="AdminRegister"
+              element={
+                <ProtectedRoute
+                  element={<AdminRegister />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+
             <Route
               path="add-quiz"
               element={

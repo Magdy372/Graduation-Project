@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import { motion } from "framer-motion";
 
 const ViewUsers = () => {
@@ -9,7 +10,7 @@ const ViewUsers = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [hiddenUsers, setHiddenUsers] = useState({}); // Track hidden users
+  const [adminGovernorate, setAdminGovernorate] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -19,8 +20,12 @@ const ViewUsers = () => {
     }
 
     try {
+      const decoded = jwtDecode(token);
+      const gov = decoded.governorate;
+      setAdminGovernorate(gov);
+
       const controller = new AbortController();
-      fetchUsers(controller.signal);
+      fetchUsers(controller.signal, gov);
       return () => controller.abort();
     } catch (error) {
       console.error("Invalid token:", error);
@@ -28,14 +33,15 @@ const ViewUsers = () => {
     }
   }, []);
 
-  const fetchUsers = async (signal) => {
+  const fetchUsers = async (signal, governorate) => {
     try {
       const response = await fetch("http://localhost:8089/users/unaccepted", { signal });
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
       const data = await response.json();
-      setUsers(data);
-      setFilteredUsers(data);
+      const filteredByGov = data.filter(user => user.governorate === governorate);
+      setUsers(filteredByGov);
+      setFilteredUsers(filteredByGov);
     } catch (error) {
       if (error.name !== "AbortError") {
         console.error("Error fetching users:", error);
@@ -48,9 +54,8 @@ const ViewUsers = () => {
 
   useEffect(() => {
     setFilteredUsers(
-      users.filter(
-        (user) =>
-          user.firstname.toLowerCase().includes(searchQuery.toLowerCase())
+      users.filter((user) =>
+        user.firstname.toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
   }, [searchQuery, users]);
@@ -65,7 +70,7 @@ const ViewUsers = () => {
 
       const response = await fetch(`http://localhost:8089/api/admin/users/${userId}/approve`, {
         method: "PUT",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
@@ -73,9 +78,8 @@ const ViewUsers = () => {
 
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-      // Remove the accepted user from the list
-      setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
-      setFilteredUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+      setUsers(prev => prev.filter(user => user.id !== userId));
+      setFilteredUsers(prev => prev.filter(user => user.id !== userId));
     } catch (error) {
       console.error("Error approving user:", error);
     }
@@ -84,7 +88,7 @@ const ViewUsers = () => {
   const handleReload = () => {
     setLoading(true);
     setError(null);
-    fetchUsers(new AbortController().signal);
+    fetchUsers(new AbortController().signal, adminGovernorate);
   };
 
   const fileLabels = {
@@ -96,6 +100,7 @@ const ViewUsers = () => {
   };
 
   if (loading) return <p className="text-xl text-center w-full">Loading...</p>;
+
   if (error)
     return (
       <div className="text-xl text-center w-full">
@@ -153,26 +158,19 @@ const ViewUsers = () => {
 
               <hr className="my-4 border-t-2 border-gray-300" />
 
-              {[
-                "professionLicenseFilePath",
-                "licenseFilePath",
-                "syndicateCardFilePath",
-                "commercialRegisterFilePath",
-                "taxCardFilePath",
-              ].map(
-                (field) =>
-                  user[field] && (
-                    <div key={field} className="mt-2 text-right">
-                      <a
-                        href={`http://localhost:8089/uploads/${user[field].split("\\").pop()}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-red hover:underline"
-                      >
-                        {fileLabels[field]}
-                      </a>
-                    </div>
-                  )
+              {Object.keys(fileLabels).map((field) =>
+                user[field] ? (
+                  <div key={field} className="mt-2 text-right">
+                    <a
+                      href={`http://localhost:8089/uploads/${user[field].split("\\").pop()}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-red hover:underline"
+                    >
+                      {fileLabels[field]}
+                    </a>
+                  </div>
+                ) : null
               )}
 
               <div className="mt-4 flex gap-4">

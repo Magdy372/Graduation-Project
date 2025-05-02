@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.grad.user_services.dto.AdminProfileDTO;
+import com.grad.user_services.model.Admin;
 import com.grad.user_services.model.Contact;
 import com.grad.user_services.services.AdminService;
 
@@ -23,6 +24,12 @@ public class AdminController {
     public ResponseEntity<AdminProfileDTO> getAdminProfile(@PathVariable String email) {
         AdminProfileDTO profile = adminService.getAdminProfile(email);
         return profile != null ? ResponseEntity.ok(profile) : ResponseEntity.notFound().build();
+    }
+    @PostMapping("/create")
+    public ResponseEntity<Admin> createAdmin(@RequestBody Admin admin) {
+        Admin newAdmin = adminService.createAdmin(admin);
+        return newAdmin != null ? ResponseEntity.status(HttpStatus.CREATED).body(newAdmin)
+                                : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     // Approve user

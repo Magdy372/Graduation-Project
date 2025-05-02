@@ -11,6 +11,9 @@ public class Admin extends BaseAccount {
     @Column(name = "position", nullable = false)
     private String position;
 
+    @Column(name = "candidate")  // You can add nullable = false if needed
+    private String candidate;
+
     public Admin() {
     }
 
@@ -24,6 +27,14 @@ public class Admin extends BaseAccount {
 
     public void setPosition(String position) {
         this.position = position;
+    }
+
+    public String getCandidate() {
+        return candidate;
+    }
+
+    public void setCandidate(String candidate) {
+        this.candidate = candidate;
     }
 
     @Override

@@ -29,9 +29,7 @@ public class User extends BaseAccount {
     private String title;
 
     
-    @Column(name = "governorate")
-    @NotBlank(message = "Governorate is required")
-    private String governorate;
+  
 
     @Column(name = "approved")
     private boolean approved;

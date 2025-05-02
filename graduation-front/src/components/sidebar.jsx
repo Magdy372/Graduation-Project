@@ -39,17 +39,20 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
             </div>
 
             <div className="flex w-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden p-3 [scrollbar-width:_thin] text-right">
-                {navbarLinks.map((navbarLink) => (
+                {navbarLinks.map((navbarLink, index) => (
                     <nav
-                        key={navbarLink.title}
+                        key={`nav-${index}-${navbarLink.title}`}
                         className={cn("sidebar-group", collapsed && "md:items-center")}
                     >
-                        <p className={cn("sidebar-group-title text-right", collapsed && "md:w-[45px]")}>
+                        <p 
+                            key={`title-${index}-${navbarLink.title}`}
+                            className={cn("sidebar-group-title text-right", collapsed && "md:w-[45px]")}
+                        >
                             {navbarLink.title}
                         </p>
-                        {navbarLink.links.map((link) => (
+                        {navbarLink.links.map((link, linkIndex) => (
                             <NavLink
-                                key={link.label}
+                                key={`link-${index}-${linkIndex}-${link.path}`}
                                 to={link.path}
                                 onClick={link.path === "/logout" ? handleLogout : undefined}
                                 className={({ isActive }) =>
@@ -60,11 +63,19 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
                                     )
                                 }
                             >
-                                {/* Move the label to the left of the icon in RTL */}
                                 {!collapsed && (
-                                    <p className="whitespace-nowrap text-right">{link.label}</p>
+                                    <p 
+                                        key={`label-${index}-${linkIndex}-${link.path}`}
+                                        className="whitespace-nowrap text-right"
+                                    >
+                                        {link.label}
+                                    </p>
                                 )}
-                                <link.icon size={22} className="flex-shrink-0" />
+                                <link.icon 
+                                    key={`icon-${index}-${linkIndex}-${link.path}`}
+                                    size={22} 
+                                    className="flex-shrink-0" 
+                                />
                             </NavLink>
                         ))}
                     </nav>

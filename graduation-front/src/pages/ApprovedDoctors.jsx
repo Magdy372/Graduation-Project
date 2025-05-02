@@ -1,3 +1,4 @@
+import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -9,6 +10,8 @@ const ApprovedDoctors = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [adminGovernorate, setAdminGovernorate] = useState("");  // محافظة الـ Admin
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -18,9 +21,18 @@ const ApprovedDoctors = () => {
     }
 
     try {
-      const controller = new AbortController();
-      fetchDoctors(controller.signal);
-      return () => controller.abort();
+      const decodedToken = jwtDecode(token);
+      const candidate = decodedToken.candidate;
+
+      if (candidate === "الطب") {
+        setIsAuthorized(true);
+        setAdminGovernorate(decodedToken.governorate); // تخزين محافظة الـ Admin
+        const controller = new AbortController();
+        fetchDoctors(controller.signal);
+        return () => controller.abort();
+      } else {
+        setLoading(false);
+      }
     } catch (error) {
       console.error("Invalid token:", error);
       navigate("/login");
@@ -34,7 +46,7 @@ const ApprovedDoctors = () => {
 
       const data = await response.json();
       setDoctors(data);
-      setFilteredDoctors(data);
+      setFilteredDoctors(data.filter(doctor => doctor.governorate === adminGovernorate));  // تصفية الأطباء حسب المحافظة
     } catch (error) {
       if (error.name !== "AbortError") {
         console.error("Error fetching doctors:", error);
@@ -49,11 +61,12 @@ const ApprovedDoctors = () => {
     setFilteredDoctors(
       doctors.filter(
         (doctor) =>
-          doctor.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          doctor.email.toLowerCase().includes(searchQuery.toLowerCase())
+          (doctor.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          doctor.email.toLowerCase().includes(searchQuery.toLowerCase())) && 
+          doctor.governorate === adminGovernorate  // تصفية الأطباء حسب البحث والمحافظة
       )
     );
-  }, [searchQuery, doctors]);
+  }, [searchQuery, doctors, adminGovernorate]); // إضافة محافظة الـ Admin هنا
 
   const handleReload = () => {
     setLoading(true);
@@ -62,6 +75,14 @@ const ApprovedDoctors = () => {
   };
 
   if (loading) return <p className="text-xl text-center w-full">Loading...</p>;
+
+  if (!isAuthorized)
+    return (
+      <div className="text-center text-xl text-red-600 mt-8">
+        غير مصرح لك بعرض قائمة الأطباء — هذا القسم مخصص للطب فقط
+      </div>
+    );
+
   if (error)
     return (
       <div className="text-xl text-center w-full">
@@ -77,7 +98,9 @@ const ApprovedDoctors = () => {
 
   return (
     <div className="container mx-auto px-6 bg-white">
-      <h1 className="text-3xl text-red font-bold text-right mb-8">قائمة الأطباء المعتمدين</h1>
+      <h1 className="text-3xl text-red font-bold text-right mb-8">
+        قائمة الأطباء المعتمدين
+      </h1>
 
       <div className="flex justify-end">
         <div className="mb-8 w-[375px]">
@@ -94,6 +117,7 @@ const ApprovedDoctors = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredDoctors.length > 0 ? (
           filteredDoctors.map((doctor) => (
+            // Ensure doctor.id is unique
             <motion.div
               key={doctor.id}
               className="border border-gray rounded-lg overflow-hidden shadow-md p-5 transition-transform transform hover:scale-105 bg-white"
@@ -128,4 +152,4 @@ const ApprovedDoctors = () => {
   );
 };
 
-export default ApprovedDoctors; 
+export default ApprovedDoctors;

@@ -1,3 +1,4 @@
+import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -9,6 +10,8 @@ const ApprovedPharmacists = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [adminGovernorate, setAdminGovernorate] = useState("");  // المحافظة الخاصة بالـ Admin
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -18,9 +21,18 @@ const ApprovedPharmacists = () => {
     }
 
     try {
-      const controller = new AbortController();
-      fetchPharmacists(controller.signal);
-      return () => controller.abort();
+      const decodedToken = jwtDecode(token);
+      const candidate = decodedToken.candidate;
+
+      if (candidate === "الصيدلة") {
+        setIsAuthorized(true);
+        setAdminGovernorate(decodedToken.governorate);  // تخزين محافظة الـ Admin
+        const controller = new AbortController();
+        fetchPharmacists(controller.signal);
+        return () => controller.abort();
+      } else {
+        setLoading(false);
+      }
     } catch (error) {
       console.error("Invalid token:", error);
       navigate("/login");
@@ -34,7 +46,7 @@ const ApprovedPharmacists = () => {
 
       const data = await response.json();
       setPharmacists(data);
-      setFilteredPharmacists(data);
+      setFilteredPharmacists(data.filter(pharmacist => pharmacist.governorate === adminGovernorate));  // تصفية الصيادلة حسب المحافظة
     } catch (error) {
       if (error.name !== "AbortError") {
         console.error("Error fetching pharmacists:", error);
@@ -49,11 +61,12 @@ const ApprovedPharmacists = () => {
     setFilteredPharmacists(
       pharmacists.filter(
         (pharmacist) =>
-          pharmacist.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          pharmacist.email.toLowerCase().includes(searchQuery.toLowerCase())
+          (pharmacist.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          pharmacist.email.toLowerCase().includes(searchQuery.toLowerCase())) &&
+          pharmacist.governorate === adminGovernorate  // تصفية الصيادلة حسب البحث والمحافظة
       )
     );
-  }, [searchQuery, pharmacists]);
+  }, [searchQuery, pharmacists, adminGovernorate]);  // إضافة المحافظة هنا
 
   const handleReload = () => {
     setLoading(true);
@@ -62,6 +75,14 @@ const ApprovedPharmacists = () => {
   };
 
   if (loading) return <p className="text-xl text-center w-full">Loading...</p>;
+
+  if (!isAuthorized)
+    return (
+      <div className="text-center text-xl text-red-600 mt-8">
+        غير مصرح لك بعرض قائمة الصيادلة — هذا القسم مخصص للصيدلة فقط
+      </div>
+    );
+
   if (error)
     return (
       <div className="text-xl text-center w-full">
@@ -128,4 +149,4 @@ const ApprovedPharmacists = () => {
   );
 };
 
-export default ApprovedPharmacists; 
+export default ApprovedPharmacists;

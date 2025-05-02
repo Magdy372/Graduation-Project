@@ -59,6 +59,9 @@ public abstract class BaseAccount implements UserDetails {
     @NotBlank(message = "Role is required")
     @Column(name = "role", nullable = false)
     protected String role;
+    @Column(name = "governorate")
+    @NotBlank(message = "Governorate is required")
+    private String governorate;
 
     // Constructor with Role enum (stores role as String)
     public BaseAccount(String firstname, String lastname, String email, String password, Role role) {

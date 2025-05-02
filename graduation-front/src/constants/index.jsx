@@ -59,6 +59,11 @@ export const navbarLinks = [
                 icon: PackagePlus,
                 path: "/layout/UploadCourse",
             },
+            {
+                label: "اضافة موظف جديد",
+                icon: FaUserDoctor,
+                path: "/layout/AdminRegister",
+            },
             
         ],
     },
