@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 // Import images directly
 import Navbar from './Navbar';
 import backgroundPic from './../assets/images/map.jpg'
-import OSRA from '../assets/images/OSRA.jpg';
+import OSRA from '../assets/images/doctors.png';
 import { useNavigate } from "react-router-dom";
 import africa from "../assets/images/africa-removebg-preview.png";
 // Define motion variants

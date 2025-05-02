@@ -6,9 +6,9 @@ import { motion } from "framer-motion";
 import backgroundPic from "./../assets/images/map1.jpg";
 
 // Import additional images
-import BannerPng from "../assets/images/banner.webp";
+import BannerPng from "../assets/images/family.webp";
 import ExtraImg1 from "../assets/images/img1.jpg";
-import ExtraImg2 from "../assets/images/img2.jpg";
+import ExtraImg2 from "../assets/images/dr.png";
 
 const Banner = () => {
   return (
