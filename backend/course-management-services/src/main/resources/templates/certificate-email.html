@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        .email-container {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .header {
+            background-color: #E31E24;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .content {
+            background-color: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .certificate-details {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            border-left: 4px solid #00A3E0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        .logo {
+            text-align: center;
+            margin: 20px auto;
+            width: 200px;
+            height: auto;
+        }
+        .logo img {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="logo">
+            <img src="https://cabinet.gov.eg/Upload/News/Photo/62488/%D8%A7%D9%84%D8%B5%D8%AD%D8%A9.jpeg" 
+                 alt="Ministry of Health & Population" 
+                 style="max-width: 200px; height: auto;"/>
+        </div>
+        <div class="header">
+            <h1>Course Completion Certificate</h1>
+        </div>
+        
+        <div class="content">
+            <p>Dear <span th:text="${userName}"></span>,</p>
+            
+            <p>Congratulations on completing your course!</p>
+            
+            <div class="certificate-details">
+                <h2 th:text="${courseName}"></h2>
+                <p>Certificate Number: <strong th:text="${certificateNumber}"></strong></p>
+                <p>Final Score: <strong th:text="${finalScore}">%</strong></p>
+                <p>Completion Date: <strong th:text="${completionDate}"></strong></p>
+            </div>
+            
+            <p>Your certificate is attached to this email as a PDF document.</p>
+        </div>
+        
+        <div class="footer">
+            <p>Ministry of Health & Population</p>
+            <p style="direction: rtl;">وزارة الصحة والسكان</p>
+        </div>
+    </div>
+</body>
+</html>
