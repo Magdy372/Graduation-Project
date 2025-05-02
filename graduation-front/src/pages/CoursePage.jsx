@@ -420,6 +420,40 @@ const CoursePage = () => {
     setCurrentQuestionIndex(index);
   };
 
+  // Add this useEffect to track tab switching
+  useEffect(() => {
+    if (!examStarted || examSubmitted) return;
+    
+    const handleVisibilityChange = async () => {
+      try {
+        await fetch('http://localhost:5000/tab_switched', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            is_hidden: document.hidden,
+            user_id: userId,
+            quiz_id: selectedQuiz?.id
+          })
+        });
+        
+        if (document.hidden) {
+          setWarningMessage("Tab switching detected. This will be recorded as a violation.");
+          setTabWarning(true);
+        }
+      } catch (error) {
+        console.error('Error reporting tab switch:', error);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [examStarted, examSubmitted, userId, selectedQuiz]);
+
   if (!course || !chapters.length) return <div>Loading...</div>;
 
   return (

@@ -57,9 +57,10 @@ proctoring_active = False
 
 # Violation trackers
 violation_state = {
-    "multiple_people": {"active": False, "start_time": None},
+    "camera_hidden": {"active": False, "start_time": None},
     "banned_objects": {"active": False, "start_time": None},
     "face_recognition": {"active": False, "start_time": None},
+    "tab_switching": {"active": False, "start_time": None},  # New violation type
 }
 
 def log_violation_duration(alert_type, start_time):
@@ -239,6 +240,25 @@ def get_status():
             'status': 'active' if proctoring_active else 'inactive',
             'camera_status': camera_status
         })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Add a route to track tab switching events
+@app.route('/tab_switched', methods=['POST'])
+def tab_switched():
+    global current_user_id, current_quiz_id
+    
+    try:
+        data = request.get_json()
+        is_hidden = data.get('is_hidden', False)
+        
+        if not current_user_id or not current_quiz_id:
+            return jsonify({'error': 'No active proctoring session'}), 400
+            
+        # Track tab switching as a violation
+        handle_violation_state(is_hidden, "tab_switching")
+        
+        return jsonify({'status': 'success'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

@@ -1,54 +1,12 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
-const QuizSecurity = ({ handleExamSubmit }) => {
-  const [tabSwitchCount, setTabSwitchCount] = useState(0);
-  const [warningCount, setWarningCount] = useState(0);
+const QuizSecurity = () => {
   const [showWarning, setShowWarning] = useState(false);
-  const [warningMessage, setWarningMessage] = useState("");
   const [isHidden, setIsHidden] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(10);
-  const timeoutRef = useRef(null);
-  const intervalRef = useRef(null);
+  const [warningMessage, setWarningMessage] = useState("");
 
-  const handleSecurityViolation = (message, isTabSwitch = false) => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    if (intervalRef.current) clearInterval(intervalRef.current);
-
-    const newWarningCount = warningCount + 1;
-    setWarningCount(newWarningCount);
-
-    if (isTabSwitch) {
-      setTimeRemaining(10);
-      intervalRef.current = setInterval(() => {
-        setTimeRemaining((prev) => {
-          if (prev <= 1) {
-            clearInterval(intervalRef.current);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      timeoutRef.current = setTimeout(() => {
-        setWarningCount(3);
-        setWarningMessage("FINAL WARNING: Quiz is being canceled due to repeated security violations.");
-        setShowWarning(true);
-
-        setTimeout(() => {
-          handleExamSubmit(true);
-        }, 2000);
-      }, 10000);
-    }
-
-    if (newWarningCount < 3) {
-      setWarningMessage(`WARNING ${newWarningCount}/2: ${message} ${newWarningCount < 2 ? "One more violation and your quiz will be canceled." : ""}`);
-    } else {
-      setWarningMessage("FINAL WARNING: Quiz is being canceled due to repeated security violations.");
-      setTimeout(() => {
-        handleExamSubmit(true);
-      }, 2000);
-    }
-
+  const handleSecurityViolation = (message) => {
+    setWarningMessage(message);
     setShowWarning(true);
   };
 
@@ -60,12 +18,9 @@ const QuizSecurity = ({ handleExamSubmit }) => {
     const handleVisibilityChange = () => {
       if (document.hidden && !isHidden) {
         setIsHidden(true);
-        setTabSwitchCount((prev) => prev + 1);
-        handleSecurityViolation(`You switched tabs or minimized the window! Return within ${timeRemaining} seconds or your quiz will be submitted.`, true);
+        handleSecurityViolation("Please don’t switch tabs.");
       } else if (!document.hidden && isHidden) {
         setIsHidden(false);
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        if (intervalRef.current) clearInterval(intervalRef.current);
       }
     };
 
@@ -78,20 +33,20 @@ const QuizSecurity = ({ handleExamSubmit }) => {
       window.removeEventListener("blur", handleVisibilityChange);
       window.removeEventListener("focus", handleVisibilityChange);
     };
-  }, [tabSwitchCount, warningCount, isHidden, timeRemaining]);
+  }, [isHidden]);
 
   useEffect(() => {
-    const tabId = Date.now().toString();
+    const tabId = Date.now().toString(); // unique ID per tab
     localStorage.setItem("currentQuizTab", tabId);
 
     const handleNewTabOrWindow = (e) => {
-      // Detect if the 'currentQuizTab' key has changed, indicating that another tab or window has opened
       if (e.key === "currentQuizTab" && e.newValue !== tabId) {
-        handleSecurityViolation("Multiple quiz sessions detected! Please close other windows/tabs.");
+        handleSecurityViolation("Multiple quiz windows detected. Please close the other tab.");
       }
     };
 
     window.addEventListener("storage", handleNewTabOrWindow);
+
     return () => {
       window.removeEventListener("storage", handleNewTabOrWindow);
       localStorage.removeItem("currentQuizTab");
@@ -99,7 +54,7 @@ const QuizSecurity = ({ handleExamSubmit }) => {
   }, []);
 
   useEffect(() => {
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.innerHTML = `
       .security-warning {
         position: fixed;
@@ -135,11 +90,6 @@ const QuizSecurity = ({ handleExamSubmit }) => {
       .security-warning-message {
         font-size: 14px;
         color: #333;
-      }
-      .security-timer {
-        margin-top: 10px;
-        font-size: 14px;
-        color: #ff4d4f;
       }
     `;
     document.head.appendChild(style);
