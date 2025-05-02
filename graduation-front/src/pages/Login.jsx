@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { jwtDecode } from "jwt-decode";
 import { validateLoginForm } from "../utils/validationUtils";
-import loginPic from "../assets/images/reg.jpg";
+import loginPic from "../assets/images/img5.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
