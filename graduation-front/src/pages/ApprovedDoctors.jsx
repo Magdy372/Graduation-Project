@@ -11,7 +11,7 @@ const ApprovedDoctors = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [adminGovernorate, setAdminGovernorate] = useState("");  // محافظة الـ Admin
+  const [adminGovernorate, setAdminGovernorate] = useState(""); // محافظة الـ Admin
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -23,10 +23,17 @@ const ApprovedDoctors = () => {
     try {
       const decodedToken = jwtDecode(token);
       const candidate = decodedToken.candidate;
+      const position = decodedToken.position || decodedToken.postion; // handle typo
 
-      if (candidate === "الطب") {
+      if (candidate === "الطب" ||position === "مدير") {
         setIsAuthorized(true);
-        setAdminGovernorate(decodedToken.governorate); // تخزين محافظة الـ Admin
+
+        if (position === "مدير") {
+          setAdminGovernorate("ALL"); // مدير sees all
+        } else {
+          setAdminGovernorate(decodedToken.governorate);
+        }
+
         const controller = new AbortController();
         fetchDoctors(controller.signal);
         return () => controller.abort();
@@ -46,7 +53,11 @@ const ApprovedDoctors = () => {
 
       const data = await response.json();
       setDoctors(data);
-      setFilteredDoctors(data.filter(doctor => doctor.governorate === adminGovernorate));  // تصفية الأطباء حسب المحافظة
+
+      const filtered = adminGovernorate === "ALL"
+        ? data
+        : data.filter((doctor) => doctor.governorate === adminGovernorate);
+      setFilteredDoctors(filtered);
     } catch (error) {
       if (error.name !== "AbortError") {
         console.error("Error fetching doctors:", error);
@@ -62,11 +73,11 @@ const ApprovedDoctors = () => {
       doctors.filter(
         (doctor) =>
           (doctor.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          doctor.email.toLowerCase().includes(searchQuery.toLowerCase())) && 
-          doctor.governorate === adminGovernorate  // تصفية الأطباء حسب البحث والمحافظة
+            doctor.email.toLowerCase().includes(searchQuery.toLowerCase())) &&
+          (adminGovernorate === "ALL" || doctor.governorate === adminGovernorate)
       )
     );
-  }, [searchQuery, doctors, adminGovernorate]); // إضافة محافظة الـ Admin هنا
+  }, [searchQuery, doctors, adminGovernorate]);
 
   const handleReload = () => {
     setLoading(true);
@@ -117,7 +128,6 @@ const ApprovedDoctors = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredDoctors.length > 0 ? (
           filteredDoctors.map((doctor) => (
-            // Ensure doctor.id is unique
             <motion.div
               key={doctor.id}
               className="border border-gray rounded-lg overflow-hidden shadow-md p-5 transition-transform transform hover:scale-105 bg-white"

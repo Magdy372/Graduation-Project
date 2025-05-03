@@ -11,6 +11,7 @@ const ViewUsers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [adminGovernorate, setAdminGovernorate] = useState("");
+  const [isManager, setIsManager] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -22,10 +23,13 @@ const ViewUsers = () => {
     try {
       const decoded = jwtDecode(token);
       const gov = decoded.governorate;
+      const role = decoded.title || decoded.role || decoded.position;
+
       setAdminGovernorate(gov);
+      setIsManager(role === "مدير");
 
       const controller = new AbortController();
-      fetchUsers(controller.signal, gov);
+      fetchUsers(controller.signal, gov, role === "مدير");
       return () => controller.abort();
     } catch (error) {
       console.error("Invalid token:", error);
@@ -33,15 +37,15 @@ const ViewUsers = () => {
     }
   }, []);
 
-  const fetchUsers = async (signal, governorate) => {
+  const fetchUsers = async (signal, governorate, isManager) => {
     try {
       const response = await fetch("http://localhost:8089/users/unaccepted", { signal });
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
       const data = await response.json();
-      const filteredByGov = data.filter(user => user.governorate === governorate);
-      setUsers(filteredByGov);
-      setFilteredUsers(filteredByGov);
+      const filtered = isManager ? data : data.filter(user => user.governorate === governorate);
+      setUsers(filtered);
+      setFilteredUsers(filtered);
     } catch (error) {
       if (error.name !== "AbortError") {
         console.error("Error fetching users:", error);
@@ -88,7 +92,7 @@ const ViewUsers = () => {
   const handleReload = () => {
     setLoading(true);
     setError(null);
-    fetchUsers(new AbortController().signal, adminGovernorate);
+    fetchUsers(new AbortController().signal, adminGovernorate, isManager);
   };
 
   const fileLabels = {
@@ -116,7 +120,7 @@ const ViewUsers = () => {
 
   return (
     <div className="container mx-auto px-6 bg-white">
-      <h1 className="text-3xl text-red font-bold text-right mb-8">قائمة  الاعتمادات</h1>
+      <h1 className="text-3xl text-red font-bold text-right mb-8">قائمة الاعتمادات</h1>
 
       <div className="flex justify-end">
         <div className="mb-8 w-[375px]">

@@ -11,7 +11,8 @@ const ApprovedPharmacists = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [adminGovernorate, setAdminGovernorate] = useState("");  // المحافظة الخاصة بالـ Admin
+  const [adminGovernorate, setAdminGovernorate] = useState("");
+  const [position, setPosition] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -23,12 +24,16 @@ const ApprovedPharmacists = () => {
     try {
       const decodedToken = jwtDecode(token);
       const candidate = decodedToken.candidate;
+      const governorate = decodedToken.governorate;
+      const userPosition = decodedToken.position; // NEW
 
       if (candidate === "الصيدلة") {
         setIsAuthorized(true);
-        setAdminGovernorate(decodedToken.governorate);  // تخزين محافظة الـ Admin
+        setAdminGovernorate(governorate);
+        setPosition(userPosition); // Set position
+
         const controller = new AbortController();
-        fetchPharmacists(controller.signal);
+        fetchPharmacists(controller.signal, userPosition, governorate);
         return () => controller.abort();
       } else {
         setLoading(false);
@@ -39,14 +44,20 @@ const ApprovedPharmacists = () => {
     }
   }, []);
 
-  const fetchPharmacists = async (signal) => {
+  const fetchPharmacists = async (signal, userPosition, governorate) => {
     try {
       const response = await fetch("http://localhost:8089/users/approved/صيدلي", { signal });
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
       const data = await response.json();
       setPharmacists(data);
-      setFilteredPharmacists(data.filter(pharmacist => pharmacist.governorate === adminGovernorate));  // تصفية الصيادلة حسب المحافظة
+
+      // Show all if "مدير", else filter by governorate
+      if (userPosition === "مدير") {
+        setFilteredPharmacists(data);
+      } else {
+        setFilteredPharmacists(data.filter(pharmacist => pharmacist.governorate === governorate));
+      }
     } catch (error) {
       if (error.name !== "AbortError") {
         console.error("Error fetching pharmacists:", error);
@@ -62,16 +73,16 @@ const ApprovedPharmacists = () => {
       pharmacists.filter(
         (pharmacist) =>
           (pharmacist.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          pharmacist.email.toLowerCase().includes(searchQuery.toLowerCase())) &&
-          pharmacist.governorate === adminGovernorate  // تصفية الصيادلة حسب البحث والمحافظة
+            pharmacist.email.toLowerCase().includes(searchQuery.toLowerCase())) &&
+          (position === "مدير" || pharmacist.governorate === adminGovernorate)
       )
     );
-  }, [searchQuery, pharmacists, adminGovernorate]);  // إضافة المحافظة هنا
+  }, [searchQuery, pharmacists, adminGovernorate, position]);
 
   const handleReload = () => {
     setLoading(true);
     setError(null);
-    fetchPharmacists(new AbortController().signal);
+    fetchPharmacists(new AbortController().signal, position, adminGovernorate);
   };
 
   if (loading) return <p className="text-xl text-center w-full">Loading...</p>;
