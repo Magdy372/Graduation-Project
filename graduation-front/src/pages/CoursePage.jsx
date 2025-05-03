@@ -11,6 +11,7 @@ import Footer from '../components/Footer';
 import ModalCongrat from '../components/ModalCongrat';
 import QuizSecurity from "../utils/quizsec";
 import { CourseService, QuizService } from '../services/courepage';
+import CertificateModal from '../components/CertificateModal';
 
 const FadeUp = (delay) => ({
   initial: { opacity: 0, y: 50 },
@@ -70,7 +71,11 @@ const CoursePage = () => {
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [showCertificateButton, setShowCertificateButton] = useState(false);
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [certificateRequestStatus, setCertificateRequestStatus] = useState(null);
+  const [certificateError, setCertificateError] = useState(null);
+  const [certificateData, setCertificateData] = useState(null);
+  const [finalScore, setFinalScore] = useState(null);
   const [pendingQuizzes, setPendingQuizzes] = useState([]);
 
   const token = localStorage.getItem('access_token');
@@ -459,48 +464,26 @@ const CoursePage = () => {
 
   // Modify the checkCourseCompletion function
   const checkCourseCompletion = () => {
-    console.log('Checking course completion...');
-    console.log('Chapters:', chapters);
-    console.log('Watched Videos:', watchedVideos);
-    console.log('Quiz Attempts:', quizAttempts);
-    console.log('Chapter Quizzes:', chapterQuizzes);
-
     // Check if all videos are watched
     const allVideosWatched = chapters.every(chapter => {
-      const chapterVideosWatched = chapter.videos.every(video => watchedVideos[video.id]);
-      console.log(`Chapter ${chapter.title} videos watched:`, chapterVideosWatched);
-      return chapterVideosWatched;
+      return chapter.videos.every(video => watchedVideos[video.id]);
     });
 
-    console.log('All videos watched:', allVideosWatched);
-
-    // Check if all quizzes are completed with passing score
-    const allQuizzesCompleted = chapters.every(chapter => {
+    // Check if all quizzes are attempted
+    const allQuizzesAttempted = chapters.every(chapter => {
       const chapterQuizList = chapterQuizzes[chapter.id] || [];
-      console.log(`Quizzes for chapter ${chapter.title}:`, chapterQuizList);
-
+      
       if (chapterQuizList.length === 0) {
-        // If there are no quizzes for this chapter, consider it completed
-        console.log(`No quizzes for chapter ${chapter.title}`);
         return true;
       }
 
-      const passedQuizzes = chapterQuizList.every(quiz => {
+      return chapterQuizList.every(quiz => {
         const attempts = quizAttempts.filter(attempt => attempt.quizId === quiz.id);
-        const hasPassed = attempts.some(attempt => attempt.score >= 50);
-        console.log(`Quiz ${quiz.title} passed:`, hasPassed);
-        return hasPassed;
+        return attempts.length > 0; // Only check if quiz was attempted
       });
-
-      console.log(`Chapter ${chapter.title} quizzes completed:`, passedQuizzes);
-      return passedQuizzes;
     });
 
-    console.log('All quizzes completed:', allQuizzesCompleted);
-
-    const shouldShowButton = allVideosWatched && allQuizzesCompleted;
-    console.log('Should show certificate button:', shouldShowButton);
-    setShowCertificateButton(shouldShowButton);
+    setShowCertificateButton(allVideosWatched && allQuizzesAttempted);
   };
 
   // Modify the useEffect to ensure it runs at the right time
@@ -518,6 +501,10 @@ const CoursePage = () => {
   // Add this function to handle certificate request
   const handleCertificateRequest = async () => {
     try {
+      setCertificateRequestStatus('loading');
+      setCertificateError(null);
+      setCertificateData(null);
+
       const response = await fetch(`http://localhost:8084/api/certificates/request`, {
         method: 'POST',
         headers: {
@@ -533,16 +520,29 @@ const CoursePage = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setCertificateRequestStatus('success');
-        // You can handle certificate download or display here
+        if (data.status === 'exists') {
+          setCertificateRequestStatus('exists');
+          setCertificateData(data.certificate);
+        } else if (data.status === 'generated') {
+          setCertificateRequestStatus('success');
+          setCertificateData(data.certificate);
+          setFinalScore(data.certificate.finalScore);
+        }
       } else {
         setCertificateRequestStatus('error');
-        setPendingQuizzes(data.pendingQuizzes || []);
+        setCertificateError(data.message || 'Failed to generate certificate. Please try again.');
       }
     } catch (error) {
       console.error('Error requesting certificate:', error);
       setCertificateRequestStatus('error');
+      setCertificateError('An unexpected error occurred. Please try again later.');
     }
+  };
+
+  const handleRetry = () => {
+    setCertificateRequestStatus(null);
+    setCertificateError(null);
+    handleCertificateRequest();
   };
 
   if (!course || !chapters.length) return <div>Loading...</div>;
@@ -715,37 +715,27 @@ const CoursePage = () => {
                   className="mt-6 border-t pt-4"
                 >
                   <button
-                    onClick={handleCertificateRequest}
+                    onClick={() => setShowCertificateModal(true)}
                     className="w-full p-3 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center justify-center gap-2"
-                    disabled={certificateRequestStatus === 'success'}
                   >
                     <FaCertificate />
                     <span>Request Certificate</span>
                   </button>
 
-                  {certificateRequestStatus === 'success' && (
-                    <p className="text-green-600 text-sm mt-2 text-center">
-                      Certificate request approved!
-                    </p>
-                  )}
-
-                  {certificateRequestStatus === 'error' && (
-                    <div className="mt-2">
-                      <p className="text-red-600 text-sm text-center">
-                        Unable to generate certificate
-                      </p>
-                      {pendingQuizzes.length > 0 && (
-                        <div className="mt-2">
-                          <p className="text-sm text-gray-600">Pending quizzes:</p>
-                          <ul className="text-sm text-red-600 list-disc list-inside">
-                            {pendingQuizzes.map(quiz => (
-                              <li key={quiz.id}>{quiz.title}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  <CertificateModal
+                    isOpen={showCertificateModal}
+                    onClose={() => {
+                      setShowCertificateModal(false);
+                      setCertificateRequestStatus(null);
+                      setCertificateError(null);
+                    }}
+                    status={certificateRequestStatus}
+                    certificateData={certificateData}
+                    finalScore={finalScore}
+                    error={certificateError}
+                    onRetry={handleRetry}
+                    onRequest={handleCertificateRequest}
+                  />
                 </motion.div>
               )}
             </div>
