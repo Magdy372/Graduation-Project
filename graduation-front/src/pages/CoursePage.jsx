@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaArrowLeft, FaPlayCircle, FaDownload } from 'react-icons/fa';
+import { FaArrowLeft, FaPlayCircle, FaDownload, FaCertificate } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardContent } from "@mui/material";
 import Typography from "@mui/material/Typography";
@@ -69,6 +69,9 @@ const CoursePage = () => {
   const [proctoringStatus, setProctoringStatus] = useState('inactive');
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [showCertificateButton, setShowCertificateButton] = useState(false);
+  const [certificateRequestStatus, setCertificateRequestStatus] = useState(null);
+  const [pendingQuizzes, setPendingQuizzes] = useState([]);
 
   const token = localStorage.getItem('access_token');
   if (!token) {
@@ -454,6 +457,94 @@ const CoursePage = () => {
     };
   }, [examStarted, examSubmitted, userId, selectedQuiz]);
 
+  // Modify the checkCourseCompletion function
+  const checkCourseCompletion = () => {
+    console.log('Checking course completion...');
+    console.log('Chapters:', chapters);
+    console.log('Watched Videos:', watchedVideos);
+    console.log('Quiz Attempts:', quizAttempts);
+    console.log('Chapter Quizzes:', chapterQuizzes);
+
+    // Check if all videos are watched
+    const allVideosWatched = chapters.every(chapter => {
+      const chapterVideosWatched = chapter.videos.every(video => watchedVideos[video.id]);
+      console.log(`Chapter ${chapter.title} videos watched:`, chapterVideosWatched);
+      return chapterVideosWatched;
+    });
+
+    console.log('All videos watched:', allVideosWatched);
+
+    // Check if all quizzes are completed with passing score
+    const allQuizzesCompleted = chapters.every(chapter => {
+      const chapterQuizList = chapterQuizzes[chapter.id] || [];
+      console.log(`Quizzes for chapter ${chapter.title}:`, chapterQuizList);
+
+      if (chapterQuizList.length === 0) {
+        // If there are no quizzes for this chapter, consider it completed
+        console.log(`No quizzes for chapter ${chapter.title}`);
+        return true;
+      }
+
+      const passedQuizzes = chapterQuizList.every(quiz => {
+        const attempts = quizAttempts.filter(attempt => attempt.quizId === quiz.id);
+        const hasPassed = attempts.some(attempt => attempt.score >= 50);
+        console.log(`Quiz ${quiz.title} passed:`, hasPassed);
+        return hasPassed;
+      });
+
+      console.log(`Chapter ${chapter.title} quizzes completed:`, passedQuizzes);
+      return passedQuizzes;
+    });
+
+    console.log('All quizzes completed:', allQuizzesCompleted);
+
+    const shouldShowButton = allVideosWatched && allQuizzesCompleted;
+    console.log('Should show certificate button:', shouldShowButton);
+    setShowCertificateButton(shouldShowButton);
+  };
+
+  // Modify the useEffect to ensure it runs at the right time
+  useEffect(() => {
+    if (chapters.length > 0 && Object.keys(chapterQuizzes).length > 0) {
+      checkCourseCompletion();
+    }
+  }, [chapters, watchedVideos, quizAttempts, chapterQuizzes]);
+
+  // Add this useEffect to log state changes
+  useEffect(() => {
+    console.log('Certificate button visibility:', showCertificateButton);
+  }, [showCertificateButton]);
+
+  // Add this function to handle certificate request
+  const handleCertificateRequest = async () => {
+    try {
+      const response = await fetch(`http://localhost:8084/api/certificates/request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          courseId,
+          userId
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setCertificateRequestStatus('success');
+        // You can handle certificate download or display here
+      } else {
+        setCertificateRequestStatus('error');
+        setPendingQuizzes(data.pendingQuizzes || []);
+      }
+    } catch (error) {
+      console.error('Error requesting certificate:', error);
+      setCertificateRequestStatus('error');
+    }
+  };
+
   if (!course || !chapters.length) return <div>Loading...</div>;
 
   return (
@@ -614,6 +705,49 @@ const CoursePage = () => {
                   )}
                 </div>
               ))}
+              
+              {/* Add Certificate Request Button */}
+              {showCertificateButton && (
+                <motion.div
+                  variants={FadeUp(0.5)}
+                  initial="initial"
+                  animate="animate"
+                  className="mt-6 border-t pt-4"
+                >
+                  <button
+                    onClick={handleCertificateRequest}
+                    className="w-full p-3 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center justify-center gap-2"
+                    disabled={certificateRequestStatus === 'success'}
+                  >
+                    <FaCertificate />
+                    <span>Request Certificate</span>
+                  </button>
+
+                  {certificateRequestStatus === 'success' && (
+                    <p className="text-green-600 text-sm mt-2 text-center">
+                      Certificate request approved!
+                    </p>
+                  )}
+
+                  {certificateRequestStatus === 'error' && (
+                    <div className="mt-2">
+                      <p className="text-red-600 text-sm text-center">
+                        Unable to generate certificate
+                      </p>
+                      {pendingQuizzes.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-600">Pending quizzes:</p>
+                          <ul className="text-sm text-red-600 list-disc list-inside">
+                            {pendingQuizzes.map(quiz => (
+                              <li key={quiz.id}>{quiz.title}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </motion.div>
+              )}
             </div>
           )}
 

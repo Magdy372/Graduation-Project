@@ -32,10 +32,12 @@ public class EmailTestController {
     public ResponseEntity<String> testCompletionEmail(
             @RequestParam String to,
             @RequestParam String userName,
-            @RequestParam String courseName) {
+            @RequestParam String courseName,
+            @RequestParam Double finalScore,
+            @RequestParam String certificateNumber) {
         try {
             // Generate a test certificate number
-            String certificateNumber = "CERT-" + System.currentTimeMillis();
+            //String certificateNumber = "CERT-" + System.currentTimeMillis();
             
             // Send certificate email with test data
             emailService.sendCertificateEmail(
@@ -43,7 +45,7 @@ public class EmailTestController {
                 userName,
                 courseName,
                 certificateNumber,
-                95.5 // Example score
+                finalScore // Example score
             );
             
             return ResponseEntity.ok("Course completion email sent successfully to: " + to);

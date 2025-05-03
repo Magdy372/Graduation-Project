@@ -38,4 +38,7 @@ public class Chapter {
 
     private List<Video> videos;
 
+    @OneToOne(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)  // Added this line
+    private Quiz quiz;  // Add a reference to the quiz
+
 }
