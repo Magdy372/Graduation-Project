@@ -878,12 +878,13 @@ const CoursePage = () => {
                                   : i === (examQuestions[currentQuestionIndex].answer - 1);
                                 const isUserAnswer = userAnswers[currentQuestionIndex] === option;
                                 const isWrongAnswer = isUserAnswer && !isCorrect;
+                                const showAnswers = !examSubmitted || (examSubmitted && score >= 50);
 
                                 return (
                                   <label 
                                     key={i} 
                                     className={`flex items-center gap-2 p-4 rounded-lg cursor-pointer border ${
-                                      examSubmitted
+                                      examSubmitted && showAnswers
                                         ? isCorrect
                                           ? 'bg-green-100 border-green-400'
                                           : isWrongAnswer
@@ -903,7 +904,7 @@ const CoursePage = () => {
                                       className="form-radio h-5 w-5"
                                     />
                                     <span className="text-lg">{option}</span>
-                                    {examSubmitted && (isCorrect || isWrongAnswer) && (
+                                    {examSubmitted && showAnswers && (isCorrect || isWrongAnswer) && (
                                       <span className={`ml-auto ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
                                         {isCorrect ? '✓ Correct Answer' : '✗ Wrong Answer'}
                                       </span>
@@ -969,12 +970,18 @@ const CoursePage = () => {
                                 </p>
                                 {score >= 50 ? (
                                   <p className="text-green-600 text-lg">
-                                    Congratulations! You passed the exam.
+                                    Congratulations! You passed the exam. You can review your answers above.
                                   </p>
                                 ) : (
-                                  <p className="text-red-600 text-lg">
-                                    You didn't pass this attempt. Please try again.
-                                  </p>
+                                  <div className="space-y-2">
+                                    <p className="text-red-600 text-lg">
+                                      You didn't pass this attempt. Please try again.
+                                    </p>
+                                    <p className="text-gray-600">
+                                      To maintain exam integrity, answer review is not available for scores below 50%. 
+                                      For additional support and guidance, please contact our support team.
+                                    </p>
+                                  </div>
                                 )}
                               </div>
                             </div>
@@ -986,6 +993,7 @@ const CoursePage = () => {
                                   setUserAnswers({});
                                   setCurrentQuestionIndex(0);
                                   setShowQuizSelection(false);
+                                  window.location.reload();
                                 }}
                                 className="px-8 py-3 bg-blue text-white rounded-md hover:bg-red transition-colors"
                               >
