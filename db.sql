@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: May 03, 2025 at 12:41 AM
+-- Generation Time: May 05, 2025 at 01:11 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -78,8 +78,16 @@ CREATE TABLE `certificate` (
   `issue_date` datetime NOT NULL,
   `certificate_number` varchar(255) NOT NULL,
   `final_score` double NOT NULL,
-  `passed` bit(1) NOT NULL
+  `passed` bit(1) NOT NULL,
+  `status` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `certificate`
+--
+
+INSERT INTO `certificate` (`id`, `user_id`, `course_id`, `issue_date`, `certificate_number`, `final_score`, `passed`, `status`) VALUES
+(2, 125, 31, '2025-05-05 02:08:48', 'CERT-5BE62386', 100, b'1', 'PENDING');
 
 -- --------------------------------------------------------
 
@@ -159,22 +167,7 @@ CREATE TABLE `enrollment` (
 --
 
 INSERT INTO `enrollment` (`id`, `course_id`, `enrollment_date`, `user_id`) VALUES
-(15, 20, '2025-04-04 19:23:14.000000', 114),
-(16, 21, '2025-04-04 19:24:09.000000', 114),
-(17, 22, '2025-04-04 19:24:29.000000', 114),
-(18, 24, '2025-04-04 19:24:42.000000', 114),
-(19, 23, '2025-04-04 23:49:26.000000', 114),
-(20, 21, '2025-04-05 02:00:15.000000', 120),
-(21, 25, '2025-04-05 03:36:27.000000', 114),
-(22, 26, '2025-04-05 03:47:59.000000', 114),
-(23, 27, '2025-04-05 04:33:48.000000', 114),
-(24, 26, '2025-04-05 15:44:11.000000', 123),
-(25, 26, '2025-04-30 21:15:04.000000', 113),
-(26, 29, '2025-05-01 13:57:09.000000', 114),
-(27, 29, '2025-05-01 23:33:47.000000', 125),
-(28, 26, '2025-05-01 23:34:08.000000', 125),
-(29, 25, '2025-05-01 23:34:30.000000', 125),
-(30, 30, '2025-05-01 23:40:40.000000', 125);
+(32, 31, '2025-05-04 19:03:03.000000', 125);
 
 -- --------------------------------------------------------
 
@@ -217,9 +210,17 @@ CREATE TABLE `question` (
   `order_num` int(11) NOT NULL,
   `text` varchar(255) NOT NULL,
   `correct_answer` varchar(255) DEFAULT NULL,
-  `options` varchar(1000) DEFAULT NULL,
+  `options` varchar(255) DEFAULT NULL,
   `quiz_id` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `question`
+--
+
+INSERT INTO `question` (`question_type`, `id`, `grade`, `order_num`, `text`, `correct_answer`, `options`, `quiz_id`) VALUES
+('MCQ', 39, 5, 1, 'MCQ', '1', 'X,C,G,H', 24),
+('TRUE_FALSE', 40, 1, 1, 'w', '1', NULL, 25);
 
 -- --------------------------------------------------------
 
@@ -236,6 +237,14 @@ CREATE TABLE `quiz` (
   `max_attempts` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `quiz`
+--
+
+INSERT INTO `quiz` (`id`, `time_limit`, `title`, `total_grade`, `chapter_id`, `max_attempts`) VALUES
+(24, 30, 'quiz 1', 5, 43, 8),
+(25, 30, 'www', 1, 44, 2);
+
 -- --------------------------------------------------------
 
 --
@@ -248,9 +257,24 @@ CREATE TABLE `quiz_attempts` (
   `attempt_number` int(11) DEFAULT NULL,
   `passed` bit(1) DEFAULT NULL,
   `score` double DEFAULT NULL,
-  `user_id` varchar(255) DEFAULT NULL,
+  `user_id` bigint(20) DEFAULT NULL,
   `quiz_id` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `quiz_attempts`
+--
+
+INSERT INTO `quiz_attempts` (`id`, `attempt_date`, `attempt_number`, `passed`, `score`, `user_id`, `quiz_id`) VALUES
+(174, '2025-05-04 18:10:40.000000', 1, b'1', 100, 125, 24),
+(175, '2025-05-04 18:16:49.000000', 2, b'0', 0, 125, 24),
+(176, '2025-05-04 18:21:56.000000', 3, b'0', 0, 125, 24),
+(177, '2025-05-04 18:26:23.000000', 4, b'1', 100, 125, 24),
+(178, '2025-05-04 18:35:21.000000', 5, b'1', 100, 125, 24),
+(179, '2025-05-04 18:44:35.000000', 6, b'1', 100, 125, 24),
+(180, '2025-05-04 19:32:22.000000', 7, b'1', 100, 125, 24),
+(181, '2025-05-05 01:20:24.000000', 8, b'1', 100, 125, 24),
+(182, '2025-05-05 02:08:33.000000', 1, b'1', 100, 125, 25);
 
 -- --------------------------------------------------------
 
@@ -282,9 +306,9 @@ INSERT INTO `users` (`id`, `first_name`, `last_name`, `phone_number`, `email`, `
 (115, 'ziad ', 'ahmed', '01001762250', 'mahmoudhousam5844@gmail.com', 165, '$2a$10$nSCMkcS4tCBxsmfV/hErvOpR7GZIzq2yTr3F4LC.XVWYGud.EZ7Cq', 'USER', b'1', 'القليوبية', 'دكتور'),
 (117, 'ali', 'mostafa', '01001762250', 'mahmoudhouqsam584@gmail.com', 167, '$2a$10$YHAf098KQEchmuYS.lHBHeZJLeJlc/jw6giGOZ8yUU2wi1jnsNNcm', 'USER', b'1', 'القاهرة', 'دكتور'),
 (120, 'rana', 'abulkassem', '01001762250', 'T-622e5@ischoolteams.com', 170, '$2a$10$FPkR8Qe2EMgkDXQvmDW0.egXrpKn/xCwN0NXBKZN/V8yFB4AjlvEa', 'USER', b'1', 'شمال سيناء', 'دكتور'),
-(123, 'mohamed', 'magdy', '01022907282', 'm.m123@gmail.com', 173, '$2a$10$KN.g7pQJf/8zq3FAhC1Jben3aUZMwenJjXpEPkfQ2woW7h.t5ocTG', 'USER', b'1', 'جنوب سيناء', 'دكتور'),
+(123, 'mohamed', 'magdy', '01022907282', 'm.m123@gmail.com', 173, '$2a$10$KN.g7pQJf/8zq3FAhC1Jben3aUZMwenJjXpEPkfQ2woW7h.t5ocTG', 'USER', b'0', 'جنوب سيناء', 'دكتور'),
 (124, 'mahmoud', 'hossam', '01001762250', 'Mahmoudhousam58@gmail.com', 174, '$2a$10$K.AoImP9xZPfXpoklFcAOezDVX56QTLYnK4aFvdNvr97uavEURA.W', 'USER', b'1', 'القاهرة', 'صيدلي'),
-(125, 'Omar', 'Omar', '01000313821', 'os606030@gmail.com', 175, '$2a$10$YI4VM3ZbBrb1YnajRhQfXOLSyC5cKAnFQFn2FjDcEbQidRE.nI1a2', 'USER', b'1', 'القليوبية', 'دكتور');
+(125, 'Omar', 'Omar', '01000313821', 'os606030@gmail.com', 175, '$2a$10$YI4VM3ZbBrb1YnajRhQfXOLSyC5cKAnFQFn2FjDcEbQidRE.nI1a2', 'USER', b'1', 'الإسكندرية', 'صيدلي');
 
 -- --------------------------------------------------------
 
@@ -351,7 +375,7 @@ CREATE TABLE `video` (
   `title` varchar(255) NOT NULL,
   `video_path` varchar(255) NOT NULL,
   `chapter_id` bigint(20) NOT NULL,
-  `video_summary` varchar(2550) DEFAULT NULL
+  `video_summary` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -362,13 +386,25 @@ CREATE TABLE `video` (
 
 CREATE TABLE `violations` (
   `id` bigint(20) NOT NULL,
-  `quiz_id` varchar(255) DEFAULT NULL,
-  `user_id` varchar(255) DEFAULT NULL,
+  `quiz_id` bigint(255) DEFAULT NULL,
+  `user_id` bigint(255) DEFAULT NULL,
   `violation` varchar(255) DEFAULT NULL,
   `start_time` varchar(255) DEFAULT NULL,
   `end_time` varchar(255) DEFAULT NULL,
-  `duration` bigint(20) DEFAULT NULL
+  `duration` bigint(20) DEFAULT NULL,
+  `course_id` bigint(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `violations`
+--
+
+INSERT INTO `violations` (`id`, `quiz_id`, `user_id`, `violation`, `start_time`, `end_time`, `duration`, `course_id`) VALUES
+(195, 24, 125, 'tab_switching', '2025-05-04T19:29:47.875078', '2025-05-04T19:31:42.879942', 115, 31),
+(196, 24, 125, 'tab_switching', '2025-05-04T19:31:52.846621', '2025-05-04T19:32:19.542123', 26, 31),
+(197, 24, 125, 'multiple_people', '2025-05-04T19:29:38.441740', '2025-05-04T19:32:21.860082', 163, 31),
+(198, 24, 125, 'multiple_people', '2025-05-05T01:20:23.375254', '2025-05-05T01:20:23.873128', 0, 31),
+(199, 25, 125, 'multiple_people', '2025-05-05T02:08:27.113112', '2025-05-05T02:08:32.401789', 5, 31);
 
 --
 -- Indexes for dumped tables
@@ -421,7 +457,9 @@ ALTER TABLE `course`
 -- Indexes for table `enrollment`
 --
 ALTER TABLE `enrollment`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `course_id` (`course_id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `feedbacks`
@@ -476,7 +514,10 @@ ALTER TABLE `video`
 -- Indexes for table `violations`
 --
 ALTER TABLE `violations`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `course_id` (`course_id`),
+  ADD KEY `quiz_id` (`quiz_id`),
+  ADD KEY `violations_ibfk_3` (`user_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -498,7 +539,7 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT for table `certificate`
 --
 ALTER TABLE `certificate`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `chapter`
@@ -522,7 +563,7 @@ ALTER TABLE `course`
 -- AUTO_INCREMENT for table `enrollment`
 --
 ALTER TABLE `enrollment`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `feedbacks`
@@ -534,19 +575,19 @@ ALTER TABLE `feedbacks`
 -- AUTO_INCREMENT for table `question`
 --
 ALTER TABLE `question`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `quiz`
 --
 ALTER TABLE `quiz`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `quiz_attempts`
 --
 ALTER TABLE `quiz_attempts`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=174;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=183;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -570,7 +611,7 @@ ALTER TABLE `video`
 -- AUTO_INCREMENT for table `violations`
 --
 ALTER TABLE `violations`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=174;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=200;
 
 --
 -- Constraints for dumped tables
@@ -600,6 +641,13 @@ ALTER TABLE `contact`
 --
 ALTER TABLE `course`
   ADD CONSTRAINT `fk_category_id` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `enrollment`
+--
+ALTER TABLE `enrollment`
+  ADD CONSTRAINT `enrollment_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`),
+  ADD CONSTRAINT `enrollment_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `feedbacks`
@@ -636,6 +684,14 @@ ALTER TABLE `users`
 --
 ALTER TABLE `video`
   ADD CONSTRAINT `fk_chapter_id` FOREIGN KEY (`chapter_id`) REFERENCES `chapter` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `violations`
+--
+ALTER TABLE `violations`
+  ADD CONSTRAINT `violations_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `violations_ibfk_2` FOREIGN KEY (`quiz_id`) REFERENCES `quiz` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `violations_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
