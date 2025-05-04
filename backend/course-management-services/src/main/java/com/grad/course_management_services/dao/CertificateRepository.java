@@ -1,7 +1,11 @@
 package com.grad.course_management_services.dao;
 
 import com.grad.course_management_services.models.Certificate;
+
+import feign.Param;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,4 +27,13 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
     
     // Check if a certificate exists for a user and course
     boolean existsByUserIdAndCourseId(Long userId, Long courseId);
-} 
+//
+  //  Get All Pending Certificates
+  @Query("SELECT c FROM Certificate c WHERE c.status = 'PENDING'")
+  List<Certificate> findPendingCertificates();
+
+
+}
+
+
+ 

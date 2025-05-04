@@ -12,6 +12,6 @@ import org.springframework.stereotype.Repository;
 public interface ChapterRepository extends JpaRepository<Chapter, Long> {
 
     List<Chapter> findByCourseId(Long courseId);
-   
+
 }
 

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class QuizAttemptDTO {
     private Long id;
     private Long quizId;
-    private String userId;
+    private Long userId;
     private Double score;
     private LocalDateTime attemptDate;
     private Integer attemptNumber;

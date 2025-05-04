@@ -1,23 +1,22 @@
 package com.grad.course_management_services.controllers;
 
+import com.grad.course_management_services.clients.UserServiceClient;
+import com.grad.course_management_services.dao.ChapterRepository;
+import com.grad.course_management_services.dao.CourseRepository;
+import com.grad.course_management_services.dto.UserDTO;
 import com.grad.course_management_services.models.Certificate;
 import com.grad.course_management_services.models.Chapter;
 import com.grad.course_management_services.models.Course;
 import com.grad.course_management_services.models.Quiz;
 import com.grad.course_management_services.models.QuizAttempt;
-import com.grad.course_management_services.services.CertificateService;
-import com.grad.course_management_services.dao.QuizRepository;
-import com.grad.course_management_services.dto.UserDTO;
-import com.grad.course_management_services.clients.UserServiceClient;
-import com.grad.course_management_services.dao.ChapterRepository;
 import com.grad.course_management_services.repositories.QuizAttemptRepository;
-import com.grad.course_management_services.dao.CourseRepository;
+import com.grad.course_management_services.services.CertificateService;
 import com.grad.course_management_services.services.EmailService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.grad.course_management_services.dto.UserDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -30,9 +29,7 @@ public class CertificateController {
 
     @Autowired
     private CertificateService certificateService;
-
-
-    @Autowired
+@Autowired
     private ChapterRepository chapterRepository;
 
     @Autowired
@@ -50,7 +47,7 @@ public class CertificateController {
     public ResponseEntity<?> requestCertificate(@RequestBody Map<String, Object> request) {
         try {
             Long userId = Long.parseLong(request.get("userId").toString());
-            String userId1 = request.get("userId").toString();
+      
             Long courseId = Long.parseLong(request.get("courseId").toString());
     
             // 1. Check if certificate already exists
@@ -79,7 +76,7 @@ public class CertificateController {
                 Quiz quiz = chapter.getQuiz();  // Access the quiz directly
                 if (quiz != null) {
                     Optional<QuizAttempt> bestAttemptOpt = quizAttemptRepository
-                        .findTopByUserIdAndQuizIdOrderByScoreDesc(userId1, quiz.getId());
+                        .findTopByUserIdAndQuizIdOrderByScoreDesc(userId, quiz.getId());
     
                     if (bestAttemptOpt.isEmpty()) {
                         return ResponseEntity.badRequest().body(Map.of(
@@ -127,13 +124,13 @@ public class CertificateController {
             Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
             
-            EmailService.sendCertificateEmail(
+          /*  EmailService.sendCertificateEmail(
                 userDTO.getEmail(),
                 userDTO.getFirstname()+" "+userDTO.getLastname(),
                 course.getName(),
                 newCertificate.getCertificateNumber(),
                 finalScore
-            );
+            );*/
 
             return ResponseEntity.ok(Map.of(
                 "status", "generated",
@@ -148,7 +145,6 @@ public class CertificateController {
                 .body(Map.of("message", "Error processing certificate request: " + e.getMessage()));
         }
     }
-    
     // Generate new certificate
     @PostMapping("/generate")
     public ResponseEntity<Certificate> generateCertificate(
@@ -200,6 +196,7 @@ public class CertificateController {
         List<Certificate> certificates = certificateService.getCertificatesByCourse(courseId);
         return ResponseEntity.ok(certificates);
     }
+  
 
     // Get certificate by certificate number
     @GetMapping("/number/{certificateNumber}")
@@ -219,6 +216,12 @@ public class CertificateController {
         List<Certificate> certificates = certificateService.getAllCertificates();
         return ResponseEntity.ok(certificates);
     }
+     // Get all Pending
+     @GetMapping("/pending")
+public ResponseEntity<List<Certificate>> getPendingCertificates() {
+    List<Certificate> certificates = certificateService.getPendingCertificates();
+    return ResponseEntity.ok(certificates);
+}
 
     // Delete certificate
     @DeleteMapping("/{id}")
@@ -230,4 +233,14 @@ public class CertificateController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+   // Change the status of a certificate
+   @PutMapping("/{certificateId}/status")
+   public ResponseEntity<?> changeCertificateStatus(
+           @PathVariable("certificateId") Long certificateId,
+           @RequestParam("newStatus") String newStatus) {
+   
+       return certificateService.changeCertificateStatus(certificateId, newStatus);
+   }
+   
+    
 } 

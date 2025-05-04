@@ -31,7 +31,7 @@ public class QuizAttempt {
     @JoinColumn(name = "quiz_id", nullable = false)
     private Quiz quiz;
 
-    private String userId;
+    private Long userId;
 
     private Double score;
 
@@ -41,7 +41,7 @@ public class QuizAttempt {
 
     private Boolean passed;
 
-    public QuizAttempt(Quiz quiz, String userId) {
+    public QuizAttempt(Quiz quiz, Long userId) {
         this.quiz = quiz;
         this.userId = userId;
         this.attemptDate = LocalDateTime.now();

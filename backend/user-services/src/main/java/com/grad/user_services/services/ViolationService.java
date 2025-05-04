@@ -3,7 +3,10 @@ package com.grad.user_services.services;
 import com.grad.user_services.dao.ViolationRepository;
 import com.grad.user_services.dto.ViolationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.grad.user_services.model.Violation;
 
 import java.util.List;
@@ -23,6 +26,7 @@ public class ViolationService {
         violation.setUserId(dto.getUserId());
         violation.setQuizId(dto.getQuizId());
         violation.setViolation(dto.getViolation());
+        violation.setCourseId(dto.getCourseId());
         violationRepository.save(violation);
     }
 
@@ -35,7 +39,13 @@ public class ViolationService {
             dto.setUserId(v.getUserId());
             dto.setQuizId(v.getQuizId());
             dto.setViolation(v.getViolation());
+            dto.setCourseId(v.getCourseId());
             return dto;
         }).collect(Collectors.toList());
+    }
+
+
+    public List<Violation> getViolationsByUserAndCourse(Long userId, Long courseId) {
+        return violationRepository.findByUserIdAndCourseId(userId, courseId);
     }
 }

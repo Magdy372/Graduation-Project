@@ -1,12 +1,24 @@
 package com.grad.course_management_services.services;
 
 import com.grad.course_management_services.models.Certificate;
+import com.grad.course_management_services.models.Course;
+import com.grad.course_management_services.models.QuizAttempt;
+import com.grad.course_management_services.clients.UserServiceClient;
+import com.grad.course_management_services.clients.ViolationClient;
 import com.grad.course_management_services.dao.CertificateRepository;
+import com.grad.course_management_services.dao.CourseRepository;
+import com.grad.course_management_services.dto.QuizAttemptResponseDTO;
+import com.grad.course_management_services.dto.UserDTO;
+import com.grad.course_management_services.dto.ViolationDTO;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -14,7 +26,16 @@ public class CertificateService {
 
     @Autowired
     private CertificateRepository certificateRepository;
+    @Autowired
+    private EmailService emailService;
 
+    @Autowired
+    private CourseRepository courseRepository;
+    @Autowired
+    private ViolationClient violationClient;
+
+    @Autowired
+    private UserServiceClient userServiceClient;
     // Generate and save a new certificate
     public Certificate generateCertificate(Long userId, Long courseId, Double finalScore) {
         // Check if certificate already exists
@@ -29,6 +50,7 @@ public class CertificateService {
         certificate.setCertificateNumber(generateCertificateNumber());
         certificate.setFinalScore(finalScore);
         certificate.setPassed(finalScore >= 50.0); // Pass threshold is 50%
+     
 
         return certificateRepository.save(certificate);
     }
@@ -43,6 +65,11 @@ public class CertificateService {
         return certificateRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Certificate not found"));
     }
+    // Get all certificates with status "PENDING"
+
+public List<Certificate> getPendingCertificates() {
+    return certificateRepository.findPendingCertificates();
+}
 
     // Get certificate by user and course
     public Certificate getCertificateByUserAndCourse(Long userId, Long courseId) {
@@ -75,4 +102,46 @@ public class CertificateService {
     public void deleteCertificate(Long id) {
         certificateRepository.deleteById(id);
     }
+     // Change Status certificate
+    public ResponseEntity<?> changeCertificateStatus(Long certificateId, String newStatus) {
+    Optional<Certificate> certificateOpt = certificateRepository.findById(certificateId);
+
+    if (certificateOpt.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                             .body("Certificate not found");
+    }
+
+    Certificate certificate = certificateOpt.get();
+
+    newStatus = newStatus.replaceAll("\\n", "").trim();
+    certificate.setStatus(newStatus);
+    Certificate updatedCertificate = certificateRepository.save(certificate);
+
+
+    if ("ACCEPTED".equalsIgnoreCase(newStatus)) {
+        try {
+            Long userId = certificate.getUserId();
+            UserDTO userDTO = userServiceClient.getUserById(userId);
+
+            Long courseId = certificate.getCourseId();
+            Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+            emailService.sendCertificateEmail(
+                userDTO.getEmail(),
+                userDTO.getFirstname() + " " + userDTO.getLastname(),
+                course.getName(),
+                updatedCertificate.getCertificateNumber(),
+                updatedCertificate.getFinalScore()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Failed to send email: " + e.getMessage());
+        }
+    }
+       
+
+    return ResponseEntity.ok(updatedCertificate);
+}
+
 } 

@@ -8,7 +8,10 @@ import org.springframework.web.bind.annotation.*;
 
 import com.grad.course_management_services.dto.QuestionDTO;
 import com.grad.course_management_services.dto.QuizDTO;
+import com.grad.course_management_services.models.QuizAttempt;
+import com.grad.course_management_services.repositories.QuizAttemptRepository;
 import com.grad.course_management_services.dto.QuizAttemptDTO;
+import com.grad.course_management_services.dto.QuizAttemptResponseDTO;
 import com.grad.course_management_services.services.QuizService;
 
 @RestController
@@ -17,13 +20,23 @@ public class QuizController {
 
     @Autowired
     private QuizService quizService;
-
+   @Autowired
+    private QuizAttemptRepository quizAttemptRepository;
     // Create a new quiz
     @PostMapping
     public ResponseEntity<QuizDTO> createQuiz(@RequestBody QuizDTO quizDTO) {
         QuizDTO createdQuiz = quizService.createQuiz(quizDTO);
         return ResponseEntity.status(201).body(createdQuiz);
     }
+    //get by quiz and user 
+    @GetMapping("/{quizId}/user/{userId}")
+    public ResponseEntity<List<QuizAttemptDTO>> getAttemptsByQuizAndUser(
+            @PathVariable Long quizId,
+            @PathVariable Long userId) {
+        List<QuizAttemptDTO> attempts = quizService.getAttemptsByQuizIdAndUserId(quizId, userId);
+        return ResponseEntity.ok(attempts);
+    }
+    
 
     // Get all quizzes
     @GetMapping
@@ -73,7 +86,7 @@ public class QuizController {
 
     // Get quiz attempts for a user
     @GetMapping("/attempts/user/{userId}")
-    public ResponseEntity<List<QuizAttemptDTO>> getQuizAttemptsByUser(@PathVariable String userId) {
+    public ResponseEntity<List<QuizAttemptDTO>> getQuizAttemptsByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(quizService.getQuizAttemptsByUser(userId));
     }
 
@@ -87,7 +100,7 @@ public class QuizController {
     @PostMapping("/attempts")
     public ResponseEntity<QuizAttemptDTO> recordQuizAttempt(
             @RequestParam Long quizId,
-            @RequestParam String userId,
+            @RequestParam Long userId,
             @RequestParam Double score) {
         return ResponseEntity.ok(quizService.recordQuizAttempt(quizId, userId, score));
     }
@@ -96,7 +109,28 @@ public class QuizController {
     @GetMapping("/attempts/count")
     public ResponseEntity<Integer> getNumberOfAttempts(
             @RequestParam Long quizId,
-            @RequestParam String userId) {
+            @RequestParam Long userId) {
         return ResponseEntity.ok(quizService.getNumberOfAttempts(quizId, userId));
+    }
+    @GetMapping("/course/{courseId}")
+public ResponseEntity<List<QuizDTO>> getQuizzesByCourse(@PathVariable Long courseId) {
+    return ResponseEntity.ok(quizService.getQuizzesByCourse(courseId));
+}
+@GetMapping("/course/{courseId}/user/{userId}/attempts-with-violations")
+public ResponseEntity<List<QuizAttemptResponseDTO>> getUserAttemptsWithViolationsByCourse(
+        @PathVariable Long courseId,
+        @PathVariable Long userId) {
+    List<QuizAttemptResponseDTO> result = quizService.getUserQuizAttemptsWithViolationsByCourse(userId, courseId);
+    return ResponseEntity.ok(result);
+}
+
+
+        @GetMapping("/violations/{id}")
+    public ResponseEntity<QuizAttemptResponseDTO> getAttemptWithViolations(@PathVariable Long id) {
+        QuizAttempt attempt = quizAttemptRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+
+        QuizAttemptResponseDTO dto = quizService.getQuizAttemptWithViolations(attempt);
+        return ResponseEntity.ok(dto);
     }
 }

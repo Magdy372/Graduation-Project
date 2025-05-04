@@ -64,6 +64,11 @@ export const navbarLinks = [
                 icon: FaUserDoctor,
                 path: "/layout/AdminRegister",
             },
+            {
+                label: "الشهادات",
+                icon: FaUserDoctor,
+                path: "/layout/Certifactes",
+            },
             
         ],
     },

@@ -170,7 +170,8 @@ const CoursePage = () => {
         },
         body: JSON.stringify({ 
           user_id: userId,
-          quiz_id: selectedQuiz.id 
+          quiz_id: selectedQuiz.id,
+          course_id: courseId
         })
       });
 

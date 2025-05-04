@@ -35,4 +35,8 @@ public class Certificate {
 
     @Column(nullable = false)
     private Boolean passed;
+    
+    @Column(nullable = false)
+    private String status = "PENDING";  // Default value
+
 }

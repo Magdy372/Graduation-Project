@@ -54,10 +54,12 @@ flag = True
 current_user_id = None
 current_quiz_id = None
 proctoring_active = False
+current_course_id = None
+
 
 # Violation trackers
 violation_state = {
-    "camera_hidden": {"active": False, "start_time": None},
+    "multiple_people": {"active": False, "start_time": None},
     "banned_objects": {"active": False, "start_time": None},
     "face_recognition": {"active": False, "start_time": None},
     "tab_switching": {"active": False, "start_time": None},  # New violation type
@@ -69,6 +71,7 @@ def log_violation_duration(alert_type, start_time):
     violation_data = {
         "userId": current_user_id,
         "quizId": current_quiz_id,
+        "courseId": current_course_id,
         "violation": alert_type,
         "startTime": start_time.isoformat(),
         "endTime": end_time.isoformat(),
@@ -184,18 +187,20 @@ def get_alerts_log():
 
 @app.route('/start_proctoring', methods=['POST'])
 def start_proctoring():
-    global video_capture, proctoring_active, current_user_id, current_quiz_id
+    global video_capture, proctoring_active, current_user_id, current_quiz_id, current_course_id
 
     try:
         data = request.get_json()
         user_id = data.get('user_id')
         quiz_id = data.get('quiz_id')
+        course_id = data.get('course_id')  # <- Extract course_id
 
         if not user_id:
             return jsonify({'error': 'User ID is required'}), 400
 
         current_user_id = user_id
         current_quiz_id = quiz_id
+        current_course_id = course_id 
 
         if not video_capture:
             video_capture = cv2.VideoCapture(0)
@@ -208,21 +213,22 @@ def start_proctoring():
         return jsonify({'status': 'success', 'message': 'Proctoring started'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 @app.route('/stop_proctoring', methods=['POST'])
 def stop_proctoring():
-    global video_capture, proctoring_active, current_user_id, current_quiz_id
+    global video_capture, proctoring_active, current_user_id, current_quiz_id,current_course_id
 
     try:
-        proctoring_active = False
-        current_user_id = None
-        current_quiz_id = None
-
+        # Log violations before clearing current_user_id & quiz_id
         for alert_type, state in violation_state.items():
             if state['active']:
                 log_violation_duration(alert_type, state['start_time'])
                 state['active'] = False
                 state['start_time'] = None
+
+        # Now it's safe to reset user and quiz
+        current_user_id = None
+        current_quiz_id = None
+        current_course_id = None  # <- Clear course_id
 
         if video_capture:
             video_capture.release()
@@ -231,6 +237,7 @@ def stop_proctoring():
         return jsonify({'status': 'success', 'message': 'Proctoring stopped'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/get_status')
 def get_status():
@@ -300,3 +307,4 @@ if __name__ == '__main__':
     time.sleep(5)  # Wait to ensure Eureka Server starts
     register_with_eureka()
     app.run(host='0.0.0.0', port=SERVICE_PORT, debug=True)
+

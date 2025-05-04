@@ -9,6 +9,7 @@ import Sponsers from "./components/Sponsers";
 import Footer from "./components/Footer";
 import Register from "./pages/Register";
 import Courses from "./pages/Courses";
+import Certifactes from "./pages/CertificateList";
 import AdminRegister from "./pages/AdminRegister";
 import About from "./pages/About";
 import MyCourses from "./pages/MyCourses";
@@ -228,6 +229,16 @@ const App = () => {
               element={
                 <ProtectedRoute
                   element={<AdminRegister />}
+                  requiredRole="Admin"
+                  redirectTo="/login"
+                />
+              }
+            />
+              <Route
+              path="Certifactes"
+              element={
+                <ProtectedRoute
+                  element={<Certifactes />}
                   requiredRole="Admin"
                   redirectTo="/login"
                 />

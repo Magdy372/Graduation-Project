@@ -9,10 +9,13 @@ import org.springframework.stereotype.Service;
 
 import com.grad.course_management_services.dao.QuestionRepository;
 import com.grad.course_management_services.dao.QuizRepository;
+import com.grad.course_management_services.clients.ViolationClient;
 import com.grad.course_management_services.dao.ChapterRepository;
 import com.grad.course_management_services.dto.QuestionDTO;
 import com.grad.course_management_services.dto.QuizDTO;
+import com.grad.course_management_services.dto.ViolationDTO;
 import com.grad.course_management_services.dto.QuizAttemptDTO;
+import com.grad.course_management_services.dto.QuizAttemptResponseDTO;
 import com.grad.course_management_services.models.Quiz;
 import com.grad.course_management_services.models.Questions.MCQQuestion;
 import com.grad.course_management_services.models.Questions.Question;
@@ -35,6 +38,7 @@ public class QuizService {
 
     @Autowired
     private QuizAttemptRepository quizAttemptRepository;
+
 
     // Convert Quiz to QuizDTO
     private QuizDTO convertToDTO(Quiz quiz) {
@@ -311,7 +315,7 @@ public class QuizService {
     }
 
     // Get quiz attempts for a user
-    public List<QuizAttemptDTO> getQuizAttemptsByUser(String userId) {
+    public List<QuizAttemptDTO> getQuizAttemptsByUser(Long userId) {
         return quizAttemptRepository.findByUserId(userId)
             .stream()
             .map(this::convertAttemptToDTO)
@@ -327,7 +331,7 @@ public class QuizService {
     }
 
     // Record a new quiz attempt
-    public QuizAttemptDTO recordQuizAttempt(Long quizId, String userId, Double score) {
+    public QuizAttemptDTO recordQuizAttempt(Long quizId, Long userId, Double score) {
         Quiz quiz = quizRepository.findById(quizId)
             .orElseThrow(() -> new RuntimeException("Quiz not found"));
 
@@ -345,7 +349,7 @@ public class QuizService {
     }
 
     // Get number of attempts for a quiz by a user
-    public Integer getNumberOfAttempts(Long quizId, String userId) {
+    public Integer getNumberOfAttempts(Long quizId, Long userId) {
         return quizAttemptRepository.findByQuizIdAndUserId(quizId, userId).size();
     }
 
@@ -360,6 +364,67 @@ public class QuizService {
             attempt.getPassed()
         );
     }
+    public List<QuizDTO> getQuizzesByCourse(Long courseId) {
+        List<Chapter> chapters = chapterRepository.findByCourseId(courseId);
+    
+        List<Quiz> allQuizzes = new ArrayList<>();
+        for (Chapter chapter : chapters) {
+            List<Quiz> quizzes = quizRepository.findByChapterId(chapter.getId());
+            allQuizzes.addAll(quizzes);
+        }
+    
+        return allQuizzes.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    public List<QuizAttemptDTO> getAttemptsByQuizIdAndUserId(Long quizId, Long userId) {
+        List<QuizAttempt> attempts = quizAttemptRepository.findByQuizIdAndUserId(quizId, userId);
+        
+        return attempts.stream().map(this::convertAttemptToDTO).toList();
+    }
+    
+    @Autowired
+    private ViolationClient violationClient;
+    public QuizAttemptResponseDTO getQuizAttemptWithViolations(QuizAttempt attempt) {
+        QuizAttemptResponseDTO dto = new QuizAttemptResponseDTO();
+        dto.setId(attempt.getId());
+        dto.setUserId(attempt.getUserId());
+        dto.setQuizId(attempt.getQuiz().getId());
+        dto.setScore(attempt.getScore());
+    
+        Long courseId = attempt.getQuiz().getChapter().getCourse().getId();
+    
+        List<ViolationDTO> allViolations = violationClient.getViolationsByUserAndCourse(
+            attempt.getUserId(), courseId);
+    
+        List<ViolationDTO> filtered = allViolations.stream()
+                .filter(v -> v.getQuizId().equals(attempt.getQuiz().getId()))
+                .toList();
+    
+        dto.setViolations(filtered);
+        return dto;
+    }
+    public List<QuizAttemptResponseDTO> getUserQuizAttemptsWithViolationsByCourse(Long userId, Long courseId) {
+        List<Chapter> chapters = chapterRepository.findByCourseId(courseId);
+        List<QuizAttemptResponseDTO> responses = new ArrayList<>();
+    
+        for (Chapter chapter : chapters) {
+            List<Quiz> quizzes = quizRepository.findByChapterId(chapter.getId());
+    
+            for (Quiz quiz : quizzes) {
+                List<QuizAttempt> attempts = quizAttemptRepository.findByQuizIdAndUserId(quiz.getId(), userId);
+    
+                for (QuizAttempt attempt : attempts) {
+                    // reuse your existing method
+                    QuizAttemptResponseDTO dto = getQuizAttemptWithViolations(attempt);
+                    responses.add(dto);
+                }
+            }
+        }
+    
+        return responses;
+    }
+    
 }
 
 
