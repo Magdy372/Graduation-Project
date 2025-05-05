@@ -12,6 +12,8 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class EmailService {
@@ -25,13 +27,16 @@ public class EmailService {
     @Autowired
     private PdfGeneratorService pdfGeneratorService;
 
-    private static final String Logo = "https://cabinet.gov.eg/Upload/News/Photo/62488/%D8%A7%D9%84%D8%B5%D8%AD%D8%A9.jpeg";
+    private static final String logoUrl = "https://cabinet.gov.eg/Upload/News/Photo/62488/%D8%A7%D9%84%D8%B5%D8%AD%D8%A9.jpeg";
 
-    public void sendCertificateEmail(String to, String userName, String courseName, 
-                                   String certificateNumber, Double finalScore) {
+  public void sendCertificateEmail(String to, String userName, String courseName,
+                                     String certificateNumber, Double finalScore) {
         try {
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            // Format date nicely
+            String formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"));
 
             // Prepare context
             Context context = new Context();
@@ -39,30 +44,29 @@ public class EmailService {
             context.setVariable("courseName", courseName);
             context.setVariable("certificateNumber", certificateNumber);
             context.setVariable("finalScore", finalScore);
-            context.setVariable("completionDate", java.time.LocalDate.now().toString());
-            context.setVariable("logoUrl", Logo);
+            context.setVariable("completionDate", formattedDate);
+            context.setVariable("logoUrl", logoUrl);
 
             // Process template
             String htmlContent = templateEngine.process("certificate-email", context);
 
             // Set email content
             helper.setTo(to);
-            helper.setSubject("Course Completion Certificate - " + courseName);
+            helper.setSubject("Congratulations! Your Certificate for " + courseName);
             helper.setText(htmlContent, true);
 
             // Add PDF certificate
             ByteArrayOutputStream pdfOutputStream = pdfGeneratorService.generateCertificatePdf(
                 userName, courseName, certificateNumber, finalScore
             );
-            helper.addAttachment("Certificate.pdf", new ByteArrayResource(pdfOutputStream.toByteArray()));
+            helper.addAttachment("Certificate-" + certificateNumber + ".pdf", 
+                new ByteArrayResource(pdfOutputStream.toByteArray()));
 
             // Send email
             emailSender.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send certificate email: " + e.getMessage(), e);
-        }
-    }
-
+        }}
     public void sendEmailWithRetry(String to, String subject, String htmlContent, 
                                  int maxRetries) {
         int attempts = 0;
