@@ -104,42 +104,23 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormErrors({});
-    if (emailError) return; // Prevent submission if email is invalid
-
+  
     const password = e.target.pass.value;
     const confirmPassword = e.target.confirmPass.value;
-
+  
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      setFormErrors({ confirmPass: "Passwords do not match" });
       return;
     }
-
-    // Validate all files before submission
+  
     const files = {
       license: e.target.license.files[0],
       practice: e.target.practice.files[0],
       syndicate: e.target.syndicate.files[0],
       commercial: e.target.commercial.files[0],
-      tax: e.target.tax.files[0]
+      tax: e.target.tax.files[0],
     };
-
-    let hasErrors = false;
-    const newErrors = {};
-
-    // Validate each file
-    Object.entries(files).forEach(([fieldName, file]) => {
-      const { isValid, error } = validateFile(file, fieldName);
-      if (!isValid) {
-        hasErrors = true;
-        newErrors[fieldName] = error;
-      }
-    });
-
-    if (hasErrors) {
-      setFormErrors(newErrors);
-      return;
-    }
-
+  
     const formData = new FormData();
     formData.append("firstname", e.target.firstName.value);
     formData.append("lastname", e.target.lastName.value);
@@ -153,30 +134,32 @@ const Register = () => {
     formData.append("syndicateCardFile", files.syndicate);
     formData.append("commercialRegisterFile", files.commercial);
     formData.append("taxCardFile", files.tax);
-
+  
     try {
       const response = await fetch("http://localhost:8084/users/with-documents", {
         method: "POST",
         body: formData,
       });
-
+  
       if (!response.ok) {
         const errorResponse = await response.json();
         const errors = {};
         errorResponse.forEach((error) => {
           errors[error.field] = getFriendlyErrorMessage(error.field, error.defaultMessage);
         });
-
         setFormErrors(errors);
         return;
       }
-
+  
       setShowModal(true);
     } catch (error) {
       console.error("Error submitting form:", error);
-      setFormErrors({ submit: "An error occurred while submitting the form. Please try again." });
+      setFormErrors({
+        submit: "An error occurred while submitting the form. Please try again.",
+      });
     }
   };
+  
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -191,9 +174,18 @@ const Register = () => {
     if (file) {
       const { isValid, error } = validateFile(file, name);
       if (!isValid) {
+        // Map the input field names to the backend field names
+        const fieldNameMap = {
+          license: "licenseFile",
+          practice: "professionLicenseFile",
+          syndicate: "syndicateCardFile",
+          commercial: "commercialRegisterFile",
+          tax: "taxCardFile"
+        };
+        
         setFormErrors(prev => ({
           ...prev,
-          [name]: error
+          [fieldNameMap[name]]: error
         }));
         e.target.value = ''; // Clear the invalid file
         setFileNames(prev => ({
@@ -205,7 +197,14 @@ const Register = () => {
         // Clear any previous errors for this field
         setFormErrors(prev => {
           const newErrors = { ...prev };
-          delete newErrors[name];
+          const fieldNameMap = {
+            license: "licenseFile",
+            practice: "professionLicenseFile",
+            syndicate: "syndicateCardFile",
+            commercial: "commercialRegisterFile",
+            tax: "taxCardFile"
+          };
+          delete newErrors[fieldNameMap[name]];
           return newErrors;
         });
       }
@@ -333,6 +332,9 @@ const Register = () => {
                   type="password"
                   className="bg-white-300 text-red border-b-2 border-red-500 rounded-none p-2 w-full focus:bg-gray-100 focus:outline-none"
                 />
+                {formErrors.confirmPass && (
+                  <span className="text-red text-sm">{formErrors.confirmPass}</span>
+                )}
               </div>
             </div>
 
@@ -423,8 +425,8 @@ const Register = () => {
                   </label>
                   <span className="ml-3">{fileNames.license}</span>
                 </div>
-                {formErrors.license && (
-                  <span className="text-red text-sm mt-1 block">{formErrors.license}</span>
+                {formErrors.licenseFile && (
+                  <span className="text-red text-sm mt-1 block">{formErrors.licenseFile}</span>
                 )}
               </div>
 
@@ -448,8 +450,8 @@ const Register = () => {
                   </label>
                   <span className="ml-3">{fileNames.practice}</span>
                 </div>
-                {formErrors.practice && (
-                  <span className="text-red text-sm mt-1 block">{formErrors.practice}</span>
+                {formErrors.professionLicenseFile && (
+                  <span className="text-red text-sm mt-1 block">{formErrors.professionLicenseFile}</span>
                 )}
               </div>
             </div>

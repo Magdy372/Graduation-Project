@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
+import { validateAdminRegisterForm } from '../utils/adminValidationUtils';
 
 const AdminRegister = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ const AdminRegister = () => {
     governorate: '',
   });
 
+  const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate(); // Initialize useNavigate hook
@@ -47,6 +49,16 @@ const AdminRegister = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate form data
+    const validationErrors = validateAdminRegisterForm(formData);
+    setErrors(validationErrors);
+    
+    // If there are validation errors, don't submit the form
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+    
     try {
       const response = await fetch('http://localhost:8089/api/admin/create', {
         method: 'POST',
@@ -58,7 +70,7 @@ const AdminRegister = () => {
 
       if (response.ok) {
         setMessage('تم تسجيل المدير بنجاح');
-        navigate('/layout');
+        navigate('/layout/ViewCourses');
       } else {
         setMessage('حدث خطأ أثناء التسجيل');
       }
@@ -90,9 +102,10 @@ const AdminRegister = () => {
                 name="firstname" 
                 value={formData.firstname} 
                 onChange={handleChange} 
-                required 
-                style={styles.input}
+                 
+                style={errors.firstname ? {...styles.input, borderColor: 'red'} : styles.input}
               />
+              {errors.firstname && <p style={styles.errorText}>{errors.firstname}</p>}
             </div>
 
             <div style={styles.inputGroup}>
@@ -102,9 +115,10 @@ const AdminRegister = () => {
                 name="lastname" 
                 value={formData.lastname} 
                 onChange={handleChange} 
-                required 
-                style={styles.input}
+                 
+                style={errors.lastname ? {...styles.input, borderColor: 'red'} : styles.input}
               />
+              {errors.lastname && <p style={styles.errorText}>{errors.lastname}</p>}
             </div>
 
             <div style={styles.inputGroup}>
@@ -114,9 +128,10 @@ const AdminRegister = () => {
                 name="email" 
                 value={formData.email} 
                 onChange={handleChange} 
-                required 
-                style={styles.input}
+                 
+                style={errors.email ? {...styles.input, borderColor: 'red'} : styles.input}
               />
+              {errors.email && <p style={styles.errorText}>{errors.email}</p>}
             </div>
 
             <div style={styles.inputGroup}>
@@ -126,9 +141,10 @@ const AdminRegister = () => {
                 name="password" 
                 value={formData.password} 
                 onChange={handleChange} 
-                required 
-                style={styles.input}
+                 
+                style={errors.password ? {...styles.input, borderColor: 'red'} : styles.input}
               />
+              {errors.password && <p style={styles.errorText}>{errors.password}</p>}
             </div>
 
             <div style={styles.inputGroup}>
@@ -137,13 +153,14 @@ const AdminRegister = () => {
                 name="candidate" 
                 value={formData.candidate} 
                 onChange={handleChange} 
-                required
-                style={styles.select}
+                
+                style={errors.candidate ? {...styles.select, borderColor: 'red'} : styles.select}
               >
                 <option value="">اختر النقابة</option>
                 <option value="الطب">الطب</option>
                 <option value="الصيدلة">الصيدلة</option>
               </select>
+              {errors.candidate && <p style={styles.errorText}>{errors.candidate}</p>}
             </div>
 
             <div style={styles.inputGroup}>
@@ -152,14 +169,15 @@ const AdminRegister = () => {
                 name="governorate" 
                 value={formData.governorate} 
                 onChange={handleChange} 
-                required
-                style={styles.select}
+                
+                style={errors.governorate ? {...styles.select, borderColor: 'red'} : styles.select}
               >
                 <option value="">اختر المحافظة</option>
                 {governorates.map((gov, idx) => (
                   <option key={idx} value={gov}>{gov}</option>
                 ))}
               </select>
+              {errors.governorate && <p style={styles.errorText}>{errors.governorate}</p>}
             </div>
 
             <input type="hidden" name="position" value="موظف" />
@@ -242,6 +260,11 @@ const styles = {
     textAlign: 'center',
     fontSize: '1.5rem',
     marginTop: '2rem',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: '0.9rem',
+    marginTop: '0.5rem',
   },
 };
 

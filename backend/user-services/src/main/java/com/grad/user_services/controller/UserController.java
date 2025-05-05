@@ -87,37 +87,7 @@ public class UserController {
     // Register user
     // It accepts a User object in the request body and returns the created user
 
-    @PostMapping("/add")
-    public ResponseEntity<?> addUser(@Valid @RequestBody UserWithDocumentsDTO userDTO, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            for (FieldError error : bindingResult.getFieldErrors()) {
-                errors.put(error.getField(), error.getDefaultMessage());
-            }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-        }
-
-        try {
-            User user = new User();
-            user.setFirstname(userDTO.getFirstname());
-            user.setLastname(userDTO.getLastname());
-            user.setEmail(userDTO.getEmail());
-            user.setPassword(userDTO.getPassword()); // ⚠️ Encode password before saving
-            user.setPhonenumber(userDTO.getPhonenumber());
-            user.setTitle(userDTO.getTitle());
-            user.setGovernorate(userDTO.getGovernorate());
-
-            User savedUser = userService.saveUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
-        } catch (DataIntegrityViolationException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Collections.singletonMap("error", "Duplicate email or phone number."));
-        } catch (Exception ex) {
-            ex.printStackTrace(); // Log error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("error", "Unexpected server error."));
-        }
-    }
+    
 
     // Update User
     // It accepts a user ID in the URL and a UserDTO object in the request body

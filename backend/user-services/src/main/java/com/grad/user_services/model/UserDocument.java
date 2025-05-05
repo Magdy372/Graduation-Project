@@ -15,23 +15,23 @@ public class UserDocument {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "License file is required")
+
     @Column(name = "license_file")
     private String licenseFilePath;
 
-    @NotBlank(message = "Profession license file is required")
+
     @Column(name = "profession_license_file")
     private String professionLicenseFilePath;
 
-    @NotBlank(message = "Syndicate card file is required")
+
     @Column(name = "syndicate_card_file")
     private String syndicateCardFilePath;
 
-    @NotBlank(message = "Commercial register file is required")
+
     @Column(name = "commercial_register_file")
     private String commercialRegisterFilePath;
 
-    @NotBlank(message = "Tax card file is required")
+
     @Column(name = "tax_card_file")
     private String taxCardFilePath;
 

@@ -52,7 +52,7 @@ def find_faces(img, model):
     # Loop through all detected objects
     for i in range(res.shape[2]):
         confidence = res[0, 0, i, 2]  # Extract confidence score for the detection
-        if confidence > 0.5:  # Consider detection valid if confidence > 50%
+        if confidence > 0.9:  # Consider detection valid if confidence > 50%
             # Extract bounding box coordinates, scale them back to original image size
             box = res[0, 0, i, 3:7] * np.array([w, h, w, h])
             (x, y, x1, y1) = box.astype("int")  # Convert coordinates to integers

@@ -5,10 +5,53 @@ import pandas as pd
 import neattext.functions as nfx
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import socket
+import json
+import requests
+import time
 
 # Initialize Flask App
 app = Flask(__name__)
 CORS(app, resources={r"/recommend": {"origins": "*", "methods": ["POST"]}})  # Allow only POST for /recommend
+
+# Eureka Configuration
+EUREKA_SERVER = "http://localhost:8761/eureka"  # Eureka Server URL
+SERVICE_NAME = "recommendation-service"  # Name to register in Eureka
+SERVICE_PORT = 5001  # Flask runs on port 5001
+
+# -------- EUREKA REGISTRATION FUNCTION --------
+def register_with_eureka():
+    """Registers Flask recommendation service with Eureka."""
+    hostname = socket.gethostname()
+    ip_address = socket.gethostbyname(hostname)
+
+    registration_data = {
+        "instance": {
+            "hostName": hostname,
+            "app": SERVICE_NAME.upper(),
+            "ipAddr": ip_address,
+            "vipAddress": SERVICE_NAME,
+            "secureVipAddress": SERVICE_NAME,
+            "status": "UP",
+            "port": {"$": SERVICE_PORT, "@enabled": "true"},
+            "dataCenterInfo": {
+                "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
+                "name": "MyOwn"
+            }
+        }
+    }
+
+    headers = {"Content-Type": "application/json"}
+    eureka_url = f"{EUREKA_SERVER}/apps/{SERVICE_NAME}"
+
+    try:
+        response = requests.post(eureka_url, data=json.dumps(registration_data), headers=headers)
+        if response.status_code in [200, 204]:
+            print(f"Successfully registered {SERVICE_NAME} with Eureka!")
+        else:
+            print(f"Failed to register with Eureka. Status Code: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        print(f"Eureka registration error: {e}")
 
 # Database Connection Function
 def read_data_from_db():
@@ -94,6 +137,8 @@ def recommend():
 
 
 
-# Run Flask App
+# Run Flask App & Register with Eureka
 if __name__ == '__main__':
-    app.run(debug=True,port=5001)
+    time.sleep(5)  # Wait to ensure Eureka Server starts
+    register_with_eureka()
+    app.run(host='0.0.0.0', port=SERVICE_PORT, debug=True)

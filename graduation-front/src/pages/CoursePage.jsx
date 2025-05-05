@@ -605,7 +605,9 @@ const CoursePage = () => {
                 <li>The exam cannot be closed once started</li>
                 <li>You must complete the exam in one session</li>
                 <li>Your activity will be monitored throughout the exam</li>
-                <li>Any attempts to switch tabs or windows may result in exam termination</li>
+                <li>Ensure your environment is suitable for the exam</li>
+                <li>Make sure you have a stable internet connection</li>
+                <li>Earning course certificate requires no violations like switching tabs or using mobile devices</li>
               </ul>
             </div>
             <div className="flex justify-end space-x-4">

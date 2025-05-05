@@ -11,7 +11,7 @@ yoloconfig      = 'models/yolov3.cfg'
 yoloweights     = 'models/yolov3.weights'
 net             = cv2.dnn.readNet(yoloweights,yoloconfig)
 
-def yoloV3Detect(img,scFactor=1/255,nrMean=(0,0,0),RBSwap=True,scoreThres=0.5,nmsThres=0.3):
+def yoloV3Detect(img,scFactor=1/255,nrMean=(0,0,0),RBSwap=True,scoreThres=0.9,nmsThres=0.3):
   # Enhance image for better detection
   img = cv2.convertScaleAbs(img, alpha=1.2, beta=10)
   
