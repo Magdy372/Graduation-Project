@@ -40,18 +40,17 @@ const CertificateModal = ({
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <FaCertificate className="text-green-600 text-3xl" />
               </div>
-              <h3 className="text-xl font-semibold text-green-600 mb-2">
-                Certificate Generated Successfully!
+              <h3 className="text-xl font-semibold text-yellow-600 mb-2">
+                Certificate Request Submitted!
               </h3>
-              {certificateData && (
-                <div className="mt-4 p-4 bg-green-50 rounded-lg text-left">
-                  <p className="text-gray-700">Certificate Number: {certificateData.certificateNumber}</p>
-                  <p className="text-gray-700">Final Score: {finalScore}%</p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    Check your email for the certificate details.
-                  </p>
-                </div>
-              )}
+              <div className="mt-4 p-4 bg-yellow-50 rounded-lg text-left">
+                <p className="text-gray-700">
+                  Your certificate request has been received and is under review.
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Please check your email or profile page for updates regarding the certificate status.
+                </p>
+              </div>
               <button
                 onClick={onClose}
                 className="mt-6 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"

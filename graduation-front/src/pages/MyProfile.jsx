@@ -3,15 +3,12 @@ import { useNavigate } from "react-router-dom";
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import { motion } from "framer-motion";
-import { fetchWithAuth }from '../services/UserService.js';
+import { fetchWithAuth } from '../services/UserService.js';
 import { jwtDecode } from "jwt-decode";
 import profileImage from '../assets/images/profile-image.jpg';
-import { FaMedal, FaCrown, FaStar } from 'react-icons/fa';
+import { FaMedal, FaCrown, FaStar, FaAward, FaCertificate } from 'react-icons/fa';
 import { FaCheckCircle, FaBullseye } from 'react-icons/fa';
 import { QuizService } from '../services/courepage';
-
-
-
 
 // Your fade animation for smooth transitions
 export const FadeUp = (delay) => {
@@ -41,6 +38,8 @@ const MyProfile = () => {
   const [error, setError] = useState(""); // State for handling errors
   const [quizAttempts, setQuizAttempts] = useState([]); // State for quiz attempts
   const [badgesCount, setBadgesCount] = useState(0); // State for badges count
+  const [certificates, setCertificates] = useState([]); // State for certificates
+  const [courses, setCourses] = useState({}); // State for course names
 
   // Fetch user data and quiz attempts on component mount
   useEffect(() => {
@@ -71,6 +70,38 @@ const MyProfile = () => {
           // Calculate badges count based on passed quizzes
           const passedQuizzes = attempts.filter(attempt => attempt.passed).length;
           setBadgesCount(passedQuizzes);
+          
+          // Fetch certificates for the user
+          try {
+            const certificatesResponse = await fetch(`http://localhost:8087/api/certificates/user/${userId}`);
+            if (certificatesResponse.ok) {
+              const certificatesData = await certificatesResponse.json();
+              setCertificates(certificatesData);
+              
+              // Fetch course names for each certificate
+              const courseIds = certificatesData.map(cert => cert.courseId);
+              const uniqueCourseIds = [...new Set(courseIds)];
+              
+              // Create a map of course IDs to course names
+              const courseNameMap = {};
+              for (const courseId of uniqueCourseIds) {
+                try {
+                  const courseResponse = await fetch(`http://localhost:8087/api/courses/${courseId}`);
+                  if (courseResponse.ok) {
+                    const courseData = await courseResponse.json();
+                    // Use the course name from the CourseDTO
+                    courseNameMap[courseId] = courseData.name || courseData.title || `Course ${courseId}`;
+                  }
+                } catch (err) {
+                  console.error(`Error fetching course ${courseId}:`, err);
+                  courseNameMap[courseId] = `Course ${courseId}`;
+                }
+              }
+              setCourses(courseNameMap);
+            }
+          } catch (err) {
+            console.error("Error fetching certificates:", err);
+          }
         }
       } catch (err) {
         setError("Failed to load user data.");
@@ -91,6 +122,7 @@ const MyProfile = () => {
   if (error) {
     return <div>{error}</div>;
   }
+  
   // Add this helper function above the component
   const getTierDetails = (badgesCount) => {
     if (badgesCount >= 10) {
@@ -160,6 +192,20 @@ const MyProfile = () => {
     Platinum: {
       achieved: 'bg-purple-500 text-white border-purple-600',
       upcoming: 'bg-purple-100 text-purple-600 border-gray-200'
+    }
+  };
+
+  // Helper function to get status color
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'ISSUED':
+        return 'text-green-600';
+      case 'PENDING':
+        return 'text-yellow-600';
+      case 'REJECTED':
+        return 'text-red-600';
+      default:
+        return 'text-gray-600';
     }
   };
 
@@ -427,6 +473,59 @@ const MyProfile = () => {
       ))}
     </div>
   </div>
+
+  {/* Certificates Section */}
+  <div className="mt-8">
+    <h5 className="text-xl font-bold text-blue mb-4">My Certificates</h5>
+    {certificates.length > 0 ? (
+      <div className="grid grid-cols-1 gap-4">
+        {certificates.map((certificate) => (
+          <motion.div 
+            key={certificate.id}
+            className="p-4 border border-gray-200 rounded-lg shadow-sm bg-white hover:shadow-md transition-shadow"
+            whileHover={{ scale: 1.01 }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="p-3 rounded-full bg-blue-100 mr-4">
+                  <FaCertificate className="text-blue-500 text-xl" />
+                </div>
+                <div>
+                  <h6 className="font-semibold text-lg">
+                    {courses[certificate.courseId] || `Loading course name...`}
+                  </h6>
+                  <div className="flex items-center mt-1">
+                    <span className="text-sm text-gray-600 mr-4">
+                      Certificate #{certificate.certificateNumber}
+                    </span>
+                    <span className={`text-sm font-medium ${getStatusColor(certificate.status)}`}>
+                      Status: {certificate.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm text-gray-500">
+                  {new Date(certificate.issueDate).toLocaleDateString()}
+                </div>
+                {certificate.finalScore && (
+                  <div className="font-bold text-green-600">
+                    Score: {certificate.finalScore}%
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    ) : (
+      <div className="p-6 bg-gray-50 rounded-lg text-center">
+        <FaAward className="text-gray-400 text-4xl mx-auto mb-3" />
+        <p className="text-gray-600">You haven't earned any certificates yet.</p>
+        <p className="text-sm text-gray-500 mt-2">Complete courses to earn certificates!</p>
+      </div>
+    )}
+  </div>
 </div>
         </div>
         <br />
@@ -436,4 +535,4 @@ const MyProfile = () => {
   );
 };
 
-export default MyProfile;  
+export default MyProfile;

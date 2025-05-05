@@ -66,7 +66,7 @@ export const navbarLinks = [
             },
             {
                 label: "الشهادات",
-                icon: FaUserDoctor,
+                icon: PackagePlus,
                 path: "/layout/Certifactes",
             },
             
