@@ -55,20 +55,20 @@ const Chatbot = () => {
       </button>
 
       {isOpen && (
-        <div className="fixed bottom-32 right-4 w-96 h-[450px] bg-white rounded-lg shadow-lg border border-red p-6 flex flex-col space-y-4">
+        <div className="fixed bottom-32 right-4 w-96 h-[450px] bg-white rounded-lg shadow-lg border border-blue p-6 flex flex-col space-y-4">
           <div className="flex-1 overflow-y-auto space-y-4" ref={chatContainerRef}>
             {messages.map((msg, index) => (
               <div
-                key={index}
-                className={`relative p-3 max-w-xs w-fit text-lg shadow-lg ${
-                  msg.sender === "user"
-                    ? "bg-blue text-white rounded-2xl text-left ml-auto"
-                    : "bg-gray-200 text-gray-900 rounded-2xl text-left mr-auto"
-                }`}
-                style={{ borderRadius: "20px 20px 20px 5px", padding: "12px 18px" }}
-              >
-                {msg.text}
-              </div>
+              key={index}
+              className={`relative p-3 max-w-xs w-fit text-lg shadow-lg ${
+                msg.sender === "user"
+                  ? "bg-blue text-white ml-auto rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl"
+                  : "bg-gray-200 text-gray-900 mr-auto rounded-tl-2xl rounded-tr-2xl rounded-br-2xl"
+              }`}
+            >
+              {msg.text}
+            </div>
+            
             ))}
 
             {isTyping && (
