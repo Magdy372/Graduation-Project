@@ -114,8 +114,8 @@ public class PdfGeneratorService {
                     .setTextAlignment(TextAlignment.CENTER)
                     .setFontColor(PRIMARY_COLOR));
             titleCell.setBorder(Border.NO_BORDER);
-            titleCell.setPaddingTop(30); // Increase padding
-            titleCell.setPaddingBottom(30); // Increase padding
+            titleCell.setPaddingTop(30); 
+            titleCell.setPaddingBottom(30);
             mainTable.addCell(titleCell);
 
             // Content cell
@@ -126,18 +126,18 @@ public class PdfGeneratorService {
 
             // Name with color emphasis
             Paragraph nameParag = new Paragraph(userName)
-                    .setFontSize(30) // Enlarge name
+                    .setFontSize(30)
                     .setBold()
                     .setTextAlignment(TextAlignment.CENTER)
                     .setFontColor(PRIMARY_COLOR);
             contentCell.add(nameParag);
 
             contentCell.add(new Paragraph("has successfully completed the course")
-                    .setFontSize(18) // Enlarge completion text
+                    .setFontSize(18) 
                     .setTextAlignment(TextAlignment.CENTER));
 
             Paragraph courseNameParag = new Paragraph(courseName)
-                    .setFontSize(26) // Enlarge course name
+                    .setFontSize(26) 
                     .setBold()
                     .setTextAlignment(TextAlignment.CENTER)
                     .setFontColor(PRIMARY_COLOR);

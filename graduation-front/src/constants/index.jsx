@@ -3,22 +3,33 @@ import ProfileImage from "../assets/images/profile-image.jpg"
 import ProductImage from "../assets/images/course.jpg"
 import { FaUserDoctor } from "react-icons/fa6";
 import { MdLocalPharmacy } from "react-icons/md";
+import { jwtDecode } from "jwt-decode";
+const token = localStorage.getItem("access_token");
+
+
+let decoded = {};
+if (token && typeof token === "string") {
+    try {
+        decoded = jwtDecode(token);
+    } catch (e) {
+        console.error("Failed to decode token:", e);
+    }
+}
+
+const candidate = decoded?.candidate;
+const position = decoded?.position || decoded?.title || decoded?.rol
 export const navbarLinks = [
     {
-        // title: "إعدادات",
-         links: [
-             {
-                 label: " ملف شخصى",
-                 icon: User,
-                 path: "/layout/AdminProfile",
-             },
-         ],
-     },
-    {
-
-       // title: "العدادات",
         links: [
-          
+            {
+                label: "ملف شخصى",
+                icon: User,
+                path: "/layout/AdminProfile",
+            },
+        ],
+    },
+    {
+        links: [
             {
                 label: "التقارير",
                 icon: NotepadText,
@@ -27,27 +38,29 @@ export const navbarLinks = [
         ],
     },
     {
-        //title: "المستخدمين",
         links: [
             {
                 label: "الاعتمادات",
                 icon: FaUserDoctor,
                 path: "/layout/Doctors",
             },
-            {
-                label: "الأطباء المعتمدين",
-                icon: FaUserDoctor,
-                path: "/layout/ApprovedDoctors",
-            },
-            {
-                label: "الصيادلة المعتمدين",
-                icon: MdLocalPharmacy,
-                path: "/layout/ApprovedPharmacists",
-            },
+            ...(candidate === "الطب" || position === "مدير"
+                ? [{
+                    label: "الأطباء المعتمدين",
+                    icon: FaUserDoctor,
+                    path: "/layout/ApprovedDoctors",
+                }]
+                : []),
+            ...(candidate === "الصيدلة" || position === "مدير"
+                ? [{
+                    label: "الصيادلة المعتمدين",
+                    icon: MdLocalPharmacy,
+                    path: "/layout/ApprovedPharmacists",
+                }]
+                : []),
         ],
     },
     {
-        //title: "الدورات التدريبية",
         links: [
             {
                 label: "الدورات التدريبية",
@@ -59,27 +72,26 @@ export const navbarLinks = [
                 icon: PackagePlus,
                 path: "/layout/UploadCourse",
             },
-            {
-                label: "اضافة موظف جديد",
-                icon: FaUserDoctor,
-                path: "/layout/AdminRegister",
-            },
+            ...(position === "مدير"
+                ? [{
+                    label: "اضافة موظف جديد",
+                    icon: FaUserDoctor,
+                    path: "/layout/AdminRegister",
+                }]
+                : []),
             {
                 label: "الشهادات",
                 icon: PackagePlus,
                 path: "/layout/Certifactes",
             },
-            
         ],
     },
     {
-       // title: "إعدادات",
         links: [
             {
-                label:"الرسائل",
-                icon:MessageCircle,
+                label: "الرسائل",
+                icon: MessageCircle,
                 path: "/layout/Messages"
-
             },
             {
                 label: "تسجيل الخروج",
@@ -88,7 +100,6 @@ export const navbarLinks = [
             },
         ],
     },
-    
 ];
 export const overviewData = [
     {
