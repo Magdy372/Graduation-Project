@@ -14,4 +14,5 @@ public class VideoDTO {
     private String title;
     private String videoPath;
     private String videoSummary;
+    private String geminiSummary;
 }

@@ -35,7 +35,12 @@ public class Video {
     @JsonIgnore
     private Chapter chapter;
 
-    @Column(nullable = true)
+    @Lob
+    @Column(nullable = true,columnDefinition = "TEXT")
     private String videoSummary;
+
+    @Lob
+    @Column(nullable = true,columnDefinition = "TEXT")
+    private String geminiSummary;
 
 }

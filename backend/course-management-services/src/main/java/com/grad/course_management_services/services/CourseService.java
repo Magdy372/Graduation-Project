@@ -133,7 +133,8 @@ public class CourseService {
                                 video.getId(),
                                 video.getTitle(),
                                 video.getVideoPath(),
-                                video.getVideoSummary()
+                                video.getVideoSummary(),
+                                video.getGeminiSummary()
                         )).collect(Collectors.toList())
                 )).collect(Collectors.toList())
         );
@@ -154,7 +155,8 @@ public class CourseService {
                                 video.getId(),
                                 video.getTitle(),
                                 video.getVideoPath(),
-                                video.getVideoSummary()
+                                video.getVideoSummary(),
+                                video.getGeminiSummary()
                         )).collect(Collectors.toList())
                 )).collect(Collectors.toList())
         )).collect(Collectors.toList());
