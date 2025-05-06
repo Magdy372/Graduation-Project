@@ -64,15 +64,23 @@ public class VideoService {
             Video video = videoRepository.findById(videoId)
                     .orElseThrow(() -> new RuntimeException("Video not found"));
 
+            String method = "both";  // or "medical", "gemini"
             Map<String, String> request = new HashMap<>();
             request.put("video_path", video.getVideoPath());
+            request.put("method", method);
 
             // Call the summarization service
             SummarizationResponse response = summarizationClient.summarizeVideo(request);
 
+            System.out.println("Summarization Response: " + response);
+            System.out.println("Transcription: " + response.getTranscription());
+            System.out.println("Medical Summary: " + response.getSummary());
+            System.out.println("Gemini Summary: " + response.getGemini());
+
             // Update the video with the summary
             if (response != null && response.getSummary() != null) {
                 video.setVideoSummary(response.getSummary());
+                video.setGeminiSummary(response.getGemini());
                 videoRepository.save(video);
             } else {
                 throw new RuntimeException("Summarization response was null");

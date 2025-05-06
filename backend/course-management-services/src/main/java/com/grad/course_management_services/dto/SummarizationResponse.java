@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class SummarizationResponse {
     private String transcription;
+    private String gemini;
     private String summary;
     
     // Getters and Setters

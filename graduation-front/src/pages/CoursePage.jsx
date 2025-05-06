@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaArrowLeft, FaPlayCircle, FaDownload, FaCertificate } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Card, CardHeader, CardContent } from "@mui/material";
+import { Card, CardHeader, CardContent, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import { motion } from 'framer-motion';
 import Confetti from 'react-confetti';
@@ -28,6 +28,70 @@ const FadeUp = (delay) => ({
   },
 });
 
+const formatSummaryText = (text) => {
+  if (!text) return '';
+  
+  // Split text by new lines
+  const paragraphs = text.split('\n').filter(p => p.trim());
+  
+  // Process each paragraph
+  return paragraphs.map((paragraph, index) => {
+    // Handle section separators (***) by converting them to styled dividers
+    if (paragraph.trim() === '***') {
+      return (
+        <div 
+          key={`divider-${index}`} 
+          className="my-4 border-t-2 border-gray-200 w-full"
+        />
+      );
+    }
+
+    // Handle bullet points
+    if (paragraph.trim().startsWith('* ')) {
+      const bulletContent = paragraph.slice(2);
+      // Process bold text within bullet points
+      const processedContent = processBoldText(bulletContent);
+      
+      return (
+        <div key={`bullet-${index}`} className="flex items-start mb-2 last:mb-0">
+          <span className="mr-2 mt-1">•</span>
+          <span>{processedContent}</span>
+        </div>
+      );
+    }
+    
+    // Process bold text in regular paragraphs
+    const processedContent = processBoldText(paragraph);
+    
+    // Regular paragraph
+    return (
+      <p 
+        key={`p-${index}`} 
+        className="mb-3 last:mb-0"
+      >
+        {processedContent}
+      </p>
+    );
+  });
+};
+
+// Helper function to process bold text
+const processBoldText = (text) => {
+  if (!text) return text;
+  
+  // Split by bold markers (**) and process
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      // Remove the ** markers and wrap in bold
+      const boldText = part.slice(2, -2);
+      return <strong key={index}>{boldText}</strong>;
+    }
+    return part;
+  });
+};
+
 const CoursePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,6 +100,7 @@ const CoursePage = () => {
   const [course, setCourse] = useState(null);
   const [chapters, setChapters] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [summaryType, setSummaryType] = useState('regular');
   const [watchedVideos, setWatchedVideos] = useState(() => {
     const saved = localStorage.getItem(`watchedVideos_${courseId}`);
     return saved ? JSON.parse(saved) : {};
@@ -546,6 +611,13 @@ const CoursePage = () => {
     handleCertificateRequest();
   };
 
+  // Add this new function to handle summary type change
+  const handleSummaryTypeChange = (event, newType) => {
+    if (newType !== null) {
+      setSummaryType(newType);
+    }
+  };
+
   if (!course || !chapters.length) return <div>Loading...</div>;
 
   return (
@@ -1025,15 +1097,32 @@ const CoursePage = () => {
                 title={
                   <div className="flex justify-between items-center">
                     <Typography variant="h6" className="text-red font-semibold text-lg">
-                      video Summary
+                      Video Summary
                     </Typography>
+                    <ToggleButtonGroup
+                      value={summaryType}
+                      exclusive
+                      onChange={handleSummaryTypeChange}
+                      aria-label="summary type"
+                      size="small"
+                    >
+                      <ToggleButton value="regular" aria-label="regular summary">
+                        Regular
+                      </ToggleButton>
+                      <ToggleButton value="gemini" aria-label="gemini summary">
+                        Gemini
+                      </ToggleButton>
+                    </ToggleButtonGroup>
                   </div>
                 }
               />
               <CardContent>
-                <Typography variant="body1" color="textSecondary" className="text-blue">
-                  {selectedVideo?.videoSummary || 'No summary available'}
-                </Typography>
+                <div className="text-blue">
+                  {summaryType === 'regular' 
+                    ? formatSummaryText(selectedVideo?.videoSummary) || 'No regular summary available'
+                    : formatSummaryText(selectedVideo?.geminiSummary) || 'No Gemini summary available'
+                  }
+                </div>
               </CardContent>
             </Card>
           </div>
