@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3307
--- Generation Time: May 05, 2025 at 01:11 AM
+-- Host: 127.0.0.1:3306
+-- Generation Time: May 06, 2025 at 10:28 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -87,7 +87,8 @@ CREATE TABLE `certificate` (
 --
 
 INSERT INTO `certificate` (`id`, `user_id`, `course_id`, `issue_date`, `certificate_number`, `final_score`, `passed`, `status`) VALUES
-(2, 125, 31, '2025-05-05 02:08:48', 'CERT-5BE62386', 100, b'1', 'PENDING');
+(2, 125, 31, '2025-05-05 02:08:48', 'CERT-5BE62386', 100, b'1', 'PENDING'),
+(3, 114, 31, '2025-05-06 23:17:44', 'CERT-A1CB96A0', 75, b'1', 'PENDING');
 
 -- --------------------------------------------------------
 
@@ -107,7 +108,9 @@ CREATE TABLE `chapter` (
 
 INSERT INTO `chapter` (`id`, `title`, `course_id`) VALUES
 (43, 'ch1', 31),
-(44, 'ch2', 31);
+(44, 'ch2', 31),
+(47, 'Chapter 1', 34),
+(48, 'Chapter 1', 35);
 
 -- --------------------------------------------------------
 
@@ -147,7 +150,9 @@ CREATE TABLE `course` (
 --
 
 INSERT INTO `course` (`id`, `name`, `description`, `category_id`, `image_url`) VALUES
-(31, 'Pathfinder', 'Pathfinder', 20, '/uploads/coursesimages/099d933d-e752-44a2-bf77-802ec66ede2e_WhatsApp Image 2025-04-27 at 03.22.20_401ab7fc.jpg');
+(31, ' Foundations of Family Planning: Understanding Choices and Methods', '\r\nThis course provides an overview of family planning concepts, available methods, decision-making factors, and the importance of informed choices for individuals and couples.', 20, '/uploads/coursesimages/89511c56-d69d-4fdc-a232-a56409cd3077_WhatsApp Image 2025-05-06 at 14.13.55_69d1ba1c.jpg'),
+(34, 'Modern Contraceptives: Tools and Techniques for Effective Family Planning', '\nThis course explores contraceptive options, their use, effectiveness, and practical considerations, helping participants understand how to make informed and responsible choices.\n', 20, '/uploads/coursesimages/5f182c91-4aaa-4101-8aed-45be120af537_WhatsApp Image 2025-05-06 at 14.14.05_71d677e3.jpg'),
+(35, ' Family Planning Counseling: Communication Strategies and Best Practices', '\nThis course focuses on developing counseling skills, effective communication, and ethical approaches to support individuals and couples in making informed family planning decisions.\n', 20, '/uploads/coursesimages/ad9a918c-f850-426b-8952-eef90d663e10_WhatsApp Image 2025-05-06 at 14.14.05_19d9b38e.jpg');
 
 -- --------------------------------------------------------
 
@@ -167,7 +172,8 @@ CREATE TABLE `enrollment` (
 --
 
 INSERT INTO `enrollment` (`id`, `course_id`, `enrollment_date`, `user_id`) VALUES
-(32, 31, '2025-05-04 19:03:03.000000', 125);
+(32, 31, '2025-05-04 19:03:03.000000', 125),
+(33, 31, '2025-05-06 21:43:44.000000', 114);
 
 -- --------------------------------------------------------
 
@@ -195,7 +201,8 @@ INSERT INTO `feedbacks` (`id`, `comments`, `content_quality_rating`, `created_at
 (5, 'good\n', 3, '2025-04-05 04:44:12.000000', 3, 3, 3, 114),
 (6, 'good', 5, '2025-04-05 12:55:33.000000', 5, 5, 5, 114),
 (7, 'dkdd', 4, '2025-04-30 18:57:20.000000', 4, 4, 4, 114),
-(8, 's;d', 4, '2025-04-30 18:57:33.000000', 4, 3, 4, 114);
+(8, 's;d', 4, '2025-04-30 18:57:33.000000', 4, 3, 4, 114),
+(9, NULL, 5, '2025-05-06 23:17:34.000000', 5, 5, 5, 114);
 
 -- --------------------------------------------------------
 
@@ -219,8 +226,16 @@ CREATE TABLE `question` (
 --
 
 INSERT INTO `question` (`question_type`, `id`, `grade`, `order_num`, `text`, `correct_answer`, `options`, `quiz_id`) VALUES
-('MCQ', 39, 5, 1, 'MCQ', '1', 'X,C,G,H', 24),
-('TRUE_FALSE', 40, 1, 1, 'w', '1', NULL, 25);
+('MCQ', 41, 1, 1, 'Which of the following is a modern contraceptive method?', '2', 'A) Withdrawal ,B) Oral contraceptive pills ,C) Calendar method, D) Abstinence', 26),
+('MCQ', 42, 1, 2, 'Which factor is most important when helping a couple choose a family planning method?\n', '3', 'A) Cost of the methodx, B) Friend’s recommendation, C) Individual health needs and preferences, D) Advertising popularity', 26),
+('TRUE_FALSE', 43, 1, 3, 'Family planning only focuses on preventing pregnancy.\n', '0', NULL, 26),
+('TRUE_FALSE', 44, 1, 4, 'Male and female condoms can help prevent sexually transmitted infections (STIs)', '1', NULL, 26),
+('MCQ', 46, 1, 1, 'What is one goal of family planning counseling?\n', '2', 'A) Convince every client to use long-term contraception ,B) Provide nonjudgmental, informed guidance to help clients make their own decisions ,C) Promote one specific method to all clients ,D) Reduce healthcare provider workload', 28),
+('MCQ', 47, 1, 2, 'Why is community involvement important in family planning programs?\n', '1', 'A) It ensures that services are culturally acceptable and accessible, B) It reduces the need for healthcare providers, C) It increases the cost of services, D) It makes family planning mandatory', 28),
+('TRUE_FALSE', 48, 1, 3, ' Contraceptive pills provide permanent contraception.\n', '0', NULL, 28),
+('TRUE_FALSE', 49, 1, 4, 'Effective communication is a key part of family planning counseling.\n', '1', NULL, 28),
+('MCQ', 50, 2, 1, 'Which statement about adolescent family planning is correct?\n', '3', 'A) Adolescents have no legal right to access contraceptive services, B) Teenagers should only receive abstinence education ,C) Youth-friendly services improve adolescents’ access, D) Adolescent family planning is not a public health priority', 29),
+('TRUE_FALSE', 51, 1.5, 2, 'Adolescent family planning services should respect youth privacy and confidentiality.\n', '1', NULL, 29);
 
 -- --------------------------------------------------------
 
@@ -242,8 +257,9 @@ CREATE TABLE `quiz` (
 --
 
 INSERT INTO `quiz` (`id`, `time_limit`, `title`, `total_grade`, `chapter_id`, `max_attempts`) VALUES
-(24, 30, 'quiz 1', 5, 43, 8),
-(25, 30, 'www', 1, 44, 2);
+(26, 30, 'Foundations of Family Planning: Quiz on chapter 1', 4, 43, 10),
+(28, 30, 'Foundations of Family Planning quiz on chapter 2', 4, 44, 3),
+(29, 30, 'Modern Contraceptives quiz on chapter 1', 3.5, 47, 3);
 
 -- --------------------------------------------------------
 
@@ -266,15 +282,8 @@ CREATE TABLE `quiz_attempts` (
 --
 
 INSERT INTO `quiz_attempts` (`id`, `attempt_date`, `attempt_number`, `passed`, `score`, `user_id`, `quiz_id`) VALUES
-(174, '2025-05-04 18:10:40.000000', 1, b'1', 100, 125, 24),
-(175, '2025-05-04 18:16:49.000000', 2, b'0', 0, 125, 24),
-(176, '2025-05-04 18:21:56.000000', 3, b'0', 0, 125, 24),
-(177, '2025-05-04 18:26:23.000000', 4, b'1', 100, 125, 24),
-(178, '2025-05-04 18:35:21.000000', 5, b'1', 100, 125, 24),
-(179, '2025-05-04 18:44:35.000000', 6, b'1', 100, 125, 24),
-(180, '2025-05-04 19:32:22.000000', 7, b'1', 100, 125, 24),
-(181, '2025-05-05 01:20:24.000000', 8, b'1', 100, 125, 24),
-(182, '2025-05-05 02:08:33.000000', 1, b'1', 100, 125, 25);
+(183, '2025-05-06 22:26:04.000000', 1, b'1', 50, 114, 26),
+(192, '2025-05-06 23:17:23.000000', 1, b'1', 50, 114, 28);
 
 -- --------------------------------------------------------
 
@@ -301,7 +310,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `first_name`, `last_name`, `phone_number`, `email`, `user_document_id`, `password`, `role`, `approved`, `governorate`, `title`) VALUES
-(113, 'ahmed ', 'khaled', '01001762250', 'mahmoud2107860@miuegypt.edu.eg', 163, '$2a$10$bHbWPaMPPPJrZQ1YWjKR7.bCxj8r.3ps5KdbhU5DUoGT608Dr4Bya', 'USER', b'1', 'سوهاج', 'دكتور'),
+(113, 'ahmed ', 'khaled', '01001762250', 'mahmoud2107860@miuegypt.edu.eg', 163, '$2a$10$bHbWPaMPPPJrZQ1YWjKR7.bCxj8r.3ps5KdbhU5DUoGT608Dr4Bya', 'USER', b'0', 'سوهاج', 'دكتور'),
 (114, 'mahmoud', 'hossam', '01001762250', 'mahmoudhousam584@gmail.com', 164, '$2a$10$QTKa9V6Xx5/lqz0oxCAFLuIdw6D54A0hfD/Z.u8SfknyW1Kn35sei', 'USER', b'1', 'الأقصر', 'دكتور'),
 (115, 'ziad ', 'ahmed', '01001762250', 'mahmoudhousam5844@gmail.com', 165, '$2a$10$nSCMkcS4tCBxsmfV/hErvOpR7GZIzq2yTr3F4LC.XVWYGud.EZ7Cq', 'USER', b'1', 'القليوبية', 'دكتور'),
 (117, 'ali', 'mostafa', '01001762250', 'mahmoudhouqsam584@gmail.com', 167, '$2a$10$YHAf098KQEchmuYS.lHBHeZJLeJlc/jw6giGOZ8yUU2wi1jnsNNcm', 'USER', b'1', 'القاهرة', 'دكتور'),
@@ -375,8 +384,18 @@ CREATE TABLE `video` (
   `title` varchar(255) NOT NULL,
   `video_path` varchar(255) NOT NULL,
   `chapter_id` bigint(20) NOT NULL,
-  `video_summary` varchar(255) DEFAULT NULL
+  `video_summary` text DEFAULT NULL,
+  `gemini_summary` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `video`
+--
+
+INSERT INTO `video` (`id`, `title`, `video_path`, `chapter_id`, `video_summary`, `gemini_summary`) VALUES
+(39, 'Foundations of Family Planning', '/uploads/videos/04ed962f-5c52-4764-b251-84ea84556927_The WHAT and HOW of natural family planning.mp4', 43, 'background: My name is Dr. Jennifer Lincoln board certified OB-GYN and I am here to talk to you about natural family planning or fertility awareness method or the rhythm method because there\'s lots of different ways to do this and it\'s important to understand all your choices so that you can decide what might be best for you if you choose this option of birth control So let\'s talk about it today because I think it\'s one that we traditionally don\'t go into enough and so I\'m outside covering it because I thought I should be out in nature get it like it\'s a joke because it\'s also ridiculously hot outside today so if I pass out today, please please please send help Just kidding I think Okay, so we\'re gonna just jump right into whatnatural family planning is and then I\'m gonna go down and talk about each Different method because it actually depends on which specific method you\'re using because it has to do with Exactly how you\'re doing this and also how dedicated you are so in order for these methods to work and they can You\'ve got to be dedicated and use them as they are intended to benefits of this method This is great for people who want to not get pregnant and use birth control but not use any hormones because you really learn how your body works and you can really understand your cycles and so you can see something maybe even earlier than somebody who\'s not paying so much attention to their cycles if something\'s changed and it might be a reason that you want to go see your healthcare provider', 'This medical lecture by Dr. Jennifer Lincoln explains natural family planning (NFP), also known as fertility awareness or the rhythm method.  NFP avoids pregnancy by tracking ovulation and abstaining from sex during fertile periods.  Effectiveness ranges from 77-98% depending on the specific method and user diligence.\n\nBenefits include avoiding hormones, increased body awareness, and helpfulness for future conception.  Drawbacks include required dedication, abstinence during fertile periods, ineffectiveness with irregular cycles (common postpartum and near menopause), and potential disruption from health issues or medications.\n\nDr. Lincoln details six methods:\n\n1. **Calendar Method:** Track cycles for 6 months, subtract 18 from shortest cycle and 11 from longest to determine fertile window.  Ineffective for cycles shorter than 27 days.\n2. **Standard Days Method:** Abstain on days 8-19. Only for cycles between 26-32 days.  CycleBeads and an app can assist.\n3. **Cervical Mucus Method (Billings/Ovulation Method):** Track cervical mucus consistency; avoid sex when slippery and three days before/after.  Not reliable for those with minimal discharge or affected by infections, douching, breastfeeding, or recent sex.\n4. **Two-Day Method:**  Ask daily if discharge was present today or yesterday.  If yes, avoid sex.  Requires three abstinent days between uses for accuracy.\n5. **Basal Body Temperature (BBT) Method:** Track daily temperature; avoid sex from period onset until temperature elevates for three consecutive days. Requires special thermometer and consistent morning readings. Affected by stress, alcohol, and illness.  The Natural Cycles app is FDA-cleared for this method.\n6. **Sympto-Thermal Method:** Combines BBT, cervical mucus, and other symptoms. The Marquette method uses a monitor to track estrogen and LH hormones.  Most effective NFP method (up to 99.6% with perfect use).\n\nThe lecture emphasizes the importance of researching each method thoroughly and consulting a healthcare provider.  Resources are available in the show notes.'),
+(42, 'Foundations of Family Planning chapter 2', '/uploads/videos/7c9623ed-0b4f-4bb8-8e8b-df965ef60ae9_Natural Family Planning_ Top Tips For TTC and Pregnancy Prevention (2).mp4', 44, 'Natural family planning is about understanding your cycle and knowing when to or not to have intercourse in order to get pregnant or to try to avoid pregnancy. The success rate of natural family planning in general has also been called the calendar method or the rhythm method. Natural family planning and using it to avoid or get pregnant is based on understanding your menstrual cycle and when you ovulate and when your follicles are growing inside an egg or a growing follicle because an egg is an egg growing inside a follicle and it can be shorter or longer than the average period that\'s going to be on average between four to seven days and most people are going to have a typical period between day one and day one of your period. In general, with perfect use, these are pretty good between 1 to 5% of people who get pregnant, with typical use, however, you can see a huge variation and that is because a lot of people don\'t understand their cycles or apply these correctly and that\'s really what we want to get to the heart of the matter here is that we want you to understand your body and your cycle better so that you can make the best decision for you and your family when it comes to getting pregnant or trying to not get pregnant if you are looking for options that are alternative to normal, traditional, or hormonal contraceptive options that can be used to help you get pregnant and also to prevent pregnancy if you\'re trying to avoid it or to avoid getting pregnant if it is used for contraception.', 'This lecture by Dr. Natalie Crawford explains natural family planning (NFP), or fertility awareness methods, for both achieving and avoiding pregnancy.  NFP involves understanding your menstrual cycle and timing intercourse accordingly.  While highly effective with perfect use (1-5% pregnancy rate), typical use has a wider range of effectiveness due to inconsistencies in application.\n\nDr. Crawford explains the menstrual cycle phases (follicular, ovulation, luteal) and how to calculate ovulation based on cycle length (subtract 14 days from total cycle length). She also simplifies this with the standard days method for cycles between 26 and 32 days, suggesting avoiding intercourse between days 8 and 19.  Other methods include the cervical mucus method (checking for egg-white consistency) and the two-day method (avoiding intercourse if mucus is present on consecutive days).  The basal body temperature (BBT) method confirms ovulation by a slight temperature rise and signals when it\'s safe to resume intercourse if avoiding pregnancy.\n\nWhile apps can help track cycles, they use the 14-day rule and adjust based on user input.  Ovulation predictor kits (OPKs) are less useful for NFP as they add cost to a method emphasizing natural observation.  Dr. Crawford emphasizes that NFP is most effective with regular cycles and encourages seeing a doctor for irregular periods, which can impact both achieving and avoiding pregnancy.'),
+(43, 'Modern Contraceptives Chapter 1', '/uploads/videos/26e9bce5-2560-4a50-a667-b3ee5682bb2c_How to Take the Contraceptive Pill (Women & Partners) - Family Planning Series.mp4', 47, 'The contraceptive peel only prevents pregnancy when you take it the right way. You must take a peel every day and start each new pack of pills on time. The risk of pregnancy is greatest if you start a new pill pack three or more days late, or miss 3 or more pills near the beginning or end of a pill pack. The contraceptive peel comes in 28 days and 21 day packs. In the 28 day pack, the first 21 pills contain the hormones that prevent you from getting pregnant. Take one pill each day at a down the same time of day. The last 7 pills don\'t have hormones and are in the pack to keep you on schedule. Your monthly bleeding usually comes during this last week and when you finish the pack, you start the new one the next day. If you miss just one or two pills in a row, take the pill from yesterday as soon as you remember and continue taking one pill for today at your regular time and you will be protected as long as you take one pill a day for 21 days. The pills won\'t prevent pregnancy for the first 7 days so for those 7 days, you need to avoid having sex or use condoms. Some women unaware of how the pill works take it only on the days they have sex. This is a big mistake. You need to take the pills every day without regard to when you have sex and it\'s easiest for many women to remember a pill if they take it around the same times of day but as long.', 'The contraceptive pill is highly effective when taken correctly.  Start within 5 days of your period or anytime if you\'re sure you\'re not pregnant, but use backup contraception for the first 7 days.  Take one pill daily, at the same time if possible.  28-day packs include 7 hormone-free reminder pills; 21-day packs require a 7-day break before starting the next pack.\n\n**Missed Pills:**\n\n* **1-2 pills:** Take the missed pill(s) immediately and continue as usual.\n* **3+ pills:** Take yesterday\'s and today\'s pills, continue as usual, but use backup contraception for 7 days. If in week three of a 28-day pack, skip the placebo pills and start a new pack immediately.  Consider emergency contraception, especially if you had sex in the past 5 days.\n\nMissing pills, particularly at the beginning or end of a pack, or starting a new pack late significantly increases pregnancy risk.  Keep emergency contraception on hand.');
 
 -- --------------------------------------------------------
 
@@ -400,11 +419,14 @@ CREATE TABLE `violations` (
 --
 
 INSERT INTO `violations` (`id`, `quiz_id`, `user_id`, `violation`, `start_time`, `end_time`, `duration`, `course_id`) VALUES
-(195, 24, 125, 'tab_switching', '2025-05-04T19:29:47.875078', '2025-05-04T19:31:42.879942', 115, 31),
-(196, 24, 125, 'tab_switching', '2025-05-04T19:31:52.846621', '2025-05-04T19:32:19.542123', 26, 31),
-(197, 24, 125, 'multiple_people', '2025-05-04T19:29:38.441740', '2025-05-04T19:32:21.860082', 163, 31),
-(198, 24, 125, 'multiple_people', '2025-05-05T01:20:23.375254', '2025-05-05T01:20:23.873128', 0, 31),
-(199, 25, 125, 'multiple_people', '2025-05-05T02:08:27.113112', '2025-05-05T02:08:32.401789', 5, 31);
+(210, 26, 114, 'multiple_people', '2025-05-06T21:42:38.370399', '2025-05-06T21:42:59.460724', 21, 31),
+(211, 26, 114, 'multiple_people', '2025-05-06T21:43:41.340048', '2025-05-06T21:43:57.452127', 16, 31),
+(212, 26, 114, 'banned_objects', '2025-05-06T22:13:19.116024', '2025-05-06T22:13:28.595385', 9, 31),
+(213, 26, 114, 'banned_objects', '2025-05-06T22:13:32.714932', '2025-05-06T22:13:39.877201', 7, 31),
+(214, 26, 114, 'tab_switching', '2025-05-06T22:13:51.998058', '2025-05-06T22:14:09.996182', 17, 31),
+(215, 26, 114, 'face_recognition', '2025-05-06T22:13:57.754804', '2025-05-06T22:14:10.957244', 13, 31),
+(216, 26, 114, 'multiple_people', '2025-05-06T22:14:19.415076', '2025-05-06T22:14:34.382137', 14, 31),
+(217, 26, 114, 'multiple_people', '2025-05-06T22:14:41.716194', '2025-05-06T22:14:55.131336', 13, 31);
 
 --
 -- Indexes for dumped tables
@@ -539,13 +561,13 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT for table `certificate`
 --
 ALTER TABLE `certificate`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `chapter`
 --
 ALTER TABLE `chapter`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `contact`
@@ -557,37 +579,37 @@ ALTER TABLE `contact`
 -- AUTO_INCREMENT for table `course`
 --
 ALTER TABLE `course`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `enrollment`
 --
 ALTER TABLE `enrollment`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `feedbacks`
 --
 ALTER TABLE `feedbacks`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `question`
 --
 ALTER TABLE `question`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT for table `quiz`
 --
 ALTER TABLE `quiz`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `quiz_attempts`
 --
 ALTER TABLE `quiz_attempts`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=183;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=193;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -605,13 +627,13 @@ ALTER TABLE `user_documents`
 -- AUTO_INCREMENT for table `video`
 --
 ALTER TABLE `video`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `violations`
 --
 ALTER TABLE `violations`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=200;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=218;
 
 --
 -- Constraints for dumped tables

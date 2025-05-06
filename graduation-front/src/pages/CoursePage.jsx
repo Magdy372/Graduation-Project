@@ -1068,11 +1068,12 @@ const CoursePage = () => {
                                   setUserAnswers({});
                                   setCurrentQuestionIndex(0);
                                   setShowQuizSelection(false);
-                                  window.location.reload();
+                                  navigate('/feedback');
+
                                 }}
                                 className="px-8 py-3 bg-blue text-white rounded-md hover:bg-red transition-colors"
                               >
-                                Return to Course
+                                Submit Feedback
                               </button>
                             </div>
                           </>
