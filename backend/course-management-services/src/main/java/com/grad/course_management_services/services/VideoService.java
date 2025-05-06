@@ -34,6 +34,9 @@ public class VideoService {
     @Autowired
     private SummarizationServiceClient summarizationClient;
 
+    @Autowired
+    private SummarizationService summarizationService;
+
     // Upload a video to a chapter
     // Upload a video and save it to the database
     @Transactional
@@ -52,44 +55,44 @@ public class VideoService {
         Video savedVideo = videoRepository.save(video);
 
         // Trigger summarization asynchronously
-        triggerSummarization(savedVideo.getId());
+        summarizationService.triggerSummarization(savedVideo.getId());
 
         return savedVideo;
     }
 
     // Asynchronously trigger summarization
-    @Async
-    public void triggerSummarization(Long videoId) {
-        try {
-            Video video = videoRepository.findById(videoId)
-                    .orElseThrow(() -> new RuntimeException("Video not found"));
+    // @Async
+    // public void triggerSummarization(Long videoId) {
+    //     try {
+    //         Video video = videoRepository.findById(videoId)
+    //                 .orElseThrow(() -> new RuntimeException("Video not found"));
 
-            String method = "both";  // or "medical", "gemini"
-            Map<String, String> request = new HashMap<>();
-            request.put("video_path", video.getVideoPath());
-            request.put("method", method);
+    //         String method = "both";  // or "medical", "gemini"
+    //         Map<String, String> request = new HashMap<>();
+    //         request.put("video_path", video.getVideoPath());
+    //         request.put("method", method);
 
-            // Call the summarization service
-            SummarizationResponse response = summarizationClient.summarizeVideo(request);
+    //         // Call the summarization service
+    //         SummarizationResponse response = summarizationClient.summarizeVideo(request);
 
-            System.out.println("Summarization Response: " + response);
-            System.out.println("Transcription: " + response.getTranscription());
-            System.out.println("Medical Summary: " + response.getSummary());
-            System.out.println("Gemini Summary: " + response.getGemini());
+    //         System.out.println("Summarization Response: " + response);
+    //         System.out.println("Transcription: " + response.getTranscription());
+    //         System.out.println("Medical Summary: " + response.getSummary());
+    //         System.out.println("Gemini Summary: " + response.getGemini());
 
-            // Update the video with the summary
-            if (response != null && response.getSummary() != null) {
-                video.setVideoSummary(response.getSummary());
-                video.setGeminiSummary(response.getGemini());
-                videoRepository.save(video);
-            } else {
-                throw new RuntimeException("Summarization response was null");
-            }
-        } catch (Exception e) {
-            // Handle summarization failure (e.g., log the error)
-            e.printStackTrace();
-        }
-    }
+    //         // Update the video with the summary
+    //         if (response != null && response.getSummary() != null) {
+    //             video.setVideoSummary(response.getSummary());
+    //             video.setGeminiSummary(response.getGemini());
+    //             videoRepository.save(video);
+    //         } else {
+    //             throw new RuntimeException("Summarization response was null");
+    //         }
+    //     } catch (Exception e) {
+    //         // Handle summarization failure (e.g., log the error)
+    //         e.printStackTrace();
+    //     }
+    // }
     
     // Get all videos for a specific chapter
     public List<Video> getVideosByChapter(Long chapterId) {
