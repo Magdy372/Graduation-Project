@@ -8,7 +8,7 @@ import backgroundPic from "./../assets/images/map1.jpg";
 // Import additional images
 import BannerPng from "../assets/images/family.webp";
 import ExtraImg1 from "../assets/images/img1.jpg";
-import ExtraImg2 from "../assets/images/dr.png";
+import ExtraImg2 from "../assets/images/doc.png";
 
 const Banner = () => {
   return (
