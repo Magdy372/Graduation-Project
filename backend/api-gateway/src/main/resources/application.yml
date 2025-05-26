@@ -1,0 +1,115 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true   
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:5173"   # React frontend
+              - "http://localhost:5000"   # Flask app
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+      routes:
+        - id: certificates-routes
+          uri: lb://COURSE-SERVICE
+          predicates:
+            - Path=/api/certificates/**
+          order: 1
+
+        - id: email-routes
+          uri: lb://COURSE-SERVICE
+          predicates:
+            - Path=/api/email/**
+          order: 2
+
+        - id: questions-routes
+          uri: lb://COURSE-SERVICE
+          predicates:
+            - Path=/api/questions/**
+          order: 3
+
+        - id: quizzes-routes
+          uri: lb://COURSE-SERVICE
+          predicates:
+            - Path=/api/quizzes/**
+          order: 4
+
+        - id: videos-routes
+          uri: lb://COURSE-SERVICE
+          predicates:
+            - Path=/api/videos/**
+          order: 5
+
+        - id: auth-routes
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/v1/auth/**
+          order: 6
+
+        - id: violations-routes
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/violations/**
+          order: 7
+
+        - id: admin-routes
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/admin/**
+          order: 8
+
+        - id: users-routes
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/users/**
+          order: 9
+
+        - id: feedback-routes
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/feedback/**
+          order: 10
+
+        - id: enrollments-routes
+          uri: lb://COURSE-SERVICE
+          predicates:
+            - Path=/enrollments/**
+          order: 11
+
+        - id: uploads-routes
+          uri: lb://COURSE-SERVICE
+          predicates:
+            - Path=/uploads/**
+          order: 12
+
+        - id: general-api-routes
+          uri: lb://COURSE-SERVICE
+          predicates:
+            - Path=/api/**
+          order: 100
+
+  config:
+    enabled: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true

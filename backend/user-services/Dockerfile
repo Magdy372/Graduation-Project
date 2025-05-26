@@ -1,14 +1,19 @@
-# Use the official OpenJDK base image
+# Stage 1: Build the project
+FROM openjdk:17-jdk-slim AS build
+
+WORKDIR /app
+COPY . .
+
+RUN chmod +x mvnw
+RUN ./mvnw clean package -DskipTests
+
+# Stage 2: Run only the built JAR
 FROM openjdk:17-jdk-slim
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the jar file into the container (correct filename)
-COPY target/user-services-0.0.1-SNAPSHOT.jar user-service.jar
+COPY --from=build /app/target/user-services-0.0.1-SNAPSHOT.jar user-service.jar
 
-# Expose the port for User Service
-EXPOSE 8089
+EXPOSE 8085
 
-# Command to run the jar file
 ENTRYPOINT ["java", "-jar", "user-service.jar"]

@@ -16,6 +16,7 @@ import com.grad.course_management_services.services.QuizService;
 
 @RestController
 @RequestMapping("/api/quizzes")
+//@CrossOrigin(origins = "http://localhost:5173")
 public class QuizController {
 
     @Autowired

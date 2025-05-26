@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/uploads")
+//@CrossOrigin(origins = "*")
 public class FileController {
    
   

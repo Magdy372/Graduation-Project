@@ -72,6 +72,7 @@ const App = () => {
           <Route path="/coursePage" element={<CoursePage />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/contact" element={<ContactUs />} />
+           <Route path="/viewcourses" element={<ViewCourses />} />
           {/* <Route path="/addvideo" element={<AddVideo />} /> */}
           {/* <Route path="/editCourse" element={<EditCourse />} /> */}
           {/* <Route path="/quizzes/:quizId/add-questions" element={<AddQuestions />} /> */}

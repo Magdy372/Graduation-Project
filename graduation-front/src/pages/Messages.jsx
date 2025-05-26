@@ -10,7 +10,7 @@ const Messages = () => {
     const fetchMessages = async () => {
       try {
         setLoading(true);
-        const response = await fetchWithAuth("http://localhost:8089/users/get-messages");
+        const response = await fetchWithAuth("http://localhost:8084/users/get-messages");
         
         // Check if the response contains an error
         if (response.error) {

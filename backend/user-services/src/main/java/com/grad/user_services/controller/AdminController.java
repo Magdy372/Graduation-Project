@@ -14,7 +14,7 @@ import com.grad.user_services.services.AdminService;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "http://localhost:5173")
+//@CrossOrigin(origins = "*")
 public class AdminController {
 
     @Autowired

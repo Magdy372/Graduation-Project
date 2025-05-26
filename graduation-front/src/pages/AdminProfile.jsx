@@ -29,7 +29,7 @@ const AdminProfile = () => {
           return;
         }
 
-        const response = await axios.get(`http://localhost:8089/api/admin/profile/${adminEmail}`, {
+        const response = await axios.get(`http://localhost:8084/api/admin/profile/${adminEmail}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

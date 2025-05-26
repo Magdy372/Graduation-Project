@@ -2,6 +2,9 @@ package com.grad.user_services.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -10,42 +13,35 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
 import java.util.List;
-
 @Configuration
-public class CorsConfig implements WebMvcConfigurer {
+@EnableWebSecurity
+public class CorsConfig {
 
-    private static final List<String> ALLOWED_ORIGINS = Arrays.asList(
-        "http://localhost:5173", // Frontend
-        "http://localhost:5000"  // Flask app
+   /*@Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+http
+    .csrf(csrf -> csrf.disable())
+    .cors(cors -> {}) // Use your bean config
+    .authorizeHttpRequests(auth -> auth
+        .requestMatchers("/api/v1/auth/**").permitAll()
+        .anyRequest().authenticated()
     );
 
+
+        return http.build();
+    }
+*//* 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(ALLOWED_ORIGINS);
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList(
-            "Authorization",
-            "Content-Type",
-            "Accept",
-            "Origin",
-            "X-Requested-With"
-        ));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(Arrays.asList("http://localhost:5173")); //   
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", config);
         return source;
-    }
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-            .allowedOrigins(ALLOWED_ORIGINS.toArray(new String[0]))
-            .allowedMethods("*")
-            .allowedHeaders("*")
-            .allowCredentials(true)
-            .maxAge(3600);
-    }
+    }*/
 }

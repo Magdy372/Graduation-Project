@@ -36,8 +36,7 @@ import com.grad.user_services.model.User;
 import com.grad.user_services.model.UserDocument;
 import com.grad.user_services.services.UserService;
 
-
-// @CrossOrigin(origins = "http://localhost:5173")  // Allow frontend to interact with this backend
+//@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/users")
 public class UserController {

@@ -46,7 +46,7 @@ const ApprovedPharmacists = () => {
 
   const fetchPharmacists = async (signal, userPosition, governorate) => {
     try {
-      const response = await fetch("http://localhost:8089/users/approved/صيدلي", { signal });
+      const response = await fetch("http://localhost:8084/users/approved/صيدلي", { signal });
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
       const data = await response.json();

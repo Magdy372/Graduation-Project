@@ -58,7 +58,7 @@ const MyProfile = () => {
         const userId = decodedToken.userId;
 
         // Fetch user data using the extracted userId
-        const response = await fetchWithAuth(`http://localhost:8089/users/${userId}`, token);
+        const response = await fetchWithAuth(`http://localhost:8084/users/${userId}`, token);
 
         if (response) {
           setUserData(response);  // Set user data when successfully fetched
@@ -73,7 +73,7 @@ const MyProfile = () => {
           
           // Fetch certificates for the user
           try {
-            const certificatesResponse = await fetch(`http://localhost:8087/api/certificates/user/${userId}`);
+            const certificatesResponse = await fetch(`http://localhost:8084/api/certificates/user/${userId}`);
             if (certificatesResponse.ok) {
               const certificatesData = await certificatesResponse.json();
               setCertificates(certificatesData);
@@ -86,7 +86,7 @@ const MyProfile = () => {
               const courseNameMap = {};
               for (const courseId of uniqueCourseIds) {
                 try {
-                  const courseResponse = await fetch(`http://localhost:8087/api/courses/${courseId}`);
+                  const courseResponse = await fetch(`http://localhost:8084/api/courses/${courseId}`);
                   if (courseResponse.ok) {
                     const courseData = await courseResponse.json();
                     // Use the course name from the CourseDTO
@@ -295,7 +295,7 @@ const MyProfile = () => {
       <li className="flex justify-between items-center mb-4">
         <strong className="text-xl text-blue">License File</strong>
         <button
-          onClick={() => window.open(`http://localhost:8089/uploads/${userData.licenseFilePath}`, "_blank", "noopener,noreferrer")}
+          onClick={() => window.open(`http://localhost:8084/uploads/${userData.licenseFilePath}`, "_blank", "noopener,noreferrer")}
           className="w-1/5 px-4 py-2 bg-red text-white font-semibold rounded-md hover:bg-blue transition"
         >
           Open
@@ -306,7 +306,7 @@ const MyProfile = () => {
       <li className="flex justify-between items-center mb-4">
         <strong className="text-xl text-blue">Profession License</strong>
         <button
-          onClick={() => window.open(`http://localhost:8089/uploads/${userData.professionLicenseFilePath}`, "_blank", "noopener,noreferrer")}
+          onClick={() => window.open(`http://localhost:8084/uploads/${userData.professionLicenseFilePath}`, "_blank", "noopener,noreferrer")}
           className="w-1/5 px-4 py-2 bg-red text-white font-semibold rounded-md hover:bg-blue transition"
         >
           Open
@@ -317,7 +317,7 @@ const MyProfile = () => {
       <li className="flex justify-between items-center mb-4">
         <strong className="text-xl text-blue">Syndicate Card</strong>
         <button
-          onClick={() => window.open(`http://localhost:8089/uploads/${userData.syndicateCardFilePath}`, "_blank", "noopener,noreferrer")}
+          onClick={() => window.open(`http://localhost:8084/uploads/${userData.syndicateCardFilePath}`, "_blank", "noopener,noreferrer")}
           className="w-1/5 px-4 py-2 bg-red text-white font-semibold rounded-md hover:bg-blue transition"
         >
           Open
@@ -328,7 +328,7 @@ const MyProfile = () => {
       <li className="flex justify-between items-center mb-4">
         <strong className="text-xl text-blue">Commercial Register</strong>
         <button
-          onClick={() => window.open(`http://localhost:8089/uploads/${userData.commercialRegisterFilePath}`, "_blank", "noopener,noreferrer")}
+          onClick={() => window.open(`http://localhost:8084/uploads/${userData.commercialRegisterFilePath}`, "_blank", "noopener,noreferrer")}
           className="w-1/5 px-4 py-2 bg-red text-white font-semibold rounded-md hover:bg-blue transition"
         >
           Open
@@ -339,7 +339,7 @@ const MyProfile = () => {
       <li className="flex justify-between items-center mb-4">
         <strong className="text-xl text-blue">Tax Card</strong>
         <button
-          onClick={() => window.open(`http://localhost:8089/uploads/${userData.taxCardFilePath}`, "_blank", "noopener,noreferrer")}
+          onClick={() => window.open(`http://localhost:8084/uploads/${userData.taxCardFilePath}`, "_blank", "noopener,noreferrer")}
           className="w-1/5 px-4 py-2 bg-red text-white font-semibold rounded-md hover:bg-blue transition"
         >
           Open

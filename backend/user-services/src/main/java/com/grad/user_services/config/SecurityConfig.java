@@ -14,8 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+
 
 
 @Configuration
@@ -34,18 +33,23 @@ public class SecurityConfig {
         this.corsConfig = corsConfig;
         this.jwtAuthFilter = jwtAuthFilter;
     }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     // Define AuthenticationManager bean using AuthenticationConfiguration
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
+/* */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             // Configure CORS using your provided configuration
-            .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
+         .cors(cors -> {})  
+
             // Disable CSRF protection as it's typically unnecessary for stateless APIs
             .csrf(csrf -> csrf.disable())
             // Set session management to stateless (optional if you're not using sessions)
@@ -62,10 +66,7 @@ public class SecurityConfig {
     
         return http.build();
     }
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+   
 
     @Bean
     public AuthenticationProvider authenticationProvider() {

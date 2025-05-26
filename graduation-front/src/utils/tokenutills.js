@@ -19,7 +19,7 @@ export const refreshAccessToken = async () => {
   }
 
   try {
-    const response = await fetch("http://localhost:8089/api/v1/auth/refresh-token", {
+    const response = await fetch("http://localhost:8084/api/v1/auth/refresh-token", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

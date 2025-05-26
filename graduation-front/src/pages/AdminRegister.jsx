@@ -60,7 +60,7 @@ const AdminRegister = () => {
     }
     
     try {
-      const response = await fetch('http://localhost:8089/api/admin/create', {
+      const response = await fetch('http://localhost:8084/api/admin/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

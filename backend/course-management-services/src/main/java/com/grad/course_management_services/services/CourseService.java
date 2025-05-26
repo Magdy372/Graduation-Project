@@ -141,26 +141,60 @@ public class CourseService {
     }
 
     // Fetch all courses with chapters and videos
-    public List<CourseDTO> getAllCourses() {
-        return courseRepository.findAll().stream().map(course -> new CourseDTO(
-                course.getId(),
-                course.getName(),
-                course.getDescription(),
-                course.getImageUrl(),
-                course.getCategory() != null ? course.getCategory().getName() : null,
-                course.getChapters().stream().map(chapter -> new ChapterDTO(
-                        chapter.getId(),
-                        chapter.getTitle(),
-                        chapter.getVideos().stream().map(video -> new VideoDTO(
+   public List<CourseDTO> getAllCourses() {
+    List<Course> courses = courseRepository.findAll();
+    System.out.println("Fetched " + courses.size() + " courses from database.");
+
+    return courses.stream().map(course -> {
+        System.out.println("Processing Course: " + course.getName());
+
+        String categoryName = course.getCategory() != null ? course.getCategory().getName() : null;
+        if (categoryName == null) {
+            System.out.println("Course '" + course.getName() + "' has no category.");
+        }
+
+        List<ChapterDTO> chapterDTOs = new ArrayList<>();
+        if (course.getChapters() != null) {
+            for (Chapter chapter : course.getChapters()) {
+                System.out.println("  Chapter: " + chapter.getTitle());
+
+                List<VideoDTO> videoDTOs = new ArrayList<>();
+                if (chapter.getVideos() != null) {
+                    for (Video video : chapter.getVideos()) {
+                        System.out.println("    Video: " + video.getTitle());
+                        videoDTOs.add(new VideoDTO(
                                 video.getId(),
                                 video.getTitle(),
                                 video.getVideoPath(),
                                 video.getVideoSummary(),
                                 video.getGeminiSummary()
-                        )).collect(Collectors.toList())
-                )).collect(Collectors.toList())
-        )).collect(Collectors.toList());
-    }
+                        ));
+                    }
+                } else {
+                    System.out.println("    No videos found for chapter: " + chapter.getTitle());
+                }
+
+                chapterDTOs.add(new ChapterDTO(
+                        chapter.getId(),
+                        chapter.getTitle(),
+                        videoDTOs
+                ));
+            }
+        } else {
+            System.out.println("No chapters found for course: " + course.getName());
+        }
+
+        return new CourseDTO(
+                course.getId(),
+                course.getName(),
+                course.getDescription(),
+                course.getImageUrl(),
+                categoryName,
+                chapterDTOs
+        );
+    }).collect(Collectors.toList());
+}
+
 
     // Create or updatea course
     public Course saveCourse(Course course) {

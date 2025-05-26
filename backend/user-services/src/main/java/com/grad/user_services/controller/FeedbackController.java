@@ -13,6 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/feedback")
+//@CrossOrigin(origins = "*")
 public class FeedbackController {
 
     @Autowired

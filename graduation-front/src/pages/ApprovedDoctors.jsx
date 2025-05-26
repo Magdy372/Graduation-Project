@@ -48,7 +48,7 @@ const ApprovedDoctors = () => {
 
   const fetchDoctors = async (signal) => {
     try {
-      const response = await fetch("http://localhost:8089/users/approved/دكتور", { signal });
+      const response = await fetch("http://localhost:8084/users/approved/دكتور", { signal });
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
       const data = await response.json();

@@ -39,7 +39,7 @@ const ViewUsers = () => {
 
   const fetchUsers = async (signal, governorate, isManager) => {
     try {
-      const response = await fetch("http://localhost:8089/users/unaccepted", { signal });
+      const response = await fetch("http://localhost:8084/users/unaccepted", { signal });
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
       const data = await response.json();
@@ -72,7 +72,7 @@ const ViewUsers = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:8089/api/admin/users/${userId}/approve`, {
+      const response = await fetch(`http://localhost:8084/api/admin/users/${userId}/approve`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -166,7 +166,7 @@ const ViewUsers = () => {
                 user[field] ? (
                   <div key={field} className="mt-2 text-right">
                     <a
-                      href={`http://localhost:8089/uploads/${user[field].split("\\").pop()}`}
+                      href={`http://localhost:8084/uploads/${user[field].split("\\").pop()}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-red hover:underline"

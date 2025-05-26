@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  eureka-server:
+    build:
+      context: ./backend/eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_APPLICATION_NAME: eureka-server
+      EUREKA_CLIENT_REGISTER_WITH_EUREKA: "false"
+      EUREKA_CLIENT_FETCH_REGISTRY: "false"
+    networks:
+      - app-network
+
+  api-gateway:
+    build:
+      context: ./backend/api-gateway
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_APPLICATION_NAME: api-gateway
+      EUREKA_INSTANCE_PREFER-IP-ADDRESS: "true"
+    depends_on:
+      - eureka-server
+    networks:
+      - app-network
+
+  course-service:
+    build:
+      context: ./backend/course-management-services
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_APPLICATION_NAME: course-service
+      EUREKA_INSTANCE_PREFER-IP-ADDRESS: "true"
+    depends_on:
+      - api-gateway
+    networks:
+      - app-network
+
+  user-service:
+    build:
+      context: ./backend/user-services
+    ports:
+      - "8089:8089"
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_APPLICATION_NAME: user-service
+      EUREKA_INSTANCE_PREFER-IP-ADDRESS: "true"
+    depends_on:
+      - api-gateway
+    networks:
+      - app-network
+
+  # frontend:
+  #   build:
+  #     context: ./graduation-front
+  #   ports:
+  #     - "5173:5173"
+  #   depends_on:
+  #     - api-gateway
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge

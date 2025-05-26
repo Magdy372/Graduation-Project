@@ -12,7 +12,7 @@ const CertificateList = () => {
   // Fetch pending certificates
   useEffect(() => {
     setLoading(true);
-    axios.get("http://localhost:8087/api/certificates/pending")
+    axios.get("http://localhost:8084/api/certificates/pending")
       .then(response => {
         setCertificates(response.data);
         setLoading(false);
@@ -25,7 +25,7 @@ const CertificateList = () => {
 
   const handleViewViolations = (certificateId, courseId, userId) => {
     setLoading(true);
-    axios.get(`http://localhost:8087/api/quizzes/course/${courseId}/user/${userId}/attempts-with-violations`)
+    axios.get(`http://localhost:8084/api/quizzes/course/${courseId}/user/${userId}/attempts-with-violations`)
       .then(response => {
         setViolations(response.data);
         setShowViolationsModal(true);
@@ -38,7 +38,7 @@ const CertificateList = () => {
   };
 
   const handleAcceptCertificate = (certificateId) => {
-    axios.put(`http://localhost:8087/api/certificates/${certificateId}/status?newStatus=ACCEPTED`)
+    axios.put(`http://localhost:8084/api/certificates/${certificateId}/status?newStatus=ACCEPTED`)
       .then(() => {
         setCertificates(certificates.filter(cert => cert.id !== certificateId));
       })
@@ -46,7 +46,7 @@ const CertificateList = () => {
   };
 
   const handleRejectCertificate = (certificateId) => {
-    axios.put(`http://localhost:8087/api/certificates/${certificateId}/status?newStatus=REJECTED`)
+    axios.put(`http://localhost:8084/api/certificates/${certificateId}/status?newStatus=REJECTED`)
       .then(() => {
         setCertificates(certificates.filter(cert => cert.id !== certificateId));
       })
